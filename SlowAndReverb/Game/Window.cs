@@ -98,8 +98,6 @@ namespace SlowAndReverb
         private string a = "";
         private void OnUpdate(FrameEventArgs args)
         {
-            _needler.Texture.SaveAsPng("n.png");
-
             _drunkMaterial.Time += 0.1f;
 
             float amogus = 0.2f;

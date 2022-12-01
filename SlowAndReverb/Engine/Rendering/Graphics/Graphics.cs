@@ -22,9 +22,8 @@ namespace SlowAndReverb
 
         public static Layer CurrentLayer => s_currentLayer;
 
-        public static Material PostProcessingEffect { get; set; }
+        public static Material Material { get; set; }
         public static Color ClearColor { get; set; }
-        public static Rectangle Scissor { get; set; }
 
         public static void Draw(Texture texture, Vector2 position, Vector2 scale, Vector2 origin, float angle, float alpha, bool flipHorizontal, bool flipVertical, float depth)
         {
@@ -51,16 +50,7 @@ namespace SlowAndReverb
             s_currentLayer = layer;
             s_drawnLayers.Add(layer);
 
-            Rectangle layerScissor = layer.Scissor;
-
-            int layerHeight = layer.Height;
-            int scissorY = (int)layerScissor.Y;
-            int scissorHeight = (int)layerScissor.Height;
-
-            if (scissorY != 0)
-                scissorY = layerHeight - scissorY - scissorHeight;
-
-            s_renderer.Begin(layer.RenderTarget, layer.ClearColor, layer.Width, layerHeight, new Rectangle(layerScissor.X, scissorY, layerScissor.Width, layerScissor.Height), layer.Camera.GetViewMatrix());
+            s_renderer.Begin(layer.RenderTarget, layer.ClearColor, layer.Width, layer.Height, layer.Camera.GetViewMatrix());
         }
 
         public static void EndCurrentLayer()
@@ -85,7 +75,7 @@ namespace SlowAndReverb
 
             Matrix4 identity = Matrix4.Identity;
 
-            s_renderer.Begin(s_finalTarget, ClearColor, resolutionWidth, resolutionHeight, Scissor, identity);
+            s_renderer.Begin(s_finalTarget, ClearColor, resolutionWidth, resolutionHeight, identity);
 
             // TODO: Убрать эту грязь
             foreach (Layer layer in s_drawnLayers)
@@ -103,29 +93,18 @@ namespace SlowAndReverb
                 float x = (resolutionWidth - newWidth) / 2f;
                 float y = (resolutionHeight - newHeight) / 2f;
 
-                s_renderer.Submit(layer.RenderTarget, layer.PostProcessingEffect, new Rectangle(0f, 0f, width, height), new Vector2(x, y), resolutionSize / new Vector2(width, height) * zoom, Vector2.Zero, 0f, 1f, false, false, layer.Depth);
-
-                layer.ResetScissor();
+                s_renderer.Submit(layer.RenderTarget, layer.Material, new Rectangle(0f, 0f, width, height), new Vector2(x, y), resolutionSize / new Vector2(width, height) * zoom, Vector2.Zero, 0f, 1f, false, false, layer.Depth);
             }
 
             s_renderer.FlushDrawCalls();
             s_drawnLayers.Clear();
 
-            ResetScissor();
-
-            s_renderer.Begin(null, ClearColor, resolutionWidth, resolutionHeight, Scissor, identity);
-            s_renderer.Submit(s_finalTarget, PostProcessingEffect, new Rectangle(0f, 0f, s_finalTarget.Width, s_finalTarget.Height), Vector2.Zero, new Vector2(1f), Vector2.Zero, 0f, 1f, false, false, 1f);
+            s_renderer.Begin(null, ClearColor, resolutionWidth, resolutionHeight, identity);
+            s_renderer.Submit(s_finalTarget, Material, new Rectangle(0f, 0f, s_finalTarget.Width, s_finalTarget.Height), Vector2.Zero, new Vector2(1f), Vector2.Zero, 0f, 1f, false, false, 1f);
 
             //s_finalTarget.SaveAsPng("xd.png");
 
             s_renderer.FlushDrawCalls();
-        }
-
-        public static void ResetScissor()
-        {
-            Resolution currentResolution = Resolution.Current;
-
-            Scissor = new Rectangle(0f, 0f, currentResolution.Width, currentResolution.Height);
         }
 
         private static void OnResolutionChnaged(object sender, EventArgs args)

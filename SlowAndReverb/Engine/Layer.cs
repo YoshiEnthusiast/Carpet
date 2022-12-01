@@ -26,8 +26,6 @@ namespace SlowAndReverb
             _camera = camera;
 
             _renderTarget = Texture.CreateEmpty(_width, _height);
-
-            ResetScissor();
         }
 
         public Layer(int width, int heigth, float depth) : this(width, heigth, depth, new Camera(width, heigth))
@@ -41,13 +39,7 @@ namespace SlowAndReverb
         public int Height => _height;
         public float Depth => _depth;
 
-        public Material PostProcessingEffect { get; set; }
+        public Material Material { get; set; }
         public Color ClearColor { get; set; }
-        public Rectangle Scissor { get; set; }
-
-        public void ResetScissor()
-        {
-            Scissor = new Rectangle(0f, 0f, _width, _height);
-        }
     }
 }

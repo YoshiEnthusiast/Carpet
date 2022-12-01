@@ -24,12 +24,9 @@ namespace SlowAndReverb
 
         public Renderer(bool blending)
         {
-            GL.Enable(EnableCap.ScissorTest);
-
             if (blending)
             {
                 GL.Enable(EnableCap.Blend);
-
                 GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             }
 
@@ -58,7 +55,7 @@ namespace SlowAndReverb
             _frameBuffer.SetRenderBuffer(_renderBuffer);
         }
 
-        public void Begin(Texture target, Color clearColor, int width, int height, Rectangle scissor, Matrix4 viewMatrix)
+        public void Begin(Texture target, Color clearColor, int width, int height, Matrix4 viewMatrix)
         {
             if (target is not null)
             {
@@ -77,7 +74,6 @@ namespace SlowAndReverb
             _renderBuffer.SetResolution(width, height);
 
             GL.ClearColor(clearColor.ToColor4());
-            GL.Scissor((int)scissor.X, (int)scissor.Y, (int)scissor.Width, (int)scissor.Height);
 
             _view = viewMatrix;
         }
