@@ -24,8 +24,6 @@ namespace SlowAndReverb
 
         public Renderer(bool blending)
         {
-            // amogus
-
             if (blending)
             {
                 GL.Enable(EnableCap.Blend);
