@@ -162,5 +162,10 @@ namespace SlowAndReverb
         {
             return !vector.Equals(other);
         }
+
+        public static implicit operator Vector2GL (Vector2 vector)
+        {
+            return vector.ToVector2GL();
+        }
     }
 }

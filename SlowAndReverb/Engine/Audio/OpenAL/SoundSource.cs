@@ -37,9 +37,9 @@ namespace SlowAndReverb
             return AL.GetSourceState(Handle);
         }
 
-        public void SetBuffer(SoundBuffer buffer)
+        public void SetBuffer(int handle)
         {
-            AL.Source(Handle, ALSourcei.Buffer, buffer.Handle);
+            AL.Source(Handle, ALSourcei.Buffer, handle);
         }
 
         public void SetVolume(float volume)
@@ -57,19 +57,46 @@ namespace SlowAndReverb
             AL.Source(Handle, ALSourceb.Looping, looping);
         }
 
-        public void SetPosition(Vector3 position)
+        public void SetPosition(Vector2 position)
         {
-            AL.Source(Handle, ALSource3f.Position, ref position);
+            AL.Source(Handle, ALSource3f.Position, position.X, position.Y, 0f);
         }
 
-        public void SetVelocity(Vector3 velocity)
+        public void SetVelocity(Vector2 velocity)
         {
-            AL.Source(Handle, ALSource3f.Velocity, ref velocity);
+            AL.Source(Handle, ALSource3f.Velocity, velocity.X, velocity.Y, 0f);
         }
 
-        public void SetDirection(Vector3 direction)
+        public void SetDirection(Vector2 direction)
         {
-            AL.Source(Handle, ALSource3f.Direction, ref direction);
+            AL.Source(Handle, ALSource3f.Direction, direction.X, direction.Y, 0f);
+        }
+
+        public void QueueBuffers(int[] bufferHandles)
+        {
+            AL.SourceQueueBuffers(Handle, bufferHandles.Length, bufferHandles);
+        }
+
+        public void UnqueueBuffers(int count)
+        {
+            AL.SourceUnqueueBuffers(Handle, count);
+        }
+
+        public void QueueBuffer(int bufferHandle)
+        {
+            AL.SourceQueueBuffer(Handle, bufferHandle); 
+        }
+
+        public int UnqueueBuffer()
+        {
+            return AL.SourceUnqueueBuffer(Handle);
+        }
+
+        public int GetProcessedBuffersCount()
+        {
+            AL.GetSource(Handle, ALGetSourcei.BuffersProcessed, out int count);
+
+            return count;
         }
     }
 }

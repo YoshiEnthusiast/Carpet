@@ -4,24 +4,41 @@ namespace SlowAndReverb
 {
     public class Sound
     {
-        private readonly SoundBuffer _buffer;
+        private readonly byte[] _data;
+
+        private readonly ALFormat _format;
+        private readonly int _sampleRate;
+
+        private readonly int _buffersCount = 4;
+        private readonly int _chunkSize = 65536;
 
         private SoundSource _source;
 
+        private SoundState _state = SoundState.Stopped;
+
+        private int[] _bufferHandles;
+        private int _unqueuedBuffersCount;
+
+        private int _cursor;
+
+        private Vector2 _position;
         private float _volume;
         private float _pitch;
-        private bool _looping;
 
-        public Sound(string name, float initialVolume, float initialPitch, bool looping)
+        public Sound(string fileName, float initialVolume, float initialPitch)
         {
-            _buffer = SFX.GetBuffer(name);
+            WaveFile file = Content.GetWaveFile(fileName);
 
-            _volume = initialVolume;
+            _data = file.Buffer.ToArray();
+
+            _format = file.Format;
+            _sampleRate = file.SampleRate;
+
+            _volume = initialVolume;    
             _pitch = initialPitch;
-            _looping = looping;
         }
 
-        public Sound(string name) : this(name, 1f, 1f, false)
+        public Sound(string name) : this(name, 1f, 1f)
         {
 
         }
@@ -35,9 +52,9 @@ namespace SlowAndReverb
 
             set
             {
-                _volume = value;    
+                _source?.SetVolume(value);
 
-                _source?.SetVolume(_volume);    
+                _volume = value;
             }
         }
 
@@ -50,64 +67,163 @@ namespace SlowAndReverb
 
             set
             {
-                _pitch = value;
+                _source?.SetPitch(value);
 
-                _source?.SetPitch(_pitch);
+                _pitch = value; 
             }
         }
 
-        public bool Looping
+        public Vector2 Position
         {
             get
             {
-                return _looping;
+                return _position;
             }
 
             set
             {
-                _looping = value;
+                _source?.SetPosition(value);
 
-                _source?.SetLooping(_looping);
+                _position = value;  
             }
         }
 
-        public void Play()
-        {
-            if (_source is null)
-            {
-                _source = SFX.GetVacantSource();
+        public bool Prioritized { get; set; }
+        public bool Looping { get; set; }
 
-                _source.SetBuffer(_buffer);
+        public SoundState State => _state;  
+        public ALFormat Format => _format; 
+        public int SampleRate => _sampleRate;
+
+        public virtual void Play()
+        {
+            if (_state == SoundState.Playing)
+                return;
+
+            if (_state == SoundState.Stopped)
+            {
+                _source = SFX.AllocateSource(this);
+
+                if (_source is null)
+                    return;
 
                 _source.SetVolume(_volume);
                 _source.SetPitch(_pitch);
-                _source.SetLooping(_looping);
+                _source.SetPosition(_position);
+
+                _bufferHandles = AL.GenBuffers(_buffersCount);
+
+                for (int i = 0; i < _buffersCount; i++)
+                {
+                    int bytesLeft = _data.Length - _cursor;
+                    int length = LimitBufferLength(bytesLeft);
+                    int position = Math.Min(_cursor, _data.Length - 1);
+
+                    SetBufferData(_bufferHandles[i], _data, position, length);
+
+                    _cursor += length;
+                }
+
+                _source.QueueBuffers(_bufferHandles);
             }
 
             _source.Play();
+
+            _state = SoundState.Playing;
         }
 
-        public void Pause()
+        public virtual void Update()
         {
-            _source?.Pause();   
+            if (_state != SoundState.Playing)
+                return;
+
+            int buffersProcessed = _source.GetProcessedBuffersCount();
+            _unqueuedBuffersCount += buffersProcessed;
+
+            for (int i = 0; i < buffersProcessed; i++)
+            {
+                int bufferHandle = _source.UnqueueBuffer();
+                int bytesLeft = _data.Length - _cursor;
+
+                if (bytesLeft <= 0)
+                    continue;
+
+                var bufferData = new byte[_chunkSize];
+                int length = LimitBufferLength(bytesLeft);
+                int dataLength = length;
+
+                Array.Copy(_data, _cursor, bufferData, 0, length);
+
+                if (bytesLeft <= _chunkSize && Looping)
+                {
+                    int offset = _chunkSize - length;
+
+                    if (offset > 0)
+                        Array.Copy(_data, 0, bufferData, length, offset);
+
+                    dataLength += offset;
+                    _cursor = offset;
+                }
+                else
+                {
+                    _cursor += length;
+                }
+
+                SetBufferData(bufferHandle, bufferData, 0, dataLength);
+                _source.QueueBuffer(bufferHandle);
+
+                _unqueuedBuffersCount--;
+            }
+
+            if (_unqueuedBuffersCount >= _buffersCount)
+                OnStopped();
+            else if (_source.GetState() != ALSourceState.Playing)
+                _source.Play();
         }
 
-        public void Stop()
+        public virtual void Pause()
         {
-            _source?.Stop();
+            if (_state != SoundState.Playing)
+                return;
+
+            _source.Pause();
+
+            _state = SoundState.Paused;
         }
 
-        public SoundState GetState()
+        public virtual void Stop()
         {
-            if (_source is null)
-                return SoundState.Stopped;
+            if (_state == SoundState.Stopped)
+                return; 
 
-            ALSourceState state = _source.GetState();
+            _source.Stop();
 
-            if (state == ALSourceState.Initial)
-                return SoundState.Stopped;
+            OnStopped();
+        }
 
-            return (SoundState)state;   
+        private void OnStopped()
+        {
+            int queuedBuffersLeft = _buffersCount - _unqueuedBuffersCount;
+
+            if (queuedBuffersLeft > 0)
+                _source.UnqueueBuffers(queuedBuffersLeft);
+
+            AL.DeleteBuffers(_bufferHandles);
+            SFX.FreeSound(this);
+
+            _cursor = 0;
+
+            _state = SoundState.Stopped;
+        }
+
+        private void SetBufferData(int handle, byte[] source, int position, int length)
+        {
+            AL.BufferData(handle, _format, ref source[position], length, _sampleRate);
+        }
+
+        private int LimitBufferLength(int length)
+        {
+            return Math.Min(length, _chunkSize);
         }
     }
 }

@@ -24,6 +24,11 @@ namespace SlowAndReverb
             return GetPath(fileName, TexturesStorage);
         }
 
+        public static string GetWaveFilePath(string fileName)
+        {
+            return GetPath(fileName, SoundsStorage);
+        }
+
         public static string GetVertexShaderPath(string fileName)
         {
             return GetPath(fileName, VertexShadersStorage);

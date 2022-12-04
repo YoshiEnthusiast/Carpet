@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK.Audio.OpenAL;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -20,10 +21,7 @@ namespace SlowAndReverb
         private static readonly Dictionary<string, string> s_shadersSource = new Dictionary<string, string>();
         private static readonly Dictionary<string, ShaderProgram> s_shaderPrograms = new Dictionary<string, ShaderProgram>();
         private static readonly Dictionary<string, FontFamily> s_fontFamilies = new Dictionary<string, FontFamily>();
-
-        private static readonly List<WaveFile> s_sounds = new List<WaveFile>();
-
-        public static IEnumerable<WaveFile> Sounds => s_sounds;
+        private static readonly Dictionary<string, WaveFile> s_waveFiles = new Dictionary<string, WaveFile>();
 
         public static Texture GetTexture(string fileName)
         {
@@ -36,6 +34,19 @@ namespace SlowAndReverb
             AddTexture(path, texture);
 
             return texture;
+        }
+
+        public static WaveFile GetWaveFile(string fileName)
+        {
+            string path = Paths.GetWaveFilePath(fileName);
+
+            if (s_waveFiles.TryGetValue(path, out WaveFile cachedWaveFile))
+                return cachedWaveFile;
+
+            WaveFile waveFile = LoadWaveFile(path);
+            AddWaveFile(path, waveFile);
+
+            return waveFile;
         }
 
         public static ShaderProgram GetShaderProgram(string vertexFileName, string fragmentFileName, string geometryFileName)
@@ -117,7 +128,7 @@ namespace SlowAndReverb
             ApplyToAllFiles(Paths.FragmentShadersStorage, AddShaderSource);
             ApplyToAllFiles(Paths.GeometryShadersStorage, AddShaderSource);
             ApplyToAllFiles(Paths.FontsStorage, AddFontFamily);
-            ApplyToAllFiles(Paths.SoundsStorage, AddSound);
+            ApplyToAllFiles(Paths.SoundsStorage, AddWaveFile);
         }
 
         private static string GetShaderSource(string path)
@@ -159,6 +170,16 @@ namespace SlowAndReverb
             s_textures.Add(path, texture);
         }
 
+        private static void AddWaveFile(string path)
+        {
+            AddWaveFile(path, LoadWaveFile(path));
+        }
+
+        private static void AddWaveFile(string path, WaveFile waveFile)
+        {
+            s_waveFiles.Add(path, waveFile);
+        }
+
         private static void AddShaderSource(string path)
         {
             AddShaderSource(path, ReadShaderSource(path));   
@@ -179,16 +200,16 @@ namespace SlowAndReverb
             s_fontFamilies.Add(path, font);
         }
 
-        private static void AddSound(string path)
+        private static WaveFile LoadWaveFile(string path)
         {
             using (BinaryReader reader = new BinaryReader(File.OpenRead(path)))
             {
                 string signature = ReadWaveFileProperty(reader);
                 int riffChunkSize = reader.ReadInt32();
 
-                string format = ReadWaveFileProperty(reader);
+                string formatName = ReadWaveFileProperty(reader);
 
-                if (signature != WaveSignature || format != WaveFormat)
+                if (signature != WaveSignature || formatName != WaveFormat)
                     throw new NotSupportedException("The stream is not a wave file");
 
                 string formatSignature = ReadWaveFileProperty(reader);
@@ -212,8 +233,9 @@ namespace SlowAndReverb
                 int dataChunkSize = reader.ReadInt32();
 
                 byte[] buffer = reader.ReadBytes((int)reader.BaseStream.Length);
+                ALFormat format = GetWaveFormat(channels, bitsPerSample);
 
-                s_sounds.Add(new WaveFile(Path.GetFileNameWithoutExtension(path), buffer, channels, bitsPerSample, sampleRate));
+                return new WaveFile(buffer, format, sampleRate);
             }
         }
 
@@ -241,6 +263,26 @@ namespace SlowAndReverb
         {
             using (StreamReader streamReader = new StreamReader(path))
                 return streamReader.ReadToEnd();
+        }
+
+        private static ALFormat GetWaveFormat(int channels, int bitsPerSample)
+        {
+            if (channels == 1)
+            {
+                if (bitsPerSample == 8)
+                    return ALFormat.Mono8;
+
+                return ALFormat.Mono16;
+            }
+            else if (channels == 2)
+            {
+                if (bitsPerSample == 8)
+                    return ALFormat.Stereo8;
+
+                return ALFormat.Stereo16;
+            }
+
+            throw new NotSupportedException("This format is not supported");
         }
     }
 }
