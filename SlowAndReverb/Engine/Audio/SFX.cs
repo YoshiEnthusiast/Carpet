@@ -1,4 +1,5 @@
 ﻿using OpenTK.Audio.OpenAL;
+using OpenTK.Mathematics;
 
 namespace SlowAndReverb
 {
@@ -7,7 +8,7 @@ namespace SlowAndReverb
         private static AudioContext s_currentContext;
 
         private static readonly List<SoundSource> s_freeSources = new List<SoundSource>();
-        private static readonly Dictionary<Sound, SoundSource> s_soundPool = new Dictionary<Sound, SoundSource>();
+        private static readonly Dictionary<SoundPlayer, SoundSource> s_soundPool = new Dictionary<SoundPlayer, SoundSource>();
 
         private static readonly int s_maxSources = 32;
 
@@ -35,25 +36,25 @@ namespace SlowAndReverb
 
         public static void Update()
         {
-            foreach (Sound sound in s_soundPool.Keys)
+            foreach (SoundPlayer sound in s_soundPool.Keys)
                 sound.Update();
         }
 
-        public static Sound PlaySound(string name, float initialVolume, float initialPitch)
+        public static SoundEffect PlaySound(string name, float initialVolume, float initialPitch)
         {
-            var sound = new Sound(name, initialVolume, initialPitch);
+            var sound = new SoundEffect(name, initialVolume, initialPitch);
 
             sound.Play();
 
             return sound;
         }
 
-        public static Sound PlaySound(string name)
+        public static SoundEffect PlaySound(string name)
         {
             return PlaySound(name, 1f, 1f);
         }
 
-        public static SoundSource AllocateSource(Sound sound)
+        public static SoundSource AllocateSource(SoundPlayer sound)
         {
             SoundSource freeSource = s_freeSources.FirstOrDefault();
 
@@ -65,7 +66,7 @@ namespace SlowAndReverb
                 return freeSource;
             }
 
-            foreach (Sound pooledSound in s_soundPool.Keys)
+            foreach (SoundPlayer pooledSound in s_soundPool.Keys)
             {
                 if (pooledSound.Prioritized)
                     continue;
@@ -83,7 +84,7 @@ namespace SlowAndReverb
             return null;
         }
 
-        public static void FreeSound(Sound sound)
+        public static void FreeSound(SoundPlayer sound)
         {
             if (!s_soundPool.ContainsKey(sound))
                 return;
@@ -92,6 +93,16 @@ namespace SlowAndReverb
 
             s_soundPool.Remove(sound);
             s_freeSources.Add(source);
+        }
+
+        public static void SetListenerPosition(Vector2 position)
+        {
+            AL.Listener(ALListener3f.Position, position.X, position.Y, 0f);
+        }
+
+        public static void SetListenerVelocity(Vector2 position)
+        {
+            AL.Listener(ALListener3f.Velocity, position.X, position.Y, 0f);
         }
     }
 }

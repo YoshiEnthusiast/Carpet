@@ -98,5 +98,12 @@ namespace SlowAndReverb
 
             return count;
         }
+
+        public int GetQueuedBuffersCount()
+        {
+            AL.GetSource(Handle, ALGetSourcei.BuffersQueued, out int count);
+
+            return count;
+        }
     }
 }

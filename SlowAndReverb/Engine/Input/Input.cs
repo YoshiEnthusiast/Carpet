@@ -13,7 +13,7 @@ namespace SlowAndReverb
 
         private static readonly List<TextInputKey> s_textInput = new List<TextInputKey>();
 
-        private static GameWindow s_window;
+        private static GameWindow s_window; 
 
         public static IEnumerable<Key> PressedKeys => s_pressedKeys;    
         public static IEnumerable<Key> RepeatedPressedKeys => s_repeatedPressedKeys;

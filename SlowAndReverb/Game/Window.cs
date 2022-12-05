@@ -92,26 +92,26 @@ namespace SlowAndReverb
             _layer.Camera.SetCenterOrigin();
             _layer.Camera.Position = new Vector2(160, 90);
 
-            s = new Sound("bounce")
+            s = new SoundEffect("sample")
             {
-                Looping = true
+                Looping = false
             };
-            s.Play();
+            //s.Play();
         }
 
         private Font _font;
 
         private string a = "";
 
-        Sound s;
+        SoundEffect s;
         private void OnUpdate(FrameEventArgs args)
         {
-            Console.WriteLine(s.State);
+            SFX.Update();
 
-            if (Input.IsPressed(Key.I))
-                s.Pause();
-            else if (Input.IsPressed(Key.O))
-                s.Play();
+            //if (Input.IsPressed(Key.I))
+            //    s.Pause();
+            //else if (Input.IsPressed(Key.O))
+            //    s.Play();
 
             _needler.Texture.SaveAsPng("n.png");
 
@@ -151,7 +151,6 @@ namespace SlowAndReverb
             _textMaterial.Time = _time;
 
             Input.Update();
-            SFX.Update();
         }
 
         private Layer _layer;
