@@ -96,7 +96,7 @@ namespace SlowAndReverb
             {
                 Looping = false
             };
-            //s.Play();
+            s.Play();
         }
 
         private Font _font;
