@@ -6,7 +6,10 @@ namespace SlowAndReverb
 {
     public struct Color
     {
-        public static readonly Color White = new Color(255, 255, 255, 255);
+        public static readonly Color White = new Color(255, 255, 255);
+        public static readonly Color Black = new Color(0, 0, 0);
+
+        public static readonly Color Transparent = new Color(0, 0, 0, 0);
 
         public Color(byte r, byte g, byte b, byte a)
         {
@@ -34,6 +37,11 @@ namespace SlowAndReverb
         public Color(float r, float g, float b, float a)
         {
             this = new Color(FromFloat(r), FromFloat(g), FromFloat(b), FromFloat(a));
+        }
+
+        public Color(float r, float g, float b)
+        {
+            this = new Color(r, g, b, byte.MaxValue);
         }
 
         public byte R { get; init; }
