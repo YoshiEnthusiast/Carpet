@@ -1,4 +1,5 @@
 ﻿using OpenTK.Audio.OpenAL;
+using System.Collections.Generic;
 
 namespace SlowAndReverb
 {

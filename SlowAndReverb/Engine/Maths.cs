@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SlowAndReverb
 {
-    //TODO: Написать свою реализацию этого всего
-
     public static class Maths
     {
         public const float PI = 3.141593f;
@@ -40,6 +39,16 @@ namespace SlowAndReverb
         public static int Floor(float value)
         {
             return (int)Math.Floor(value);
+        }
+
+        public static T Clamp<T>(T value, T min, T max) where T : INumber<T>
+        {
+            if (value < min)
+                return min;
+            else if (value > max)
+                return max;
+
+            return value;
         }
     }
 }

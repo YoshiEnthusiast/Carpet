@@ -1,11 +1,6 @@
-﻿using OpenTK;
-using OpenTK.Graphics;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace SlowAndReverb
 {
@@ -19,6 +14,26 @@ namespace SlowAndReverb
             G = g;
             B = b;
             A = a;
+        }
+
+        public Color(byte r, byte g, byte b)
+        {
+            this = new Color(r, g, b, byte.MaxValue);
+        }
+
+        public Color(int r, int g, int b, int a)
+        {
+            this = new Color(FromInt(r), FromInt(g), FromInt(b), FromInt(a));   
+        }
+
+        public Color(int r, int g, int b)
+        {
+            this = new Color(r, g, b, byte.MaxValue);
+        }
+
+        public Color(float r, float g, float b, float a)
+        {
+            this = new Color(FromFloat(r), FromFloat(g), FromFloat(b), FromFloat(a));
         }
 
         public byte R { get; init; }
@@ -44,6 +59,16 @@ namespace SlowAndReverb
         private float ConvertToFloat(byte component)
         {
             return component / 255f;
+        }
+
+        private byte FromInt(int value)
+        {
+            return (byte)Math.Clamp(value, byte.MinValue, byte.MaxValue);
+        }
+
+        private byte FromFloat(float value)
+        {
+            return (byte)(byte.MaxValue * value);
         }
     }
 }

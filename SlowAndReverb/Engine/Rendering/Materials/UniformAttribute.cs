@@ -1,4 +1,6 @@
-﻿namespace SlowAndReverb
+﻿using System;
+
+namespace SlowAndReverb
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public sealed class UniformAttribute : Attribute

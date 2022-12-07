@@ -1,4 +1,5 @@
-﻿using System.Xml;
+﻿using System;
+using System.Xml;
 
 namespace SlowAndReverb
 {
@@ -9,6 +10,4 @@ namespace SlowAndReverb
             return Convert.ToInt32(element.GetAttribute(name));
         }
     }
-
-    // Чтобы применять к текстуре слоя какие-то post processing эффекты и чтобы все оставалось pixel perfect, мне надо в шейдере фрагмента пикселезировать uv. 
 }

@@ -1,4 +1,8 @@
-﻿namespace SlowAndReverb
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace SlowAndReverb
 {
     public abstract class Cache<T>
     {
