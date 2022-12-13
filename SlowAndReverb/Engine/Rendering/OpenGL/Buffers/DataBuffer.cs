@@ -6,22 +6,30 @@ namespace SlowAndReverb
 {
     public abstract class DataBuffer<T> : OpenGLObject where T : struct
     {
-        private readonly int _size;
+        private readonly int _itemSize;
 
         public DataBuffer()
         {
             GL.CreateBuffers(1, out int handle);
 
             Handle = handle;
-            _size = Unsafe.SizeOf<T>();
+            _itemSize = Unsafe.SizeOf<T>();
         }
 
         protected BufferTarget BufferTarget { get; init; }
 
-        public virtual void SetData(T[] data)
+        public virtual void Initialize(int itemsCount)
+        {
+            int size = _itemSize * itemsCount;
+
+            Bind();
+            GL.BufferData(BufferTarget, size, (T[])null, BufferUsageHint.DynamicDraw);
+        }
+
+        public virtual void SetData(int length, T[] data)
         {
             Bind();
-            GL.BufferData(BufferTarget, _size * data.Length, data, BufferUsageHint.StaticDraw);
+            GL.BufferSubData(BufferTarget, 0, _itemSize * length, data);
         }
 
         protected override void Bind(int handle)

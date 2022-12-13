@@ -1,5 +1,6 @@
 ﻿using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using System;
 
 namespace SlowAndReverb
 {
@@ -24,11 +25,15 @@ namespace SlowAndReverb
             OpenGL.Initialize();
             Material.InitializeUniforms();
             SFX.Initialize(null);
+            Graphics.Initialize();
 
             Input.Initialize(this);
 
             UpdateFrame += OnUpdate;
             RenderFrame += OnRender;
+
+            Console.WriteLine(OpenGL.MaxTextureSize);
+            Console.WriteLine(OpenGL.MaxTextureUnits);
 
             _yosh = new Sprite("yosh")
             {
@@ -37,11 +42,12 @@ namespace SlowAndReverb
 
             _spikeGrenade = Content.GetTexture("spikeGrenade");
 
-            _testMaterial = new TestMaterial();
+            //_testMaterial = new TestMaterial();
 
             _needler = new Sprite("needler", 19, 16)
             {
                 Depth = 10f,
+                //HorizontalEffect = SpriteEffect.Reflect
             };
 
             _needler.AddAnimation("amogus", new Animation(10, true, new int[]
@@ -84,19 +90,19 @@ namespace SlowAndReverb
                 BottomMargin = 2f
             };
 
-            _drunkMaterial = new DrunkMaterial()
-            {
-                MaxTilt = 5
-            };
+            //_drunkMaterial = new DrunkMaterial()
+            //{
+            //    MaxTilt = 5
+            //};
 
             _layer.Camera.SetCenterOrigin();
             _layer.Camera.Position = new Vector2(160, 90);
 
-            s = new SoundEffect("sample")
-            {
-                Looping = false
-            };
-            s.Play();
+            //s = new SoundEffect("sample")
+            //{
+            //    Looping = false
+            //};
+            //s.Play();
         }
 
         private Font _font;
@@ -113,9 +119,9 @@ namespace SlowAndReverb
             //else if (Input.IsPressed(Key.O))
             //    s.Play();
 
-            _needler.Texture.SaveAsPng("n.png");
+            //_needler.Texture.SaveAsPng("n.png");
 
-            _drunkMaterial.Time += 0.1f;
+            //_drunkMaterial.Time += 0.1f;
 
             float amogus = 0.2f;
             float impostor = 0.05f;
@@ -142,11 +148,11 @@ namespace SlowAndReverb
             //Console.WriteLine(string.Join(',', Input.PressedKeys.Select(k => Input.KeyToChar(k)).ToArray()));
 
             _time += 0.01f;
-            //_test.Angle = _angle;
+            _test.Angle = _time;
 
-            _testMaterial.Time = _time;
+            //_testMaterial.Time = _time;
 
-            //_needler.Alpha = (float)Math.Abs(Maths.Sin(_angle));
+            ////_needler.Alpha = (float)Math.Abs(Maths.Sin(_angle));
 
             _textMaterial.Time = _time;
 

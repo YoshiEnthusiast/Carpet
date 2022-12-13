@@ -21,7 +21,7 @@ namespace SlowAndReverb
             _vertexBuffer.Bind();
             _elementBuffer.Bind();
 
-            int stride = attributes.Sum(attribute => GetVertexAttributeSize(attribute));
+            int stride = attributes.Sum(attribute => attribute.GetSize());
             int offset = 0;
 
             for (int i = 0; i < attributes.Length; i++)
@@ -31,11 +31,12 @@ namespace SlowAndReverb
                 GL.VertexAttribPointer(i, attribute.Count, attribute.Type, false, stride, offset);
                 GL.EnableVertexAttribArray(i);
 
-                offset += GetVertexAttributeSize(attribute);
+                offset += attribute.GetSize();
             }
         }
 
         public VertexBuffer<T> VertexBuffer => _vertexBuffer;
+        public ElementBuffer ElementBuffer => _elementBuffer;
 
         public void Draw(PrimitiveType type)
         {
@@ -46,11 +47,6 @@ namespace SlowAndReverb
         protected override void Bind(int handle)
         {
             GL.BindVertexArray(handle);
-        }
-
-        private int GetVertexAttributeSize(VertexAttribute attribute)
-        {
-            return attribute.Size * attribute.Count;
         }
     }
 }

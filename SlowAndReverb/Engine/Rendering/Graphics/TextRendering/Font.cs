@@ -36,7 +36,6 @@ namespace SlowAndReverb
             if (string.IsNullOrEmpty(text))
                 return;
 
-            Material.Color = Color;
             Material.OutlineColor = OutlineColor;
             Material.OutlineWidth = Math.Min(OutlineWidth, _family.TexturePadding);
 
@@ -67,7 +66,7 @@ namespace SlowAndReverb
                 float characterX = xOffset + bearing.X * Scale.X;
                 float characterY = yOffset + bearing.Y * Scale.Y;
 
-                Graphics.Draw(texture, Material, bounds, position + new Vector2(characterX, characterY), Scale, Vector2.Zero, 0f, 1f, false, false, depth);
+                Graphics.Draw(texture, Material, bounds, position + new Vector2(characterX, characterY), Scale, Vector2.Zero, Color, 0f, SpriteEffect.None, SpriteEffect.None, depth);
 
                 xOffset += advance;
             }

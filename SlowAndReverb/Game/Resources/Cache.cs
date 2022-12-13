@@ -32,10 +32,10 @@ namespace SlowAndReverb
 
         public T GetItem(string fileName)
         {
-            if (_items.TryGetValue(fileName, out T item))
-                return item;
-
             string path = GetPath(fileName);
+
+            if (_items.TryGetValue(path, out T item))
+                return item;
 
             return AddItem(path);
         }

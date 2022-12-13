@@ -11,11 +11,11 @@ namespace SlowAndReverb
             BufferTarget = BufferTarget.ElementArrayBuffer;
         }
 
-        public override void SetData(uint[] indices)
+        public override void SetData(int length, uint[] indices)
         {
-            _count = indices.Length;   
+            _count = length;
 
-            base.SetData(indices);
+            base.SetData(length, indices);
         }
 
         public void Draw(PrimitiveType type)

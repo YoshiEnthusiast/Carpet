@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace SlowAndReverb
 {
+    // TODO: Add null checks to static properties and make this class not garbage
     public class Resolution
     {
         private static readonly IEnumerable<Resolution> s_supportedResolutions = new Resolution[]
@@ -38,6 +39,11 @@ namespace SlowAndReverb
 
         public static IEnumerable<Resolution> SupportedResolutions => s_supportedResolutions;
         public static Resolution Current => s_current;
+
+        public static int CurrentWidth => s_current.Width;
+        public static int CurrentHeight => s_current.Height;
+
+        public static Vector2 CurrentSize => s_current.Size;
 
         public Vector2 Size => new Vector2(_width, _height);    
         public int Width => _width;

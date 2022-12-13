@@ -10,15 +10,12 @@ namespace SlowAndReverb
     public static class Graphics
     {
         private static readonly List<Layer> s_drawnLayers = new List<Layer>();
-        private static readonly Renderer s_renderer = new Renderer(true);
+        private static readonly SpriteBatch s_spriteBatch = new SpriteBatch(true);
 
-        private static Texture s_finalTarget = Texture.CreateEmpty(1280, 720);
+        private static RenderTarget s_finalTarget;
+        private static RenderTarget s_screenTarget;
+
         private static Layer s_currentLayer;
-
-        static Graphics()
-        {
-            Resolution.Change += OnResolutionChnaged;
-        }
 
         public static Layer CurrentLayer => s_currentLayer;
 
@@ -26,19 +23,16 @@ namespace SlowAndReverb
         public static Color ClearColor { get; set; }
         public static Rectangle Scissor { get; set; }
 
-        public static void Draw(Texture texture, Vector2 position, Vector2 scale, Vector2 origin, float angle, float alpha, bool flipHorizontal, bool flipVertical, float depth)
+        public static void Initialize()
         {
-            Draw(texture, new Rectangle(0f, 0f, texture.Width, texture.Height), position, scale, origin, angle, alpha, flipHorizontal, flipVertical, depth);
+            Resolution.Change += OnResolutionChnaged;
+
+            ApplyResolution();
         }
 
-        public static void Draw(Texture texture, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, float angle, float alpha, bool flipHorizontal, bool flipVertical, float depth)
+        public static void Draw(Texture texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
         {
-            s_renderer.Submit(texture, bounds, position, scale, origin, angle, alpha, flipHorizontal, flipVertical, depth);
-        }
-
-        public static void Draw(Texture texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, float angle, float alpha, bool flipHorizontal, bool flipVertical, float depth)
-        {
-            s_renderer.Submit(texture, material, bounds, position, scale, origin, angle, alpha, flipHorizontal, flipVertical, depth);
+            s_spriteBatch.Submit(texture, material, bounds, position, scale, origin, color, angle, horizontalEffect, verticalEffect, depth);
         }
 
         public static void BeginLayer(Layer layer)
@@ -60,7 +54,7 @@ namespace SlowAndReverb
             if (scissorY != 0)
                 scissorY = layerHeight - scissorY - scissorHeight;
 
-            s_renderer.Begin(layer.RenderTarget, layer.ClearColor, layer.Width, layerHeight, new Rectangle(layerScissor.X, scissorY, layerScissor.Width, layerScissor.Height), layer.Camera.GetViewMatrix());
+            s_spriteBatch.Begin(layer.RenderTarget, layer.ClearColor, new Rectangle(layerScissor.X, scissorY, layerScissor.Width, layerScissor.Height), layer.Camera.GetViewMatrix());
         }
 
         public static void EndCurrentLayer()
@@ -70,7 +64,7 @@ namespace SlowAndReverb
 
             s_currentLayer = null;
 
-            s_renderer.FlushDrawCalls();
+            s_spriteBatch.End();
         }
 
         public static void DrawLayers()
@@ -78,16 +72,13 @@ namespace SlowAndReverb
             if (s_currentLayer is not null)
                 throw new InvalidOperationException("Current layer must be ended before before drawing all layers");
 
-            Vector2 resolutionSize = Resolution.Current.Size;
-
-            int resolutionWidth = resolutionSize.RoundedX;
-            int resolutionHeight = resolutionSize.RoundedY;
+            int resolutionWidth = Resolution.CurrentWidth;
+            int resolutionHeight = Resolution.CurrentHeight;
 
             Matrix4 identity = Matrix4.Identity;
 
-            s_renderer.Begin(s_finalTarget, ClearColor, resolutionWidth, resolutionHeight, Scissor, identity);
+            s_spriteBatch.Begin(s_finalTarget, ClearColor, Scissor, identity);
 
-            // TODO: Убрать эту грязь
             foreach (Layer layer in s_drawnLayers)
             {
                 Camera camera = layer.Camera;
@@ -103,34 +94,43 @@ namespace SlowAndReverb
                 float x = (resolutionWidth - newWidth) / 2f;
                 float y = (resolutionHeight - newHeight) / 2f;
 
-                s_renderer.Submit(layer.RenderTarget, layer.PostProcessingEffect, new Rectangle(0f, 0f, width, height), new Vector2(x, y), resolutionSize / new Vector2(width, height) * zoom, Vector2.Zero, 0f, 1f, false, false, layer.Depth);
+                s_spriteBatch.Submit(layer.RenderTarget.Texture, layer.PostProcessingEffect, new Rectangle(0f, 0f, width, height), new Vector2(x, y), Resolution.CurrentSize / new Vector2(width, height) * zoom, Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, layer.Depth);
 
                 layer.ResetScissor();
             }
 
-            s_renderer.FlushDrawCalls();
+            s_spriteBatch.End();
             s_drawnLayers.Clear();
 
             ResetScissor();
 
-            s_renderer.Begin(null, ClearColor, resolutionWidth, resolutionHeight, Scissor, identity);
-            s_renderer.Submit(s_finalTarget, PostProcessingEffect, new Rectangle(0f, 0f, s_finalTarget.Width, s_finalTarget.Height), Vector2.Zero, new Vector2(1f), Vector2.Zero, 0f, 1f, false, false, 1f);
+            s_spriteBatch.Begin(s_screenTarget, ClearColor, Scissor, identity);
+            s_spriteBatch.Submit(s_finalTarget.Texture, PostProcessingEffect, new Rectangle(0f, 0f, s_finalTarget.Width, s_finalTarget.Height), Vector2.Zero, new Vector2(1f), Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, 1f);
 
-            //s_finalTarget.SaveAsPng("xd.png");
-
-            s_renderer.FlushDrawCalls();
+            s_spriteBatch.End();
         }
 
         public static void ResetScissor()
         {
-            Resolution currentResolution = Resolution.Current;
-
-            Scissor = new Rectangle(0f, 0f, currentResolution.Width, currentResolution.Height);
+            Scissor = new Rectangle(0f, 0f, Resolution.CurrentWidth, Resolution.CurrentHeight);
         }
 
         private static void OnResolutionChnaged(object sender, EventArgs args)
         {
-            // Как-то поменять разрешение s_finalTarget
+            ApplyResolution();
+        }
+
+        private static void ApplyResolution()
+        {
+            // TODO: Delete the previous render target texture if it exists (WHEN THE TEXTURE CLASS WILL HAVE THIS OPTION)!!!!!!!
+
+            int width = Resolution.CurrentWidth;
+            int height = Resolution.CurrentHeight;
+
+            Texture texture = Texture.CreateEmpty(width, height);
+
+            s_finalTarget = RenderTarget.FromTexture(texture);
+            s_screenTarget = RenderTarget.FromScreen(width, height);
         }
     }
 }

@@ -112,6 +112,7 @@ namespace SlowAndReverb
         protected override void Bind(int handle)
         {
             GL.ActiveTexture(_unit.Value);
+
             GL.BindTexture(TextureTarget.Texture2D, handle);
         }
 

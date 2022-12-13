@@ -72,12 +72,12 @@ namespace SlowAndReverb
         public Vector2 Scale { get; set; } = Vector2.One;
         public Vector2 Origin { get; set; }
 
-        public float Alpha { get; set; } = 1f;
+        public Color Color { get; set; } = Color.White;
         public float Angle { get; set; }
         public float Depth { get; set; }
 
-        public bool FlipHorizontal { get; set; }
-        public bool FlipVertical { get; set; }
+        public SpriteEffect VerticalEffect { get; set; }
+        public SpriteEffect HorizontalEffect { get; set; }
 
         public Texture Texture => _texture;
         public int Frame => _frame;
@@ -209,7 +209,7 @@ namespace SlowAndReverb
 
         public void DrawWithoutUpdate(Vector2 position)
         {
-            Graphics.Draw(_texture, Material, _textureBounds, position, Scale, Origin, Angle, Alpha, FlipHorizontal, FlipVertical, Depth);
+            Graphics.Draw(_texture, Material, _textureBounds, position, Scale, Origin, Color, Angle, HorizontalEffect, VerticalEffect, Depth);
         }
 
         public void DrawWithoutUpdate(float x, float y)

@@ -8,7 +8,7 @@ namespace SlowAndReverb
 {
     public class Layer
     {
-        private readonly Texture _renderTarget;
+        private readonly RenderTarget _renderTarget;
         private readonly Camera _camera;
 
         private readonly int _width;
@@ -25,7 +25,8 @@ namespace SlowAndReverb
 
             _camera = camera;
 
-            _renderTarget = Texture.CreateEmpty(_width, _height);
+            Texture texture = Texture.CreateEmpty(_width, _height); 
+            _renderTarget = RenderTarget.FromTexture(texture);
 
             ResetScissor();
         }
@@ -35,7 +36,7 @@ namespace SlowAndReverb
 
         }
 
-        public Texture RenderTarget => _renderTarget;
+        public RenderTarget RenderTarget => _renderTarget;
         public Camera Camera => _camera;
         public int Width => _width;
         public int Height => _height;

@@ -36,6 +36,12 @@ namespace SlowAndReverb
             for (int i = 0; i < count; i++)
             {
                 GL.GetActiveUniform(Handle, i, _maxUniformCharacters, out _, out _, out ActiveUniformType type, out string name);
+
+                int bracketsIndex = name.IndexOf('[');
+
+                if (bracketsIndex >= 0)
+                    name = name.Substring(0, bracketsIndex);
+
                 int location = GL.GetUniformLocation(Handle, name);
 
                 _uniforms[i] = new Uniform(name, type, location);
@@ -161,9 +167,19 @@ namespace SlowAndReverb
             SetUniform(GetUniformLocation(name), value);
         }
 
+        public void SetUniform(string name, int length, int[] values)
+        {
+            SetUniform(GetUniformLocation(name), length, values);
+        }
+
         public void SetUniform(int location, int value)
         {
             GL.Uniform1(location, value);
+        }
+
+        public void SetUniform(int location, int length, int[] values)
+        {
+            GL.Uniform1(location, length, values);
         }
 
         public void SetUniform(int location, float value)
@@ -267,8 +283,6 @@ namespace SlowAndReverb
 
             GL.ShaderSource(shader, source);
             GL.CompileShader(shader);
-
-            //TODO: Check compilation status and throw an exception in case of failure
 
             Console.WriteLine(GL.GetShaderInfoLog(shader));
 

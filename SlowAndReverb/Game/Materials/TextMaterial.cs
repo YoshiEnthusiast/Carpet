@@ -13,7 +13,6 @@ namespace SlowAndReverb
             ShaderProgram = Content.GetShaderProgram("text");
         }
 
-        [Uniform("u_Color")] public Color Color { get; set; } 
         [Uniform("u_OutlineColor")] public Color OutlineColor { get; set; }
         [Uniform("u_OutlineWidth")] public int OutlineWidth { get; set; }
     }
