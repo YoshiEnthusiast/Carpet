@@ -165,7 +165,8 @@ namespace SlowAndReverb
         {
             Graphics.BeginLayer(_layer);
             _test.Draw(new Vector2(50f));
-            Graphics.DrawLine(new Vector2(10f), _layer.MousePosition, new Color(255, 0, 255), 1f);
+            //Graphics.DrawLine(new Vector2(10f), _layer.MousePosition, new Color(255, 0, 255), 1f);
+            Graphics.DrawCircleWithLines(_layer.MousePosition, new Color(255, 0, 127), 50, 1f);
             _font.Draw(a, 90f, 50f, 1f);
             Graphics.EndCurrentLayer();
 

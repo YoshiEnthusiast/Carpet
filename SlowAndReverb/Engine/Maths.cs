@@ -6,6 +6,7 @@ namespace SlowAndReverb
     public static class Maths
     {
         public const float PI = 3.141593f;
+        public const float TwoPI = PI * 2f;
 
         public static float Sin(float angle)
         {

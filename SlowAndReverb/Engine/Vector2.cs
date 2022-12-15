@@ -57,9 +57,19 @@ namespace SlowAndReverb
             return new Vector2(X + value.X, Y + value.Y);   
         }
 
+        public Vector2 AddX(float value)
+        {
+            return new Vector2(X + value, Y);
+        }
+
+        public Vector2 AddY(float value)
+        {
+            return new Vector2(X, Y + value);
+        }
+
         public Vector2 Subtract(Vector2 value)
         {
-            return new Vector2(X - value.X, Y - value.Y);
+            return Add(value.Negate());
         }
 
         public Vector2 Multiply(float by)

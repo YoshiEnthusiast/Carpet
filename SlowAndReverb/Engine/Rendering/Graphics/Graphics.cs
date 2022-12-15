@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,6 +12,8 @@ namespace SlowAndReverb
     {
         private static readonly List<Layer> s_drawnLayers = new List<Layer>();
         private static readonly SpriteBatch s_spriteBatch = new SpriteBatch(true);
+
+        private static readonly List<CircleMaterial> s_circleMaterials = new List<CircleMaterial>();
 
         private static readonly Texture s_blankTexture = Content.GetTexture("blank");
 
@@ -59,15 +62,75 @@ namespace SlowAndReverb
 
         public static void Draw(Texture texture, Material material, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
         {
-            Draw(texture, material, position, scale, origin, color, angle, depth);
+            Draw(texture, material, position, scale, origin, color, angle, SpriteEffect.None, SpriteEffect.None, depth);
         }
 
-        public static void DrawLine(Vector2 from, Vector2 to, Color color, float depth, int width = 1)
+        public static void DrawLine(Vector2 from, Vector2 to, Color color, float depth, int width = 1, bool centred = true)
         {
             float angle = Maths.Atan2(from, to);
             float length = from.Subtract(to).GetMagnitude();
 
-            Draw(s_blankTexture, from, new Vector2(length, width), new Vector2(0f, 0.5f), color, angle, depth);
+            float originY = centred ? 0.5f : 0f;
+
+            Draw(s_blankTexture, from, new Vector2(length, width), new Vector2(0f, originY), color, angle, depth);
+        }
+
+        public static void DrawRectangle(Rectangle rectangle, Color color, float depth, int lineWidth = 1, bool centred = false)
+        {
+            Vector2 topLeft = rectangle.TopLeft;
+            Vector2 topRight = rectangle.TopRight;
+            Vector2 bottomLeft = rectangle.BottomLeft;
+            Vector2 bottomRight = rectangle.BottomRight;
+
+            DrawLine(topLeft, topRight, color, depth, lineWidth, centred);
+            DrawLine(topRight, bottomRight, color, depth, lineWidth, centred);
+            DrawLine(bottomRight, bottomLeft, color, depth, lineWidth, centred);
+            DrawLine(bottomLeft, topLeft, color, depth, lineWidth, centred);
+        }
+
+        public static void DrawRectangle(Vector2 topLeft, Vector2 bottomRight, Color color, float depth, int lineWidth = 1, bool centred = false)
+        {
+            DrawRectangle(new Rectangle(topLeft, bottomRight), color, depth, lineWidth, centred);
+        }
+
+        public static void FillRectabgle(Rectangle rectangle, Color color, float depth)
+        {
+            Draw(s_blankTexture, rectangle.TopLeft, rectangle.Size, Vector2.Zero, color, 0f, depth);
+        }
+
+        public static void FillRectabgle(Vector2 topLeft, Vector2 bottomRight, Color color, float depth)
+        {
+            FillRectabgle(new Rectangle(topLeft, bottomRight), color, depth);
+        }
+
+        public static void DrawCircle(Vector2 position, Color color, int radius, float depth, float lineWidth = 1f)
+        {
+            float circumference = radius * 2f;
+            CircleMaterial material = GetCircleMaterial(lineWidth, circumference);
+
+            Draw(s_blankTexture, material, position, new Vector2(circumference), new Vector2(0.5f), color, 0f, depth);
+        }
+
+        public static void FillCircle(Vector2 position, Color color, int raduis, float depth)
+        {
+            DrawCircle(position, color, raduis, depth, raduis);
+        }
+
+        public static void DrawCircleWithLines(Vector2 position, Color color, int raduis, float depth, int lineWidth = 1, bool centred = true, int linesCount = 18)
+        {
+            Vector2 startPosition = position.AddX(raduis);
+            Vector2 previousPosition = startPosition;
+            float deltaAngle = Maths.TwoPI / linesCount;
+
+            for (int i = 1; i < linesCount + 1; i++)
+            {
+                float angle = deltaAngle * i;
+                Vector2 currentPosition = startPosition.Rotate(position, angle);
+
+                DrawLine(previousPosition, currentPosition, color, depth, lineWidth, centred);
+
+                previousPosition = currentPosition;
+            }
         }
 
         public static void BeginLayer(Layer layer)
@@ -166,6 +229,23 @@ namespace SlowAndReverb
 
             s_finalTarget = RenderTarget.FromTexture(texture);
             s_screenTarget = RenderTarget.FromScreen(width, height);
+        }
+
+        private static CircleMaterial GetCircleMaterial(float lineWidth, float circumference)
+        {
+            foreach (CircleMaterial material in s_circleMaterials)
+                if (material.LineWidth == lineWidth && material.Circumference == circumference)
+                    return material;
+
+            var newMaterial = new CircleMaterial()
+            {
+                LineWidth = lineWidth,
+                Circumference = circumference
+            };
+
+            s_circleMaterials.Add(newMaterial);
+
+            return newMaterial;
         }
     }
 }

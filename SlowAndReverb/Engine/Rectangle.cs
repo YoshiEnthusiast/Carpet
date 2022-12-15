@@ -10,15 +10,17 @@ namespace SlowAndReverb
         private readonly Vector2 _position;
         private readonly Vector2 _size;
 
-        public Rectangle(Vector2 position, Vector2 size)
+        public Rectangle(Vector2 topLeft, Vector2 bottomRight)
         {
-            _position = position;
-            _size = size;
+            _position = topLeft;
+            _size = bottomRight - _position;
         }
 
-        public Rectangle(float x, float y, float width, float height) : this(new Vector2(x, y), new Vector2(width, height))
+        public Rectangle(float x, float y, float width, float height)
         {
+            Vector2 topLeft = new Vector2(x, y);
 
+            this = new Rectangle(topLeft, topLeft + new Vector2(width, height));
         }
 
         public Vector2 Position => _position;
