@@ -37,7 +37,6 @@ namespace SlowAndReverb
         public Camera Camera => _camera;
 
         public Vector2 MousePosition => Input.MousePosition * _size / Resolution.CurrentSize;
-
         public Vector2 Size => _size;
         public int Width => _size.RoundedX;
         public int Height => _size.RoundedY;
