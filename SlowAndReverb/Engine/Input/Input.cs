@@ -1,5 +1,6 @@
 ﻿using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using OpenTKKey = OpenTK.Windowing.GraphicsLibraryFramework.Keys;
@@ -14,7 +15,18 @@ namespace SlowAndReverb
 
         private static readonly List<TextInputKey> s_textInput = new List<TextInputKey>();
 
-        private static GameWindow s_window; 
+        private static GameWindow s_window;
+
+        public static Vector2 MousePosition
+        {
+            get
+            {
+                if (s_window is null)
+                    return Vector2.Zero;
+
+                return s_window.MousePosition;
+            }
+        }
 
         public static IEnumerable<Key> PressedKeys => s_pressedKeys;    
         public static IEnumerable<Key> RepeatedPressedKeys => s_repeatedPressedKeys;

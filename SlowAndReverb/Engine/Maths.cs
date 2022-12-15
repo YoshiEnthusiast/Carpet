@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SlowAndReverb
 {
@@ -29,6 +25,14 @@ namespace SlowAndReverb
         public static float Atan2(float y, float x)
         {
             return (float)Math.Atan2(y, x);
+        }
+
+        public static float Atan2(Vector2 vector, Vector2 other)
+        {
+            float deltaY = other.Y - vector.Y;
+            float deltaX = other.X - vector.X;
+
+            return Atan2(deltaY, deltaX);
         }
 
         public static int Ceiling(float value)

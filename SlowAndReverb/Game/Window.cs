@@ -26,7 +26,7 @@ namespace SlowAndReverb
             Material.InitializeUniforms();
             SFX.Initialize(null);
             Graphics.Initialize();
-
+            
             Input.Initialize(this);
 
             UpdateFrame += OnUpdate;
@@ -38,7 +38,7 @@ namespace SlowAndReverb
             _yosh = new Sprite("yosh")
             {
                 Depth = 5f
-            };
+            }; 
 
             _spikeGrenade = Content.GetTexture("spikeGrenade");
 
@@ -81,7 +81,6 @@ namespace SlowAndReverb
 
             _font = new Font("testFont")
             {
-                Color = Color.White,
                 AdditionalAdvance = 2,
                 OutlineWidth = 1,
                 Material = _textMaterial,
@@ -166,6 +165,7 @@ namespace SlowAndReverb
         {
             Graphics.BeginLayer(_layer);
             _test.Draw(new Vector2(50f));
+            Graphics.DrawLine(new Vector2(10f), _layer.MousePosition, new Color(255, 0, 255), 1f);
             _font.Draw(a, 90f, 50f, 1f);
             Graphics.EndCurrentLayer();
 

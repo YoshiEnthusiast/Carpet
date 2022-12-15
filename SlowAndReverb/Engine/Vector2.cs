@@ -32,6 +32,11 @@ namespace SlowAndReverb
             return quotient.GetMagnitude();
         }
 
+        public static Vector2 FromVector2GL(Vector2GL vector)
+        {
+            return Unsafe.As<Vector2GL, Vector2>(ref vector);
+        }
+
         public override bool Equals(object obj)
         {
             return obj is Vector2 vector && Equals(vector); 
@@ -166,6 +171,11 @@ namespace SlowAndReverb
         public static implicit operator Vector2GL (Vector2 vector)
         {
             return vector.ToVector2GL();
+        }
+
+        public static implicit operator Vector2 (Vector2GL vector)
+        {
+            return FromVector2GL(vector);
         }
     }
 }

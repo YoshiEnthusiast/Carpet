@@ -90,8 +90,6 @@ namespace SlowAndReverb
 
             //_applied = true;
 
-            ShaderProgram.Bind();
-
             for (int i = 1; i < GetExtraTexturesCount(); i++)
             {
                 Texture texture = _textures[i];

@@ -12,6 +12,8 @@ namespace SlowAndReverb
         private static readonly List<Layer> s_drawnLayers = new List<Layer>();
         private static readonly SpriteBatch s_spriteBatch = new SpriteBatch(true);
 
+        private static readonly Texture s_blankTexture = Content.GetTexture("blank");
+
         private static RenderTarget s_finalTarget;
         private static RenderTarget s_screenTarget;
 
@@ -33,6 +35,39 @@ namespace SlowAndReverb
         public static void Draw(Texture texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
         {
             s_spriteBatch.Submit(texture, material, bounds, position, scale, origin, color, angle, horizontalEffect, verticalEffect, depth);
+        }
+
+        public static void Draw(Texture texture, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
+        {
+            Draw(texture, null, bounds, position, scale, origin, color, angle, horizontalEffect, verticalEffect, depth);
+        }
+
+        public static void Draw(Texture texture, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
+        {
+            Draw(texture, bounds, position, scale, origin, color, angle, SpriteEffect.None, SpriteEffect.None, depth);
+        }
+
+        public static void Draw(Texture texture, Material material, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
+        {
+            Draw(texture, material, new Rectangle(Vector2.Zero, new Vector2(texture.Width, texture.Height)), position, scale, origin, color, angle, horizontalEffect, verticalEffect, depth);
+        }
+
+        public static void Draw(Texture texture, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
+        {
+            Draw(texture, new Rectangle(Vector2.Zero, new Vector2(texture.Width, texture.Height)), position, scale, origin, color, angle, depth);
+        }
+
+        public static void Draw(Texture texture, Material material, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
+        {
+            Draw(texture, material, position, scale, origin, color, angle, depth);
+        }
+
+        public static void DrawLine(Vector2 from, Vector2 to, Color color, float depth, int width = 1)
+        {
+            float angle = Maths.Atan2(from, to);
+            float length = from.Subtract(to).GetMagnitude();
+
+            Draw(s_blankTexture, from, new Vector2(length, width), new Vector2(0f, 0.5f), color, angle, depth);
         }
 
         public static void BeginLayer(Layer layer)

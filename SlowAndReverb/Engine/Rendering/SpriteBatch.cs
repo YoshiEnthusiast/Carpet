@@ -24,6 +24,16 @@ namespace SlowAndReverb
         private readonly RenderBuffer _renderBuffer;
         private readonly FrameBuffer _frameBuffer;
 
+        private readonly uint[] _quadElements = new uint[]
+        {
+            0u,       
+            1u,          
+            2u,
+            2u, 
+            3u, 
+            1u
+        };
+
         private RenderTarget _renderTarget;
 
         private Matrix4 _transform;
@@ -77,7 +87,7 @@ namespace SlowAndReverb
         public void Begin(RenderTarget target, Color clearColor, Rectangle scissor, Matrix4 view)
         {
             if (_began)
-                throw new InvalidOperationException("Begin can only be called again after End is called.");
+                throw new InvalidOperationException($"{nameof(Begin)} can only be called again after End is called.");
 
             Texture targetTexture = target.Texture;
 
@@ -174,13 +184,7 @@ namespace SlowAndReverb
                 new VertexColorTextureCoordinate(bottomRight, new Vector2(textureRight, textureBottom), color)
             };
 
-            var indices = new uint[]
-            {
-                0u, 1u, 2u,
-                2u, 3u, 1u
-            };
-
-            Submit(texture, material, vertices, indices, depth);
+            Submit(texture, material, vertices, _quadElements, depth);
         }
 
         public void Submit(Texture texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
@@ -205,7 +209,7 @@ namespace SlowAndReverb
 
         public void Submit(Texture texture, Material material, VertexColorTextureCoordinate[] vertices, uint[] indices, float depth)
         {
-            CheckBegin("Submit");
+            CheckBegin(nameof(Submit));
 
             var item = new SpriteBatchItem()
             {
@@ -221,7 +225,7 @@ namespace SlowAndReverb
 
         public void End()
         {
-            CheckBegin("End");
+            CheckBegin(nameof(End));
 
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
@@ -238,6 +242,9 @@ namespace SlowAndReverb
                 Texture currentTexture = item.Texture;
                 Material currentMaterial = item.Material;
 
+                ShaderProgram currentProgram = currentMaterial.ShaderProgram;
+                ShaderProgram lastProgram = lastMaterial?.ShaderProgram;
+
                 IEnumerable<VertexColorTextureCoordinate> vertices = item.Vertices;
                 IEnumerable<uint> elements = item.Indices;
 
@@ -248,12 +255,21 @@ namespace SlowAndReverb
                 int extraTextures = currentMaterial.TextureUniformsCount;
                 int maxTextures = maxTextureUnits - extraTextures;
 
-                ShaderProgram program = currentMaterial.ShaderProgram;
-
-                if (lastMaterial is not null && currentMaterial != lastMaterial || currentTexture != lastTexture && _texturesCount >= maxTextures || _verticesCount + verticesCount > MaxVertices || _elementsCount + elementsCount > MaxElements || _itemsCount >= MaxItems)
+                if (lastMaterial is not null && currentProgram != lastProgram || currentTexture != lastTexture && _texturesCount >= maxTextures || _verticesCount + verticesCount > MaxVertices || _elementsCount + elementsCount > MaxElements || _itemsCount >= MaxItems)
                     Flush(lastMaterial);
 
-                lastMaterial = currentMaterial;
+                if (currentMaterial != lastMaterial)
+                {
+                    if (currentProgram != lastProgram)
+                    {
+                        currentProgram.Bind();
+                        currentProgram.SetUniform("u_Transform", _transform);
+                    }
+
+                    currentMaterial.Apply();
+
+                    lastMaterial = currentMaterial;
+                }
 
                 if (currentTexture != lastTexture)
                 {
@@ -295,14 +311,11 @@ namespace SlowAndReverb
 
             _began = false;
         }
-        
+
         private void Flush(Material material)
         {
-            material.Apply();
-
             ShaderProgram program = material.ShaderProgram;
 
-            program.SetUniform("u_Transform", _transform);
             program.SetUniform("u_Textures", _texturesCount, _textureUnits);
 
             _vertexArray.VertexBuffer.SetData(_verticesCount, _vertices);

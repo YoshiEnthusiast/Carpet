@@ -1,7 +1,12 @@
-﻿namespace SlowAndReverb
+﻿using System.Drawing;
+using System;
+
+namespace SlowAndReverb
 {
     public struct Rectangle
     {
+        public static readonly Rectangle Empty = new Rectangle(Vector2.Zero, Vector2.Zero);
+
         private readonly Vector2 _position;
         private readonly Vector2 _size;
 
@@ -31,6 +36,16 @@
 
         public float Right => X + Width;
         public float Bottom => Y + Height;
+
+        public Rectangle Translate(Vector2 by)
+        {
+            return new Rectangle(_position + by, _size);
+        }
+
+        public Rectangle Scale(float by)
+        {
+            return new Rectangle(_position, _size * by);
+        }
 
         public bool Intersects(Rectangle other)
         {

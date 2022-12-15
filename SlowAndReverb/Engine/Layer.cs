@@ -11,21 +11,18 @@ namespace SlowAndReverb
         private readonly RenderTarget _renderTarget;
         private readonly Camera _camera;
 
-        private readonly int _width;
-        private readonly int _height;
-
+        private readonly Vector2 _size;
         private readonly float _depth;
 
-        public Layer(int width, int heigth, float depth, Camera camera)
+        public Layer(int width, int height, float depth, Camera camera)
         {
-            _width = width;
-            _height = heigth;
+            _size = new Vector2(width, height);
 
             _depth = depth;
 
             _camera = camera;
 
-            Texture texture = Texture.CreateEmpty(_width, _height); 
+            Texture texture = Texture.CreateEmpty(width, height); 
             _renderTarget = RenderTarget.FromTexture(texture);
 
             ResetScissor();
@@ -38,8 +35,12 @@ namespace SlowAndReverb
 
         public RenderTarget RenderTarget => _renderTarget;
         public Camera Camera => _camera;
-        public int Width => _width;
-        public int Height => _height;
+
+        public Vector2 MousePosition => Input.MousePosition * _size / Resolution.CurrentSize;
+
+        public Vector2 Size => _size;
+        public int Width => _size.RoundedX;
+        public int Height => _size.RoundedY;
         public float Depth => _depth;
 
         public Material PostProcessingEffect { get; set; }
@@ -48,7 +49,7 @@ namespace SlowAndReverb
 
         public void ResetScissor()
         {
-            Scissor = new Rectangle(0f, 0f, _width, _height);
+            Scissor = new Rectangle(0f, 0f, Width, Height);
         }
     }
 }
