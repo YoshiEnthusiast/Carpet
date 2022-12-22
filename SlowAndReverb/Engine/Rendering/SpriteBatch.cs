@@ -98,7 +98,7 @@ namespace SlowAndReverb
             }
             else
             {
-                _frameBuffer.UnBind();
+                _frameBuffer.Unbind();
             }
 
             int targetWidth = target.Width;
@@ -111,7 +111,7 @@ namespace SlowAndReverb
 
             GL.ClearColor(clearColor.ToColor4());
 
-            GL.Scissor((int)scissor.X, (int)scissor.Y, (int)scissor.Width, (int)scissor.Height);
+            GL.Scissor((int)scissor.Left, (int)scissor.Top, (int)scissor.Width, (int)scissor.Height);
 
             Matrix4 projection = Matrix4.CreateOrthographicOffCenter(0f, targetWidth, targetHeight, 0f, -1f, 1f);
             _transform = view * projection;
@@ -127,8 +127,8 @@ namespace SlowAndReverb
             float boundsWidth = bounds.Width;
             float boundsHeight = bounds.Height; 
 
-            float textureLeft = bounds.X / textureWidth;
-            float textureTop = bounds.Y / textureHeight;
+            float textureLeft = bounds.Left / textureWidth;
+            float textureTop = bounds.Top / textureHeight;
             float textureRight = textureLeft + boundsWidth / textureWidth;
             float textureBottom = textureTop + boundsHeight / textureHeight;
 
@@ -148,8 +148,9 @@ namespace SlowAndReverb
                 textureTop = value;
             }
 
-            float spriteScaleX = scale.X;
-            float spriteScaleY = scale.Y;
+            // Ты просто конченный, Георгий. Ты ненавидишь себя не зря
+            float spriteScaleX = scale.RoundedX;
+            float spriteScaleY = scale.RoundedY;
 
             float x = position.X;
             float y = position.Y;
@@ -202,9 +203,14 @@ namespace SlowAndReverb
             Submit(texture, null, position, color, 0f, depth);
         }
 
+        public void Submit(Texture texture, Vector2 position, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
+        {
+            Submit(texture, null, new Rectangle(0f, 0f, texture.Width, texture.Height), position, Vector2.One, Vector2.Zero, Color.White, 0f, horizontalEffect, verticalEffect, depth);
+        }
+
         public void Submit(Texture texture, Vector2 position, float depth)
         {
-            Submit(texture, position, Color.White, depth);
+            Submit(texture, position, SpriteEffect.None, SpriteEffect.None, depth);
         }
 
         public void Submit(Texture texture, Material material, VertexColorTextureCoordinate[] vertices, uint[] indices, float depth)
@@ -264,6 +270,8 @@ namespace SlowAndReverb
                     {
                         currentProgram.Bind();
                         currentProgram.SetUniform("u_Transform", _transform);
+
+                        lastTexture = null;
                     }
 
                     currentMaterial.Apply();

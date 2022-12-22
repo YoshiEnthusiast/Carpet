@@ -1,6 +1,9 @@
-﻿using OpenTK.Windowing.Common;
+﻿using OpenTK.Graphics.OpenGL;
+using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using System;
+using System.IO;
+using System.Security.Cryptography;
 
 namespace SlowAndReverb
 {
@@ -21,10 +24,14 @@ namespace SlowAndReverb
 
         public unsafe Window(GameWindowSettings settings, NativeWindowSettings nativeSettings) : base(settings, nativeSettings)
         {
-            Content.LoadEverything();
+            using (MemoryStream stream = ContentEncoder.Decode("b.encoded"))
+                File.WriteAllBytes("b.png", stream.ToArray());
+
+
             OpenGL.Initialize();
             Material.InitializeUniforms();
             SFX.Initialize(null);
+            Content.Initialize(TextureLoadMode.LoadAtlas);
             Graphics.Initialize();
             
             Input.Initialize(this);
@@ -35,12 +42,10 @@ namespace SlowAndReverb
             Console.WriteLine(OpenGL.MaxTextureSize);
             Console.WriteLine(OpenGL.MaxTextureUnits);
 
-            _yosh = new Sprite("yosh")
+            _yosh = new Sprite("Yosh")
             {
                 Depth = 5f
             }; 
-
-            _spikeGrenade = Content.GetTexture("spikeGrenade");
 
             //_testMaterial = new TestMaterial();
 
@@ -147,13 +152,32 @@ namespace SlowAndReverb
             //Console.WriteLine(string.Join(',', Input.PressedKeys.Select(k => Input.KeyToChar(k)).ToArray()));
 
             _time += 0.01f;
-            _test.Angle = _time;
+            //_test.Angle = _time;
 
             //_testMaterial.Time = _time;
 
             ////_needler.Alpha = (float)Math.Abs(Maths.Sin(_angle));
 
             _textMaterial.Time = _time;
+
+            //if (Input.IsPressed(Key.O))
+            //{
+            //    var atlas = new Atlas(OpenGL.MaxTextureSize);
+
+            //    foreach (string path in Directory.GetFiles("test"))
+            //    {
+            //        Texture texture = Texture.FromFile(path);
+
+            //        atlas.Add(texture, Path.GetFileName(path));
+            //    }
+
+            //    atlas.Build(5);
+
+            //    atlas.Texture.SaveAsPng("atlas2.png");
+            //    atlas.Data.Save("amogus.xml");
+
+            //    Console.WriteLine("saved");
+            //}
 
             Input.Update();
         }
@@ -164,10 +188,12 @@ namespace SlowAndReverb
         private void OnRender(FrameEventArgs args)
         {
             Graphics.BeginLayer(_layer);
-            _test.Draw(new Vector2(50f));
-            //Graphics.DrawLine(new Vector2(10f), _layer.MousePosition, new Color(255, 0, 255), 1f);
-            Graphics.DrawCircleWithLines(_layer.MousePosition, new Color(255, 0, 127), 50, 1f);
+            _test.Draw(_layer.MousePosition);
             _font.Draw(a, 90f, 50f, 1f);
+            Graphics.DrawLine(new Vector2(10f), _layer.MousePosition, new Color(255, 0, 0), 1f);
+            //Graphics.DrawCircle(_layer.MousePosition, new Color(255, 0, 127), 50, 1f);
+            Graphics.DrawRectangle(new Rectangle(new Vector2(5f), _layer.MousePosition), new Color(255, 0, 127), 1f);
+            //Graphics.DrawCircleWithLines(_layer.MousePosition, new Color(0, 255, 0), 50, 1f);
             Graphics.EndCurrentLayer();
 
             Graphics.BeginLayer(_layer2);
@@ -176,7 +202,7 @@ namespace SlowAndReverb
 
             Graphics.DrawLayers();
 
-            Context.SwapBuffers(); 
+            Context.SwapBuffers();
         }
     }
 }

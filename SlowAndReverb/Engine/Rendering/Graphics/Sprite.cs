@@ -8,7 +8,7 @@ namespace SlowAndReverb
     {
         private readonly Dictionary<string, Animation> _animations = new Dictionary<string, Animation>();
 
-        private readonly Texture _texture;
+        private readonly VirtualTexture _texture;
 
         private readonly int _frameWidth;
         private readonly int _frameHeight;
@@ -25,7 +25,7 @@ namespace SlowAndReverb
 
         private bool _animationFinished;
 
-        public Sprite(Texture texture, int frameWidth, int frameHeight)
+        public Sprite(VirtualTexture texture, int frameWidth, int frameHeight)
         {
             _texture = texture;
 
@@ -40,22 +40,22 @@ namespace SlowAndReverb
             UpdateTextureBounds();
         }
 
-        public Sprite(string fileName, int frameWidth, int frameHeight) : this(Content.GetTexture(fileName), frameWidth, frameHeight)
+        public Sprite(string fileName, int frameWidth, int frameHeight) : this(Content.GetVirtualTexture(fileName), frameWidth, frameHeight)
         {
 
         }
 
-        public Sprite(Texture texture) : this(texture, texture.Width, texture.Height)
+        public Sprite(VirtualTexture texture) : this(texture, texture.Width, texture.Height)
         {
 
         }
 
-        public Sprite(string fileName) : this(Content.GetTexture(fileName))
+        public Sprite(string fileName) : this(Content.GetVirtualTexture(fileName))
         {
 
         }
 
-        private Sprite(Texture texture, int frameWidth, int frameHeight, int framesPerRow, Dictionary<string, Animation> animations, Rectangle bounds)
+        private Sprite(VirtualTexture texture, int frameWidth, int frameHeight, int framesPerRow, Dictionary<string, Animation> animations, Rectangle bounds)
         {
             _texture = texture;
 
@@ -79,7 +79,7 @@ namespace SlowAndReverb
         public SpriteEffect VerticalEffect { get; set; }
         public SpriteEffect HorizontalEffect { get; set; }
 
-        public Texture Texture => _texture;
+        public VirtualTexture Texture => _texture;
         public int Frame => _frame;
         public float Width => _frameWidth * Scale.X;
         public float Height => _frameHeight * Scale.Y;

@@ -118,6 +118,11 @@ namespace SlowAndReverb
             return new Vector2(RoundedX, RoundedY);
         }
 
+        public Vector2 Ceiling()
+        {
+            return new Vector2(Maths.Ceiling(X), Maths.Ceiling(Y));
+        }
+
         public Vector2 Negate()
         {
             return new Vector2(-X, -Y);

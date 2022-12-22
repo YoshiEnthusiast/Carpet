@@ -7,7 +7,7 @@ namespace SlowAndReverb
         private static int s_maxTextureUnits;
         private static int s_maxTextureSize;
 
-        public static void Initialize()
+        internal static void Initialize()
         {
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 

@@ -1,4 +1,6 @@
 ﻿using OpenTK.Mathematics;
+using System.IO;
+using System.Xml;
 
 namespace SlowAndReverb
 {
@@ -17,6 +19,16 @@ namespace SlowAndReverb
             matrix *= Matrix4.CreateTranslation(position.RoundedX - originX, position.RoundedY - originY, 0f);
 
             return matrix;
+        }
+
+        public static XmlDocument LoadXML(string fileName)
+        {
+            var document = new XmlDocument();
+
+            using (FileStream stream = File.OpenRead(fileName))
+                document.Load(stream);
+
+            return document;
         }
     }
 }

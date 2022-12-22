@@ -27,17 +27,17 @@ namespace SlowAndReverb
         public Vector2 Size => _size;
 
         public Vector2 TopLeft => _position;
-        public Vector2 TopRight => new Vector2(Right, Y);
-        public Vector2 BottomLeft => new Vector2(X, Bottom);
+        public Vector2 TopRight => new Vector2(Right, Top);
+        public Vector2 BottomLeft => new Vector2(Left, Bottom);
         public Vector2 BottomRight => _position + _size;
 
-        public float X => _position.X;
-        public float Y => _position.Y;
+        public float Left => _position.X;
+        public float Top => _position.Y;
         public float Width => _size.X;
         public float Height => _size.Y;
 
-        public float Right => X + Width;
-        public float Bottom => Y + Height;
+        public float Right => Left + Width;
+        public float Bottom => Top + Height;
 
         public Rectangle Translate(Vector2 by)
         {
@@ -51,16 +51,16 @@ namespace SlowAndReverb
 
         public bool Intersects(Rectangle other)
         {
-            float otherX = other.X;
-            float otherY = other.Y;
+            float otherX = other.Left;
+            float otherY = other.Top;
 
-            return X < otherX && Right > otherX || otherX < X && other.Right > X ||
-                Y < otherY && Bottom > otherY || otherY < Y && other.Bottom > Y;
+            return Left < otherX && Right > otherX || otherX < Left && other.Right > Left ||
+                Top < otherY && Bottom > otherY || otherY < Top && other.Bottom > Top;
         }
 
         public bool Contains(Rectangle other)
         {
-            return other.X > X && other.Right < Right && other.Y > Y && other.Bottom < Bottom;
+            return other.Left > Left && other.Right < Right && other.Top > Top && other.Bottom < Bottom;
         }
 
         public float GetArea()

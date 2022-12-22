@@ -31,7 +31,7 @@ namespace SlowAndReverb
         public static IEnumerable<Key> PressedKeys => s_pressedKeys;    
         public static IEnumerable<Key> RepeatedPressedKeys => s_repeatedPressedKeys;
 
-        public static void Initialize(GameWindow window)
+        internal static void Initialize(GameWindow window)
         {
             s_window = window;
 

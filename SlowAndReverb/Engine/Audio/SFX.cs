@@ -16,7 +16,7 @@ namespace SlowAndReverb
 
         public static AudioContext CurrentContext => s_currentContext;
 
-        public static void Initialize(string deviceName)
+        internal static void Initialize(string deviceName)
         {
             if (s_currentContext is not null)
             {

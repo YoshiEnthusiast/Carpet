@@ -4,9 +4,9 @@ namespace SlowAndReverb
 {
     public class WaveFileCache : Cache<WaveFile>
     {
-        public WaveFileCache(string mainDirectory, bool load) : base(mainDirectory, load)
+        public WaveFileCache(string mainDirectory, bool load) : base(".wav", mainDirectory, load)
         {
-            Extension = ".wav";
+
         }
 
         protected override WaveFile CreateItem(string path)

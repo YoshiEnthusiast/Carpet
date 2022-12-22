@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using SlowAndReverb.Engine;
 
 namespace SlowAndReverb
 {
@@ -10,7 +11,7 @@ namespace SlowAndReverb
     {
         private readonly Dictionary<char, Character> _characters = new Dictionary<char, Character>();
 
-        private readonly Texture _texture;
+        private readonly VirtualTexture _texture;
         private readonly string _name;
 
         private readonly int _padding;
@@ -18,12 +19,9 @@ namespace SlowAndReverb
 
         public FontFamily(string textureName, string dataFileName)
         {
-            _texture = Content.GetTexture(textureName);
+            _texture = Content.GetVirtualTexture(textureName);
 
-            var document = new XmlDocument();
-
-            using (FileStream stream = File.OpenRead(dataFileName))
-                document.Load(stream);
+            XmlDocument document = Utilities.LoadXML(dataFileName);
 
             XmlElement font = document["font"];
             XmlElement chars = font["chars"];
@@ -53,7 +51,7 @@ namespace SlowAndReverb
             _lineHeight = common.GetIntAttribute("lineHeight");
         }
 
-        public Texture Texture => _texture;
+        public VirtualTexture Texture => _texture;
         public string Name => _name;    
         public int TexturePadding => _padding;
         public int LineHeight => _lineHeight;

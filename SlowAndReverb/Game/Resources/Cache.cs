@@ -9,10 +9,14 @@ namespace SlowAndReverb
         public const string ContentFolder = "Content";
 
         private readonly Dictionary<string, T> _items = new Dictionary<string, T>();
+
+        private readonly string _extension;
         private readonly string _mainDirectory;
 
-        public Cache(string mainDirectory, bool load)
+        public Cache(string extension, string mainDirectory, bool load)
         {
+            _extension = extension;
+
             if (mainDirectory is not null)
             {
                 _mainDirectory = Path.Combine(ContentFolder, mainDirectory);
@@ -22,13 +26,8 @@ namespace SlowAndReverb
             }
         }
 
-        public Cache() : this(null, false)
-        {
-
-        }
-
         public string MainDirectory => _mainDirectory;
-        public string Extension { get; protected set; }
+        public string Extension => _extension;  
 
         public T GetItem(string fileName)
         {
@@ -43,7 +42,7 @@ namespace SlowAndReverb
         public void LoadFromDirectory(string directory)
         {
             foreach (string path in Directory.GetFiles(directory))
-                if (Path.GetExtension(path) == Extension)
+                if (Path.GetExtension(path) == _extension)
                     AddItem(path);
 
             foreach (string subDirectory in Directory.GetDirectories(directory))
@@ -59,20 +58,26 @@ namespace SlowAndReverb
         {
             if (!Path.HasExtension(fileName))
             {
-                fileName += Extension;
+                fileName += _extension;
             }
             else
             {
                 string extension = Path.GetExtension(fileName);
 
-                if (extension != Extension)
-                    throw new Exception($"This is an invalid file extension for this type of content({extension}). Expected extension: {Extension}");
+                if (extension != _extension)
+                    throw new Exception($"This is an invalid file extension for this type of content({extension}). Expected extension: {_extension}");
             }
 
             if (File.Exists(fileName) || _mainDirectory is null)
                 return fileName;
 
             return Path.Combine(_mainDirectory, fileName);
+        }
+
+        public IEnumerable<CachedItem<T>> GetAllValues()
+        {
+            foreach (string key in _items.Keys)
+                yield return new CachedItem<T>(_items[key], key);
         }
 
         protected abstract T CreateItem(string path);

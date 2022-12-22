@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SlowAndReverb
 {
@@ -47,7 +43,7 @@ namespace SlowAndReverb
                 if (!_family.TryGetCharacter(symbol, out Character character))
                     continue;
 
-                Texture texture = _family.Texture;
+                VirtualTexture texture = _family.Texture;
 
                 Rectangle bounds = character.TextureBounds;
                 Vector2 bearing = character.Bearing;

@@ -35,6 +35,8 @@ namespace SlowAndReverb
 
         public static Texture FromBytes(int width, int height, byte[] buffer, PixelFormat format)
         {
+            CheckSize(width, height);
+
             int handle = Create();
 
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height, 0, format, PixelType.UnsignedByte, buffer);
@@ -45,6 +47,8 @@ namespace SlowAndReverb
 
         public static Texture FromBytes(int width, int height, IntPtr buffer, PixelFormat format)
         {
+            CheckSize(width, height);
+
             int handle = Create();
 
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, width, height, 0, format, PixelType.UnsignedByte, buffer);
@@ -67,6 +71,7 @@ namespace SlowAndReverb
 
             return FromStbImage(image);
         }
+
 
         public static Texture FromFile(string fileName)
         {
@@ -102,9 +107,9 @@ namespace SlowAndReverb
             Bind(TextureUnit.Texture0);
         }
 
-        public override void UnBind()
+        public override void Unbind()
         {
-            base.UnBind();
+            base.Unbind();
 
             _unit = null;
         }
@@ -114,6 +119,11 @@ namespace SlowAndReverb
             GL.ActiveTexture(_unit.Value);
 
             GL.BindTexture(TextureTarget.Texture2D, handle);
+        }
+
+        protected override void Delete(int handle)
+        {
+            GL.DeleteTexture(handle);
         }
 
         private static int Create()
@@ -133,6 +143,14 @@ namespace SlowAndReverb
         private static void SetParameter(TextureParameterName name, int value)
         {
             GL.TexParameter(TextureTarget.Texture2D, name, value);
+        }
+
+        private static void CheckSize(int width, int height)
+        {
+            int maxSize = OpenGL.MaxTextureSize;
+
+            if (width > maxSize || height > maxSize)
+                throw new InvalidOperationException($"Max texture size ({maxSize}) exceeded. Given size: {width}, {height}");
         }
     }
 }

@@ -9,9 +9,9 @@ namespace SlowAndReverb
 {
     public class ShaderSourceCache : Cache<string>
     {
-        public ShaderSourceCache(string mainDirectory, string extension, bool load) : base(mainDirectory, load)
+        public ShaderSourceCache(string mainDirectory, string extension, bool load) : base(extension, mainDirectory, load)
         {
-            Extension = extension;  
+
         }
 
         protected override string CreateItem(string path)

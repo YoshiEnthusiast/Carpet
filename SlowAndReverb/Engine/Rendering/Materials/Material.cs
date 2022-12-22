@@ -54,7 +54,7 @@ namespace SlowAndReverb
             }
         }
 
-        public static void InitializeUniforms()
+        internal static void InitializeUniforms()
         {
             s_uniformStorages.Clear();
             s_setUniformMethods.Clear();
@@ -130,7 +130,7 @@ namespace SlowAndReverb
             {
                 Texture texture = _textures[i];
 
-                texture.UnBind();
+                texture.Unbind();
             }
         }
 

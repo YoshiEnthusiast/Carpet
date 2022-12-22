@@ -8,9 +8,9 @@ namespace SlowAndReverb
 {
     internal class TextureCache : Cache<Texture>
     {
-        public TextureCache(string mainDirectory, bool load) : base(mainDirectory, load)
+        public TextureCache(string mainDirectory, bool load) : base(".png", mainDirectory, load)
         {
-            Extension = ".png";
+
         }
 
         protected override Texture CreateItem(string path)

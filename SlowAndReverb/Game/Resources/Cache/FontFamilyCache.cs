@@ -1,26 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
 
 namespace SlowAndReverb
 {
     public class FontFamilyCache : Cache<FontFamily>
     {
-        private readonly string _dataFileExtension = ".xml";
-
-        public FontFamilyCache(string mainDirectory, bool load) : base(mainDirectory, load)
+        public FontFamilyCache(string mainDirectory, bool load) : base(".xml", mainDirectory, load)
         {
-            Extension = ".png";
+
         }
 
         protected override FontFamily CreateItem(string path)
         {
-            string dataFileName = Path.ChangeExtension(path, _dataFileExtension);
+            string textureName = Path.GetFileNameWithoutExtension(Path.ChangeExtension(path, null));
+            string texturePath = $@"Fonts\{textureName}";
 
-            return new FontFamily(path, dataFileName);
+            return new FontFamily(texturePath, path);
         }
     }
 }
