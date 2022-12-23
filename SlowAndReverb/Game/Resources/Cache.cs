@@ -58,13 +58,13 @@ namespace SlowAndReverb
         {
             if (!Path.HasExtension(fileName))
             {
-                fileName += _extension;
+                fileName = AddExtention(fileName);
             }
             else
             {
                 string extension = Path.GetExtension(fileName);
 
-                if (extension != _extension)
+                if (!IsValidExtension(extension))                                                                         // Remove this??????
                     throw new Exception($"This is an invalid file extension for this type of content({extension}). Expected extension: {_extension}");
             }
 
@@ -81,6 +81,16 @@ namespace SlowAndReverb
         }
 
         protected abstract T CreateItem(string path);
+
+        protected virtual string AddExtention(string fileName)
+        {
+            return fileName + _extension;
+        }
+
+        protected virtual bool IsValidExtension(string extension)
+        {
+            return extension == _extension; 
+        }
 
         private T AddItem(string path)
         {

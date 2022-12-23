@@ -1,17 +1,18 @@
 ﻿using OpenTK.Audio.OpenAL;
+using System.IO;
 
 namespace SlowAndReverb
 {
-    public class WaveFileCache : Cache<WaveFile>
+    public class WaveFileCache : FileCache<WaveFile>
     {
         public WaveFileCache(string mainDirectory, bool load) : base(".wav", mainDirectory, load)
         {
 
         }
 
-        protected override WaveFile CreateItem(string path)
+        protected override WaveFile CreateItem(Stream stream)
         {
-            return new WaveFile(path);
+            return new WaveFile(stream);
         }
     }
 }

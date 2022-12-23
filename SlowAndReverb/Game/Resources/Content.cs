@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading;
 using System.Xml;
@@ -11,9 +12,10 @@ namespace SlowAndReverb
 {
     public static class Content
     {
+        public const string EncodedFileExtsntion = ".rsc";
         public const string DefaultShaderName = "default";
 
-        private const string AtlasFileName = "atlas.png";
+        private const string AtlasFileName = "atlas.rsc";
         private const string AtlasDataFileName = "atlas.xml";
 
         private static TextureCache s_textureCache;
@@ -23,6 +25,8 @@ namespace SlowAndReverb
         private static ShaderSourceCache s_vertexSourceCache;
         private static ShaderSourceCache s_fragmentSourceCache;
         private static ShaderSourceCache s_geometrySourceCache;
+
+        private static VirtualTexture s_noTexture;
 
         private static readonly Dictionary<string, ShaderProgram> s_shaders = new Dictionary<string, ShaderProgram>();
         private static readonly Dictionary<string, VirtualTexture> s_virtualTextures = new Dictionary<string, VirtualTexture>();
@@ -63,12 +67,10 @@ namespace SlowAndReverb
 
                 atlas.Build(5);
 
-                // DONT FORGET TO UNCOMMENT 
+                foreach (CachedItem<Texture> item in items)
+                    item.Value.Delete();
 
-                //foreach (CachedItem<Texture> item in items) 
-                //    item.Value.Delete();
-
-                //s_textureCache.Clear();
+                s_textureCache.Clear();
 
                 Texture atlasTexture = atlas.Texture;
                 XmlDocument atlasData = atlas.Data;
@@ -90,6 +92,7 @@ namespace SlowAndReverb
             }
 
             s_fontFamilyCache = new FontFamilyCache("Fonts", true);
+            s_noTexture = FindVirtualTexture("noTexture");
 
             s_shaders.Clear();
         }
@@ -145,11 +148,12 @@ namespace SlowAndReverb
 
         public static VirtualTexture GetVirtualTexture(string name)
         {
-            if (s_virtualTextures.TryGetValue(name, out VirtualTexture texture))
-                return texture;
+            VirtualTexture result = FindVirtualTexture(name);
 
-            // Question mark texture??????
-            return null;
+            if (result is null)
+                return s_noTexture;
+
+            return result;
         }
 
         public static FontFamily GetFontFamily(string fileName)
@@ -179,6 +183,14 @@ namespace SlowAndReverb
 
                 s_virtualTextures.Add(name, new VirtualTexture(atlasTexture, bounds));
             }
+        }
+
+        private static VirtualTexture FindVirtualTexture(string name)
+        {
+            if (s_virtualTextures.TryGetValue(name, out VirtualTexture texture))
+                return texture;
+
+            return null;
         }
     }
 }

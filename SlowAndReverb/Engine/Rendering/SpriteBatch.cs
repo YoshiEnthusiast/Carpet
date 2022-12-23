@@ -148,7 +148,6 @@ namespace SlowAndReverb
                 textureTop = value;
             }
 
-            // Ты просто конченный, Георгий. Ты ненавидишь себя не зря
             float spriteScaleX = scale.RoundedX;
             float spriteScaleY = scale.RoundedY;
 

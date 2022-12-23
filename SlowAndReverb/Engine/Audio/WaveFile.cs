@@ -17,9 +17,9 @@ namespace SlowAndReverb
         private readonly ALFormat _format;
         private readonly int _sampleRate;
 
-        public WaveFile(string path)
+        public WaveFile(Stream stream)
         {
-            using (BinaryReader reader = new BinaryReader(File.OpenRead(path)))
+            using (BinaryReader reader = new BinaryReader(stream))
             {
                 string signature = ReadWaveFileProperty(reader);
                 int riffChunkSize = reader.ReadInt32();

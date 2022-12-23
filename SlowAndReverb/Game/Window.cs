@@ -1,6 +1,8 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using SlowAndReverb.Game.Resources;
+using StbImageSharp;
 using System;
 using System.IO;
 using System.Security.Cryptography;
@@ -24,10 +26,6 @@ namespace SlowAndReverb
 
         public unsafe Window(GameWindowSettings settings, NativeWindowSettings nativeSettings) : base(settings, nativeSettings)
         {
-            using (MemoryStream stream = ContentEncoder.Decode("b.encoded"))
-                File.WriteAllBytes("b.png", stream.ToArray());
-
-
             OpenGL.Initialize();
             Material.InitializeUniforms();
             SFX.Initialize(null);
