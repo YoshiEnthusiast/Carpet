@@ -7,16 +7,25 @@
 
         public virtual void Bind()
         {
+            if (Deleted)
+                return;
+
             Bind(Handle);
         }
 
         public virtual void Unbind()
         {
+            if (Deleted)
+                return;
+
             Bind(0);
         }
 
         public virtual void Delete()
         {
+            if (Deleted)
+                return;
+
             Delete(Handle);
         }
 

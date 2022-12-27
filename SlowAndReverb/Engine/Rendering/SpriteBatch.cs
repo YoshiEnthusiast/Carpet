@@ -78,6 +78,9 @@ namespace SlowAndReverb
             _frameBuffer = new FrameBuffer();
             _renderBuffer = new RenderBuffer();
 
+            _renderBuffer.Bind();
+            _renderBuffer.SetResolution(0, 0);
+
             _frameBuffer.Bind();
             _frameBuffer.SetRenderBuffer(_renderBuffer);
         }

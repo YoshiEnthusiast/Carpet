@@ -1,15 +1,18 @@
 ﻿using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using SlowAndReverb.Game.Resources;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using StbImageSharp;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Net.WebSockets;
 using System.Security.Cryptography;
 
 namespace SlowAndReverb
 {
-    public sealed class Window : GameWindow
+    public sealed class OldDebugWindow : GameWindow
     {
         private readonly Texture _spikeGrenade;
         private readonly Sprite _yosh;
@@ -24,12 +27,12 @@ namespace SlowAndReverb
 
         private DrunkMaterial _drunkMaterial;
 
-        public unsafe Window(GameWindowSettings settings, NativeWindowSettings nativeSettings) : base(settings, nativeSettings)
+        public unsafe OldDebugWindow(GameWindowSettings settings, NativeWindowSettings nativeSettings) : base(settings, nativeSettings)
         {
-            OpenGL.Initialize();
-            Material.InitializeUniforms();
+            OpenGL.Initialize(Context);
             SFX.Initialize(null);
-            Content.Initialize(TextureLoadMode.LoadAtlas);
+            Content.LoadGraphics(TextureLoadMode.LoadAtlas);
+            Content.Load();
             Graphics.Initialize();
             
             Input.Initialize(this);
@@ -114,6 +117,9 @@ namespace SlowAndReverb
         SoundEffect s;
         private void OnUpdate(FrameEventArgs args)
         {
+            float updatesPerSecond = 1f / (float)args.Time;
+            float deltaTime = updatesPerSecond / (float)UpdateFrequency;
+
             SFX.Update();
 
             //if (Input.IsPressed(Key.I))

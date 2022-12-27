@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Xml;
 
-namespace SlowAndReverb.Engine
+namespace SlowAndReverb
 {
     internal static class Extensions
     {

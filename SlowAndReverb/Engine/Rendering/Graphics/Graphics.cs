@@ -28,10 +28,11 @@ namespace SlowAndReverb
         internal static void Initialize()
         {
             Resolution.Change += OnResolutionChnaged;
-
             ApplyResolution();
 
             s_blankTexture = Content.GetVirtualTexture("blank");
+
+            Material.InitializeUniforms();
         }
 
         public static void Draw(Texture texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)

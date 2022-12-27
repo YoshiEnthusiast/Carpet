@@ -2,17 +2,29 @@
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using StbImageSharp;
-using StbImageWriteSharp;
+using System.Linq;
+using System.Threading;
 
 namespace SlowAndReverb
 {
     internal sealed class Program
     {
+        private static UntitledGame s_game;
+
+        public static UntitledGame Game => s_game;
+
         private static void Main(string[] args)
         {
-            Resolution.Initialize();
-            Resolution resolution = Resolution.Current;
+            // temporary
+            Resolution initialREsolution = Resolution.SupportedResolutions.First();
+
+            s_game = new UntitledGame(60d, 60d, "Untitled game");
+
+            s_game.Run(initialREsolution, TextureLoadMode.LoadAtlas);
+
+            return;
+
+            Resolution resolution = Resolution.SupportedResolutions.First();
 
             var settings = new GameWindowSettings()
             {
@@ -23,11 +35,16 @@ namespace SlowAndReverb
             var nativeSettings = new NativeWindowSettings()
             {
                 Title = "Slow and reverb",
-                Size = new Vector2i(resolution.Width, resolution.Height),
-                WindowBorder = WindowBorder.Fixed
+                WindowBorder = WindowBorder.Fixed,
+                Size = new Vector2i(resolution.Width, resolution.Height)
             };
 
-            new Window(settings, nativeSettings).Run();
+            var window = new OldDebugWindow(settings, nativeSettings);
+
+            Resolution.Initialize(window);
+            Resolution.SetCurrent(resolution);
+
+            window.Run();
         }
     }
 }

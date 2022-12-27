@@ -1,11 +1,6 @@
-﻿using SlowAndReverb.Engine;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Security.AccessControl;
 using System.Text;
-using System.Threading;
 using System.Xml;
 
 namespace SlowAndReverb
@@ -31,14 +26,13 @@ namespace SlowAndReverb
         private static readonly Dictionary<string, ShaderProgram> s_shaders = new Dictionary<string, ShaderProgram>();
         private static readonly Dictionary<string, VirtualTexture> s_virtualTextures = new Dictionary<string, VirtualTexture>();
 
-        internal static void Initialize(TextureLoadMode mode)
+        internal static void LoadGraphics(TextureLoadMode mode)
         {
-            s_textureCache = new TextureCache("Textures", true);
-            s_waveFileCache = new WaveFileCache("SFX", true);
-
             s_vertexSourceCache = new ShaderSourceCache("Shaders/Vertex", ".vert", true);
             s_fragmentSourceCache = new ShaderSourceCache("Shaders/Fragment", ".frag", true);
             s_geometrySourceCache = new ShaderSourceCache("Shaders/Geometry", ".geom", true);
+
+            s_textureCache = new TextureCache("Textures", true);
 
             string texturesDirectory = s_textureCache.MainDirectory;
 
@@ -68,7 +62,12 @@ namespace SlowAndReverb
                 atlas.Build(5);
 
                 foreach (CachedItem<Texture> item in items)
-                    item.Value.Delete();
+                {
+                    Texture texture = item.Value;
+
+                    texture.Bind();
+                    texture.Delete();
+                }
 
                 s_textureCache.Clear();
 
@@ -95,6 +94,14 @@ namespace SlowAndReverb
             s_noTexture = FindVirtualTexture("noTexture");
 
             s_shaders.Clear();
+        }
+
+        internal static void Load()
+        {
+            s_waveFileCache = new WaveFileCache("SFX", true);
+
+            // Levels
+            // Save data????
         }
 
         public static ShaderProgram GetShaderProgram(string vertexName, string fragmentName, string geometryName)

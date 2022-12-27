@@ -3,6 +3,7 @@ using StbImageSharp;
 using StbImageWriteSharp;
 using System;
 using System.IO;
+using System.Xml.Linq;
 using ImageReadColorComponents = StbImageSharp.ColorComponents;
 using ImageWriteColorComponents = StbImageWriteSharp.ColorComponents;
 
@@ -82,6 +83,9 @@ namespace SlowAndReverb
 
         public void SaveAsPng(Stream stream)
         {
+            if (Deleted)
+                return;
+
             int bufferSize = _width * _height * _colorComponentsCount;
             var buffer = new byte[bufferSize];
 
@@ -99,6 +103,9 @@ namespace SlowAndReverb
 
         public void Bind(TextureUnit unit)
         {
+            if (Deleted)
+                return;
+
             _unit = unit;
             Bind(Handle);
         }
@@ -132,8 +139,8 @@ namespace SlowAndReverb
             GL.CreateTextures(TextureTarget.Texture2D, 1, out int handle);
             GL.BindTexture(TextureTarget.Texture2D, handle);
 
-            SetParameter(TextureParameterName.TextureWrapS, (int)TextureWrapMode.Clamp);
-            SetParameter(TextureParameterName.TextureWrapT, (int)TextureWrapMode.Clamp);
+            SetParameter(TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
+            SetParameter(TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
 
             SetParameter(TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
             SetParameter(TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);

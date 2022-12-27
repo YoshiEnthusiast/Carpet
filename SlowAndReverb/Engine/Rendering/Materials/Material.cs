@@ -74,11 +74,6 @@ namespace SlowAndReverb
                     type
                 });
 
-                if (method is null)
-                {
-                    Console.WriteLine(type.Name);
-                }
-
                 s_setUniformMethods.Add(type, method);
             }
         }

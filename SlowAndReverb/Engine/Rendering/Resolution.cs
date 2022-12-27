@@ -1,27 +1,27 @@
-﻿using System;
+﻿using OpenTK.Mathematics;
+using OpenTK.Windowing.Desktop;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace SlowAndReverb
 {
-    // TODO: Add null checks to static properties and make this class not garbage
     public class Resolution
     {
-        private static readonly IEnumerable<Resolution> s_supportedResolutions = new Resolution[]
+        private static readonly IReadOnlyCollection<Resolution> s_supportedResolutions = new Resolution[]
         {
             new Resolution(1280, 720)
         };
 
+        private static GameWindow s_window;
+
         private static Resolution s_current;
         private static EventHandler _change;
 
-        private readonly int _width;
-        private readonly int _height;   
+        private readonly Vector2 _size;
 
-        private Resolution(int width, int heigth)
+        private Resolution(int width, int height)
         {
-            _width = width;
-            _height = heigth;
+            _size = new Vector2(width, height);
         }
 
         public static event EventHandler Change
@@ -40,25 +40,50 @@ namespace SlowAndReverb
         public static IEnumerable<Resolution> SupportedResolutions => s_supportedResolutions;
         public static Resolution Current => s_current;
 
-        public static int CurrentWidth => s_current.Width;
-        public static int CurrentHeight => s_current.Height;
+        public static int CurrentWidth
+        {
+            get
+            {
+                if (s_current is null)
+                    return 0;
+
+                return s_current.Width;
+            }
+        }
+
+        public static int CurrentHeight
+        {
+            get
+            {
+                if (s_current is null)
+                    return 0;
+
+                return s_current.Height;
+            }
+        }
 
         public static Vector2 CurrentSize => s_current.Size;
 
-        public Vector2 Size => new Vector2(_width, _height);    
-        public int Width => _width;
-        public int Height => _height;
+        public Vector2 Size => _size;
+        public int Width => (int)_size.X;
+        public int Height => (int)_size.Y;
 
         public static void SetCurrent(Resolution resolution)
         {
             s_current = resolution;
 
+            resolution.Apply();
             _change?.Invoke(null, EventArgs.Empty);
         }
 
-        public static void Initialize()
+        internal static void Initialize(GameWindow window)
         {
-            SetCurrent(s_supportedResolutions.First());
+            s_window = window;
+        }
+
+        private void Apply()
+        {
+            s_window.Size = new Vector2i(Width, Height);
         }
     }
 }
