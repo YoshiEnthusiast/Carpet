@@ -21,7 +21,7 @@ namespace SlowAndReverb
 
         private int _frame;
         private int _frameIndex;
-        private int _timePassed;
+        private float _timePassed;
 
         private bool _animationFinished;
 
@@ -89,33 +89,44 @@ namespace SlowAndReverb
         public string CurrentAnimationName => _currentAnimationName;
         public bool AnimationFinished => _animationFinished;
 
-        public void UpdateFrame()
+        public void UpdateFrame(float deltaTime)
         {
             if (_currentAnimation is null || _animationFinished)
                 return;
 
             Animation animation = _currentAnimation.Value;
+            deltaTime += _timePassed;
 
-            IEnumerable<AnimationSegment> segments = animation.Segments;
-            AnimationSegment segment = segments.ElementAt(_frameIndex);
-
-            _timePassed++;
-
-            if (_timePassed >= segment.Delay)
+            while (deltaTime > 0f)
             {
-                if (_frameIndex >= segments.Count() - 1)
+                AnimationSegment segment = animation.SegmentAt(_frameIndex);
+                float delay = segment.Delay;
+
+                if (deltaTime >= delay)
                 {
-                    if (animation.Looped)
-                        _frameIndex = 0;
+                    if (_frameIndex >= animation.SegmentsCount - 1)
+                    {
+                        if (animation.Looped)
+                            _frameIndex = 0;
+                        else
+                            _animationFinished = true;
+                    }
                     else
-                        _animationFinished = true;
+                    {
+                        _frameIndex++;
+                    }
+
+                    int frame = animation.SegmentAt(_frameIndex).Frame;
+                    SetFrame(frame);
+
+                    deltaTime -= delay;
                 }
                 else
                 {
-                    _frameIndex++;
-                }
+                    _timePassed = delay - deltaTime;
 
-                SetFrame(segments.ElementAt(_frameIndex).Frame);
+                    break;
+                }
             }
         }
 
@@ -133,7 +144,9 @@ namespace SlowAndReverb
                 return;
 
             Animation animation = _currentAnimation.Value;
-            SetFrame(animation.Segments.First().Frame);
+
+            int frame = animation.SegmentAt(0).Frame;
+            SetFrame(frame);
 
             _animationFinished = false;
         }
@@ -197,24 +210,12 @@ namespace SlowAndReverb
 
         public void Draw(Vector2 position)
         {
-            DrawWithoutUpdate(position);
-
-            UpdateFrame();
+            Graphics.Draw(_texture, Material, _textureBounds, position, Scale, Origin, Color, Angle, HorizontalEffect, VerticalEffect, Depth);
         }
 
         public void Draw(float x, float y)
         {
             Draw(new Vector2(x, y));
-        }
-
-        public void DrawWithoutUpdate(Vector2 position)
-        {
-            Graphics.Draw(_texture, Material, _textureBounds, position, Scale, Origin, Color, Angle, HorizontalEffect, VerticalEffect, Depth);
-        }
-
-        public void DrawWithoutUpdate(float x, float y)
-        {
-            DrawWithoutUpdate(new Vector2(x, y));
         }
 
         private void UpdateTextureBounds()

@@ -8,9 +8,9 @@ namespace SlowAndReverb
 
         public static int AliveCount => s_runner.AliveCount;
 
-        public static void Update()
+        public static void Update(float deltaTime)
         {
-            s_runner.Update();
+            s_runner.Update(deltaTime);
         }
 
         public static int Start(IEnumerator enumerator, float initialDelay)

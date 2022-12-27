@@ -10,13 +10,13 @@ namespace SlowAndReverb
 
         public int AliveCount => _coroutines.Count;
 
-        public void Update()
+        public void Update(float deltaTime)
         {
             foreach (int id in _coroutines.Keys)
             {
                 Coroutine coroutine = _coroutines[id];
 
-                coroutine.Update();
+                coroutine.Update(deltaTime);
 
                 if (coroutine.Finished)
                     _coroutines.Remove(id);

@@ -44,16 +44,9 @@ namespace SlowAndReverb
 
         }
 
-        Layer l;
-        Sprite s;
-
         private void DrawGame()
         {
-            Graphics.BeginLayer(l);
 
-            s.Draw(l.MousePosition);
-
-            Graphics.EndCurrentLayer();
         }
 
         private void UpdateContentLoading(float deltaTime)
@@ -63,9 +56,6 @@ namespace SlowAndReverb
 
             Console.WriteLine("Content loaded");
             _stateMachine.ForceState(GlobalState.Game);
-
-            l = new Layer(320, 180, 1f);
-            s = new Sprite("burn");
         }
     }
 }

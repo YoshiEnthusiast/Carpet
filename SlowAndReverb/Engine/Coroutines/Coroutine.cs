@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 
 namespace SlowAndReverb
 {
@@ -23,19 +24,25 @@ namespace SlowAndReverb
 
         public bool Finished => _finished;
 
-        public void Update()
+        public void Update(float deltaTime)
         {
             if (_finished)
                 return;
 
-            if (_delay <= 0f)
+            while (deltaTime > 0f)
             {
-                if (!TakeStep(_enumerator))
+                float time = Math.Min(deltaTime, _delay);
+
+                _delay -= time;
+
+                if (_delay <= 0f && !TakeStep(_enumerator))
+                {
                     _finished = true;
-            }
-            else
-            {
-                _delay--;
+
+                    return;
+                }
+
+                deltaTime -= time;
             }
         }
 
