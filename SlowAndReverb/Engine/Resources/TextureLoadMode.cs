@@ -1,6 +1,6 @@
 ﻿namespace SlowAndReverb
 {
-    public enum TextureLoadMode
+    internal enum TextureLoadMode
     {
         LoadAtlas,
 

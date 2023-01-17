@@ -284,6 +284,11 @@ namespace SlowAndReverb
             GL.ShaderSource(shader, source);
             GL.CompileShader(shader);
 
+            string error = GL.GetShaderInfoLog(shader);
+
+            if (!string.IsNullOrEmpty(error))
+                Console.WriteLine(error);
+
             GL.AttachShader(Handle, shader);
 
             return shader;

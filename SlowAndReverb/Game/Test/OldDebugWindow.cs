@@ -34,7 +34,7 @@ namespace SlowAndReverb
             Content.LoadGraphics(TextureLoadMode.LoadAtlas);
             Content.Load();
             Graphics.Initialize();
-            
+
             Input.Initialize(this);
 
             UpdateFrame += OnUpdate;
@@ -46,7 +46,7 @@ namespace SlowAndReverb
             _yosh = new Sprite("Yosh")
             {
                 Depth = 5f
-            }; 
+            };
 
             //_testMaterial = new TestMaterial();
 
@@ -192,12 +192,12 @@ namespace SlowAndReverb
         private void OnRender(FrameEventArgs args)
         {
             Graphics.BeginLayer(_layer);
-            _test.Draw(_layer.MousePosition);
-            _font.Draw(a, 90f, 50f, 1f);
-            Graphics.DrawLine(new Vector2(10f), _layer.MousePosition, new Color(255, 0, 0), 1f);
-            //Graphics.DrawCircle(_layer.MousePosition, new Color(255, 0, 127), 50, 1f);
-            Graphics.DrawRectangle(new Rectangle(new Vector2(5f), _layer.MousePosition), new Color(255, 0, 127), 1f);
-            //Graphics.DrawCircleWithLines(_layer.MousePosition, new Color(0, 255, 0), 50, 1f);
+            //_test.Draw(_layer.MousePosition);
+            //_font.Draw(a, 90f, 50f, 1f);
+            //Graphics.DrawLine(new Vector2(10f), _layer.MousePosition, new Color(255, 0, 0), 1f);
+            ////Graphics.DrawCircle(_layer.MousePosition, new Color(255, 0, 127), 50, 1f);
+            //Graphics.DrawRectangle(new Rectangle(new Vector2(5f), _layer.MousePosition), new Color(255, 0, 127), 1f);
+            ////Graphics.DrawCircleWithLines(_layer.MousePosition, new Color(0, 255, 0), 50, 1f);
             Graphics.EndCurrentLayer();
 
             Graphics.BeginLayer(_layer2);

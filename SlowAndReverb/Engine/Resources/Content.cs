@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -10,7 +11,7 @@ namespace SlowAndReverb
         public const string EncodedFileExtsntion = ".rsc";
         public const string DefaultShaderName = "default";
 
-        private const string AtlasFileName = "atlas.rsc";
+        private const string AtlasFileName = "atlas.png"; // will be rsc
         private const string AtlasDataFileName = "atlas.xml";
 
         private static TextureCache s_textureCache;
@@ -21,10 +22,13 @@ namespace SlowAndReverb
         private static ShaderSourceCache s_fragmentSourceCache;
         private static ShaderSourceCache s_geometrySourceCache;
 
+        private static Texture s_atlasTexture;
         private static VirtualTexture s_noTexture;
 
         private static readonly Dictionary<string, ShaderProgram> s_shaders = new Dictionary<string, ShaderProgram>();
         private static readonly Dictionary<string, VirtualTexture> s_virtualTextures = new Dictionary<string, VirtualTexture>();
+
+        public static Texture AtlasTexture => s_atlasTexture;
 
         internal static void LoadGraphics(TextureLoadMode mode)
         {
@@ -56,6 +60,7 @@ namespace SlowAndReverb
 
                     string name = Path.ChangeExtension(localPath, null);
 
+                    Console.WriteLine(name);
                     atlas.Add(item.Value, name);
                 }
 
@@ -74,6 +79,8 @@ namespace SlowAndReverb
                 Texture atlasTexture = atlas.Texture;
                 XmlDocument atlasData = atlas.Data;
 
+                s_atlasTexture = atlasTexture;
+
                 if (mode == TextureLoadMode.SaveAtlas)
                 {
                     atlasTexture.SaveAsPng(atlasFileName);
@@ -86,6 +93,8 @@ namespace SlowAndReverb
             {
                 Texture atlasTexture = GetTexture(atlasFileName);
                 XmlDocument atlasData = Utilities.LoadXML(atlasDataFileName);
+
+                s_atlasTexture = atlasTexture;
 
                 LoadVirtualTextures(atlasTexture, atlasData);
             }

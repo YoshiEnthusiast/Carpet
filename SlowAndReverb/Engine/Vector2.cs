@@ -128,6 +128,11 @@ namespace SlowAndReverb
             return new Vector2(-X, -Y);
         }
 
+        public Vector2 Normalize()
+        {
+            return new Vector2(X, Y) / GetMagnitude();
+        }
+
         public float GetMagnitude()
         {
             return (float)Math.Sqrt(Math.Pow(X, 2) + Math.Pow(Y, 2));
@@ -136,6 +141,11 @@ namespace SlowAndReverb
         public Vector2GL ToVector2GL()
         {
             return Unsafe.As<Vector2, Vector2GL>(ref this);
+        }
+
+        public override string ToString()
+        {
+            return $"[{X} {Y}]";
         }
 
         public static Vector2 operator +(Vector2 vector, Vector2 other)

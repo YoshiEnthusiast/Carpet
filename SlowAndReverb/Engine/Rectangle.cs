@@ -1,5 +1,9 @@
 ﻿using System.Drawing;
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using OpenTK.Mathematics;
+using System.Runtime.InteropServices;
 
 namespace SlowAndReverb
 {
@@ -46,16 +50,56 @@ namespace SlowAndReverb
 
         public Rectangle Scale(float by)
         {
-            return new Rectangle(_position, _size * by);
+            return new Rectangle(_position, _position + _size * by);
+        }
+
+        public Rectangle Multiply(float by)
+        {
+            Vector2 newPosition = _position * by;
+
+            return new Rectangle(newPosition, newPosition + _size * by);
+        }
+
+        public Rectangle Divide(Vector2 by)
+        {
+            Vector2 newPosition = _position / by;
+
+            return new Rectangle(newPosition, newPosition + _size / by);
+        }
+
+        public Rectangle Divide(float by)
+        {
+            return Divide(new Vector2(by));
         }
 
         public bool Intersects(Rectangle other)
         {
-            float otherX = other.Left;
-            float otherY = other.Top;
+            float otherLeft = other.Left;
+            float otherTop = other.Top;
+            float otherRight = other.Right;
+            float otherBottom = other.Bottom;
 
-            return Left < otherX && Right > otherX || otherX < Left && other.Right > Left ||
-                Top < otherY && Bottom > otherY || otherY < Top && other.Bottom > Top;
+            return !(Left < otherLeft && Right < otherLeft || Right > otherRight && Left > otherRight
+                || Top < otherTop && Bottom < otherTop || Bottom > otherBottom && Top > otherBottom);
+        }
+
+        public bool TryGetIntersectionRectangle(Rectangle other, out Rectangle result)
+        {
+            if (!Intersects(other))
+            {
+                result = default(Rectangle);
+
+                return false;
+            } 
+
+            float left = Math.Max(Left, other.Left);
+            float top = Math.Max(Top, other.Top);
+            float right = Math.Min(Right, other.Right);
+            float bottom = Math.Min(Bottom, other.Bottom);
+
+            result = new Rectangle(new Vector2(left, top), new Vector2(right, bottom));
+
+            return true;
         }
 
         public bool Contains(Rectangle other)
@@ -63,9 +107,27 @@ namespace SlowAndReverb
             return other.Left > Left && other.Right < Right && other.Top > Top && other.Bottom < Bottom;
         }
 
+        public bool Contains(Vector2 point)
+        {
+            float x = point.X;
+            float y = point.Y;  
+
+            return x >= Left && x <= Right && y >= Top && y <= Bottom;  
+        }
+
+        public Vector4 ToVector4()
+        {
+            return new Vector4(_position.X, _position.Y, _size.X, _size.Y);
+        }
+
         public float GetArea()
         {
             return _size.X * _size.Y;
+        }
+
+        public override string ToString()
+        {
+            return $"[{TopLeft} {BottomRight}]";
         }
 
         public override bool Equals(object obj)
@@ -81,6 +143,21 @@ namespace SlowAndReverb
         public bool Equals(Rectangle other)
         {
             return _position == other.Position && _size == other.Size;
+        }
+
+        public static Rectangle operator *(Rectangle rectangle, float by)
+        {
+            return rectangle.Multiply(by);
+        }
+
+        public static Rectangle operator /(Rectangle rectangle, float by)
+        {
+            return rectangle.Divide(by);
+        }
+
+        public static Rectangle operator /(Rectangle rectangle, Vector2 by)
+        {
+            return rectangle.Divide(by);
         }
     }
 }

@@ -42,7 +42,7 @@ namespace SlowAndReverb
         public int Height => _size.RoundedY;
         public float Depth => _depth;
 
-        public Material PostProcessingEffect { get; set; }
+        public Material Material { get; set; }
         public Color ClearColor { get; set; }
         public Rectangle Scissor { get; set; }
 

@@ -9,7 +9,6 @@ using ImageWriteColorComponents = StbImageWriteSharp.ColorComponents;
 
 namespace SlowAndReverb
 {
-    // Check if the texture is deleted everywhere
     public class Texture : OpenGLObject
     {
         private readonly int _width;

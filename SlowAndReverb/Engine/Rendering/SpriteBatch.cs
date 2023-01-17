@@ -6,6 +6,7 @@ using System.Linq;
 
 namespace SlowAndReverb
 {
+    // Fix multiple textures thing!!!!
     public class SpriteBatch
     {
         private const int MaxItems = 1000;
@@ -47,22 +48,17 @@ namespace SlowAndReverb
 
         private bool _began;
 
-        public SpriteBatch(bool blending)
+        public SpriteBatch()
         {
             GL.Enable(EnableCap.ScissorTest);
-
-            if (blending)
-            {
-                GL.Enable(EnableCap.Blend);
-
-                GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-            }
+            GL.Enable(EnableCap.Blend);
 
             var attributes = new VertexAttribute[]
             {
                 VertexAttribute.Vec2,
                 VertexAttribute.Vec2,
                 VertexAttribute.Vec2,
+                VertexAttribute.Vec4,
                 VertexAttribute.Vec4,
                 VertexAttribute.Float
             };
@@ -87,10 +83,12 @@ namespace SlowAndReverb
 
         public RenderTarget CurrentTarget => _renderTarget;
 
-        public void Begin(RenderTarget target, Color clearColor, Rectangle scissor, Matrix4 view)
+        public void Begin(RenderTarget target, BlendMode blendMode, Color clearColor, Rectangle? scissor, Matrix4? view)
         {
             if (_began)
                 throw new InvalidOperationException($"{nameof(Begin)} can only be called again after End is called.");
+
+            GL.BlendFunc(blendMode.SourceFactor, blendMode.DestinationFactor);
 
             Texture targetTexture = target.Texture;
 
@@ -114,10 +112,11 @@ namespace SlowAndReverb
 
             GL.ClearColor(clearColor.ToColor4());
 
-            GL.Scissor((int)scissor.Left, (int)scissor.Top, (int)scissor.Width, (int)scissor.Height);
+            Rectangle scissorRectangle = scissor.GetValueOrDefault(new Rectangle(0f, 0f, targetWidth, targetHeight)); 
+            GL.Scissor((int)scissorRectangle.Left, (int)scissorRectangle.Top, (int)scissorRectangle.Width, (int)scissorRectangle.Height);
 
             Matrix4 projection = Matrix4.CreateOrthographicOffCenter(0f, targetWidth, targetHeight, 0f, -1f, 1f);
-            _transform = view * projection;
+            _transform = view.GetValueOrDefault(Matrix4.Identity) * projection;
 
             _began = true;
         }
@@ -131,9 +130,12 @@ namespace SlowAndReverb
             float boundsHeight = bounds.Height; 
 
             float textureLeft = bounds.Left / textureWidth;
-            float textureTop = bounds.Top / textureHeight;
-            float textureRight = textureLeft + boundsWidth / textureWidth;
-            float textureBottom = textureTop + boundsHeight / textureHeight;
+            float textureTop = 1f - bounds.Top / textureHeight;
+
+            float normalizedWidth = boundsWidth / textureWidth;
+            float normalizedHeight = boundsHeight / textureHeight;
+            float textureRight = textureLeft + normalizedWidth;
+            float textureBottom = textureTop - normalizedHeight;
 
             if (horizontalEffect != SpriteEffect.None)
             {
@@ -179,12 +181,14 @@ namespace SlowAndReverb
             Vector2 bottomLeft = ApplyOrigin(new Vector2(x, bottom), localOrigin, origin, angle);
             Vector2 bottomRight = ApplyOrigin(new Vector2(right, bottom), localOrigin, origin, angle);
 
+            Vector4 textureBounds = new Vector4(textureLeft, textureTop, normalizedWidth, normalizedHeight);
+
             var vertices = new VertexColorTextureCoordinate[]
             {
-                new VertexColorTextureCoordinate(topLeft, new Vector2(textureLeft, textureTop), color),
-                new VertexColorTextureCoordinate(topRight, new Vector2(textureRight, textureTop), color),
-                new VertexColorTextureCoordinate(bottomLeft, new Vector2(textureLeft, textureBottom), color),
-                new VertexColorTextureCoordinate(bottomRight, new Vector2(textureRight, textureBottom), color)
+                new VertexColorTextureCoordinate(topLeft, new Vector2(textureLeft, textureTop), textureBounds, color),
+                new VertexColorTextureCoordinate(topRight, new Vector2(textureRight, textureTop), textureBounds, color),
+                new VertexColorTextureCoordinate(bottomLeft, new Vector2(textureLeft, textureBottom), textureBounds, color),
+                new VertexColorTextureCoordinate(bottomRight, new Vector2(textureRight, textureBottom), textureBounds, color)
             };
 
             Submit(texture, material, vertices, _quadElements, depth);
@@ -215,15 +219,31 @@ namespace SlowAndReverb
             Submit(texture, position, SpriteEffect.None, SpriteEffect.None, depth);
         }
 
-        public void Submit(Texture texture, Material material, VertexColorTextureCoordinate[] vertices, uint[] indices, float depth)
+        public void Submit(Texture texture, Material material, VertexColorTextureCoordinate vertex1, VertexColorTextureCoordinate vertex2, VertexColorTextureCoordinate vertex3, VertexColorTextureCoordinate vertex4, float depth)
+        {
+            var vertices = new VertexColorTextureCoordinate[]
+            {
+                vertex1,
+                vertex2,
+                vertex3,
+                vertex4
+            };
+
+            Submit(texture, material, vertices, _quadElements, depth);
+        }
+
+        public void Submit(Texture texture, Material material, VertexColorTextureCoordinate[] vertices, uint[] elements, float depth)
         {
             CheckBegin(nameof(Submit));
+
+            if (vertices.Length < 1 || elements.Length < 1)
+                return;
 
             var item = new SpriteBatchItem()
             {
                 Texture = texture,
                 Vertices = vertices,
-                Indices = indices,
+                Indices = elements,
                 Material = material is null ? _basicMaterial : material,
                 Depth = depth
             };
@@ -235,7 +255,7 @@ namespace SlowAndReverb
         {
             CheckBegin(nameof(End));
 
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             IEnumerable<SpriteBatchItem> orderedItems = _items.OrderBy(item => item.Depth)
                  .ThenBy(item => item.Texture.GetHashCode());
@@ -263,7 +283,7 @@ namespace SlowAndReverb
                 int extraTextures = currentMaterial.TextureUniformsCount;
                 int maxTextures = maxTextureUnits - extraTextures;
 
-                if (lastMaterial is not null && currentProgram != lastProgram || currentTexture != lastTexture && _texturesCount >= maxTextures || _verticesCount + verticesCount > MaxVertices || _elementsCount + elementsCount > MaxElements || _itemsCount >= MaxItems)
+                if (lastMaterial is not null && currentMaterial != lastMaterial || currentTexture != lastTexture && _texturesCount >= maxTextures || _verticesCount + verticesCount > MaxVertices || _elementsCount + elementsCount > MaxElements || _itemsCount >= MaxItems)
                     Flush(lastMaterial);
 
                 if (currentMaterial != lastMaterial)
@@ -287,7 +307,7 @@ namespace SlowAndReverb
 
                     currentTexture.Bind(TextureUnit.Texture0 + unit);
 
-                    _textureUnits[_texturesCount] = unit;
+                    _textureUnits[unit] = unit;
 
                     lastTexture = currentTexture;
                     _texturesCount++;
@@ -295,7 +315,7 @@ namespace SlowAndReverb
 
                 foreach (VertexColorTextureCoordinate oldVertex in vertices)
                 {
-                    var newVertex = new VertexColorTextureIndex(oldVertex.Position, oldVertex.TextureCoordinate, new Vector2(currentTexture.Width, currentTexture.Height), oldVertex.Color.ToVector4(), _texturesCount - 1);
+                    var newVertex = new VertexColorTextureIndex(oldVertex.Position, oldVertex.TextureCoordinate, new Vector2(currentTexture.Width, currentTexture.Height), oldVertex.TextureBounds, oldVertex.Color.ToVector4(), _texturesCount - 1 + extraTextures);
 
                     _vertices[_verticesCount] = newVertex;
                     _verticesCount++;
@@ -326,7 +346,7 @@ namespace SlowAndReverb
         {
             ShaderProgram program = material.ShaderProgram;
 
-            program.SetUniform("u_Textures", _texturesCount, _textureUnits);
+            program.SetUniform("u_Textures", 10, _textureUnits); 
 
             _vertexArray.VertexBuffer.SetData(_verticesCount, _vertices);
             _vertexArray.ElementBuffer.SetData(_elementsCount, _elements);

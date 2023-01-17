@@ -29,5 +29,10 @@ namespace SlowAndReverb
 
             return new Rectangle(position, position + localBounds.Size);
         }
+
+        public Rectangle GetBounds()
+        {
+            return _bounds;
+        }
     }
 }

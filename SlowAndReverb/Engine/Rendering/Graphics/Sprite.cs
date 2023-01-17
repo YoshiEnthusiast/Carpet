@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace SlowAndReverb
 {
-    public class Sprite
+    public class Sprite : Component
     {
         private readonly Dictionary<string, Animation> _animations = new Dictionary<string, Animation>();
 
@@ -52,7 +52,7 @@ namespace SlowAndReverb
 
         public Sprite(string fileName) : this(Content.GetVirtualTexture(fileName))
         {
-
+            SetCenterOrigin();
         }
 
         private Sprite(VirtualTexture texture, int frameWidth, int frameHeight, int framesPerRow, Dictionary<string, Animation> animations, Rectangle bounds)
@@ -89,44 +89,39 @@ namespace SlowAndReverb
         public string CurrentAnimationName => _currentAnimationName;
         public bool AnimationFinished => _animationFinished;
 
-        public void UpdateFrame(float deltaTime)
+        public override void Update(float deltaTime)
         {
             if (_currentAnimation is null || _animationFinished)
                 return;
 
-            Animation animation = _currentAnimation.Value;
-            deltaTime += _timePassed;
+            _timePassed += deltaTime;
 
-            while (deltaTime > 0f)
+            while (true)
             {
+                Animation animation = _currentAnimation.Value;
+
                 AnimationSegment segment = animation.SegmentAt(_frameIndex);
                 float delay = segment.Delay;
 
-                if (deltaTime >= delay)
+                if (_timePassed < delay)
+                    break;
+
+                _timePassed -= delay;
+
+                if (_frameIndex >= animation.SegmentsCount - 1)
                 {
-                    if (_frameIndex >= animation.SegmentsCount - 1)
-                    {
-                        if (animation.Looped)
-                            _frameIndex = 0;
-                        else
-                            _animationFinished = true;
-                    }
+                    if (animation.Looped)
+                        _frameIndex = 0;
                     else
-                    {
-                        _frameIndex++;
-                    }
-
-                    int frame = animation.SegmentAt(_frameIndex).Frame;
-                    SetFrame(frame);
-
-                    deltaTime -= delay;
+                        _animationFinished = true;
                 }
                 else
                 {
-                    _timePassed = delay - deltaTime;
-
-                    break;
+                    _frameIndex++;
                 }
+
+                int frame = animation.SegmentAt(_frameIndex).Frame;
+                SetFrame(frame);
             }
         }
 
@@ -206,6 +201,11 @@ namespace SlowAndReverb
             sprite.SetAnimation(_currentAnimationName);
 
             return sprite;
+        }
+
+        public override void Draw()
+        {
+            Draw(Entity.Position);
         }
 
         public void Draw(Vector2 position)

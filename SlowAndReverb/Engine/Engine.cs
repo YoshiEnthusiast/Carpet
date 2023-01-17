@@ -1,6 +1,9 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using StbImageSharp;
+using StbImageWriteSharp;
+using System;
 
 namespace SlowAndReverb
 {
@@ -10,6 +13,7 @@ namespace SlowAndReverb
 
         private static float s_deltaTime;
         private static float s_updatesPerSecond;
+        private static double s_timeElapsed;
 
         private readonly string _name;
 
@@ -32,8 +36,11 @@ namespace SlowAndReverb
 
         public static float DeltaTime => s_deltaTime;
         public static float UpdatesPerSecond => s_updatesPerSecond;
+        public static double TimeElapsed => s_timeElapsed;  
 
         public static float TimeMultiplier { get; set; } = 1f;
+        public static bool DebugCollition { get; set; }
+        public static bool DebugLighting { get; set; } 
 
         internal virtual void Run(Resolution initialResolution, TextureLoadMode textureMode)
         {
@@ -52,6 +59,9 @@ namespace SlowAndReverb
 
             _window = new GameWindow(settings, nativeSettings);
 
+            StbImage.stbi_set_flip_vertically_on_load(1);
+            StbImageWrite.stbi_flip_vertically_on_write(1);
+
             Resolution.Initialize(_window);
             Resolution.SetCurrent(initialResolution);
 
@@ -59,14 +69,22 @@ namespace SlowAndReverb
             SFX.Initialize(null);
             Input.Initialize(_window);
 
-            Content.LoadGraphics(textureMode);
+            Material.InitializeUniforms();
+            Content.LoadGraphics(TextureLoadMode.LoadAtlas);
             Graphics.Initialize();
+
+            OnInitialize();
 
             _window.Load += LoadContent;
             _window.UpdateFrame += OnUpdate;
             _window.RenderFrame += OnDraw;
 
             _window.Run();
+        }
+
+        protected virtual void OnInitialize()
+        {
+
         }
 
         protected virtual void LoadContent()
@@ -80,10 +98,15 @@ namespace SlowAndReverb
 
         private void OnUpdate(FrameEventArgs args)
         {
+            double time = args.Time;
+
             s_updatesPerSecond = 1f / (float)args.Time;
-            s_deltaTime = s_updatesPerSecond / (float)_updateFrequency * TimeMultiplier;
+            s_deltaTime = (float)time * TimeMultiplier;
+            s_timeElapsed += time;
 
             Update(s_deltaTime);
+
+            Input.Update();
         }
 
         private void OnDraw(FrameEventArgs args)

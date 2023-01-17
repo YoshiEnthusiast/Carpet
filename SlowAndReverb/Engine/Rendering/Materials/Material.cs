@@ -85,7 +85,7 @@ namespace SlowAndReverb
 
             //_applied = true;
 
-            for (int i = 1; i < GetExtraTexturesCount(); i++)
+            for (int i = 0; i < GetExtraTexturesCount(); i++)
             {
                 Texture texture = _textures[i];
 
