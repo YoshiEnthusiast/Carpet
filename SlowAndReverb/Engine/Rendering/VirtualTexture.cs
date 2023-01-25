@@ -4,17 +4,16 @@ namespace SlowAndReverb
 {
     public sealed class VirtualTexture
     {
-        private readonly Texture _actualTexture;
         private readonly Rectangle _bounds;
 
         public VirtualTexture(Texture actualTexture, Rectangle bounds)
         {
-            _actualTexture = actualTexture;
+            ActualTexture = actualTexture;
 
             _bounds = bounds;
         }
 
-        public Texture ActualTexture => _actualTexture;
+        public Texture ActualTexture { get; private init; }
 
         public Vector2 Size => _bounds.Size;
 

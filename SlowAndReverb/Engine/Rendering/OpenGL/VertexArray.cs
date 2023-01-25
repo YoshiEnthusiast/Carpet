@@ -6,20 +6,17 @@ namespace SlowAndReverb
 {
     public sealed class VertexArray<T> : OpenGLObject where T : struct
     {
-        private readonly VertexBuffer<T> _vertexBuffer;
-        private readonly ElementBuffer _elementBuffer;
-
         public VertexArray(VertexBuffer<T> vertexBuffer, ElementBuffer elementBuffer, VertexAttribute[] attributes)
         {
-            _vertexBuffer = vertexBuffer;
-            _elementBuffer = elementBuffer;
+            VertexBuffer = vertexBuffer;
+            ElementBuffer = elementBuffer;
 
             GL.CreateVertexArrays(1, out int handle);
             Handle = handle;
 
             Bind();
-            _vertexBuffer.Bind();
-            _elementBuffer.Bind();
+            VertexBuffer.Bind();
+            ElementBuffer.Bind();
 
             int stride = attributes.Sum(attribute => attribute.GetSize());
             int offset = 0;
@@ -35,13 +32,13 @@ namespace SlowAndReverb
             }
         }
 
-        public VertexBuffer<T> VertexBuffer => _vertexBuffer;
-        public ElementBuffer ElementBuffer => _elementBuffer;
+        public VertexBuffer<T> VertexBuffer { get; private init; }
+        public ElementBuffer ElementBuffer { get; private init; }
 
         public void Draw(PrimitiveType type)
         {
             Bind();
-            _elementBuffer.Draw(type);
+            ElementBuffer.Draw(type);
         }
 
         protected override void Bind(int handle)

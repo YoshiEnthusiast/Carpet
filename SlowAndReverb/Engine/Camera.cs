@@ -5,9 +5,6 @@ namespace SlowAndReverb
 {
     public class Camera
     {
-        private readonly int _maxWidth;
-        private readonly int _maxHeight;
-
         private Matrix4 _viewMatrix;
         private bool _updateMatrix = true;
 
@@ -18,12 +15,12 @@ namespace SlowAndReverb
 
         public Camera(int maxWidth, int naxHeight)
         {
-            _maxWidth = maxWidth;
-            _maxHeight = naxHeight;
+            MaxWidth = maxWidth;
+            MaxHeight = naxHeight;
         }
 
-        public int MaxWidth => _maxWidth;
-        public int MaxHeight => _maxHeight;
+        public int MaxWidth { get; private init; }
+        public int MaxHeight { get; private init; }
 
         public float Zoom { get; set; } = 1f;
 
@@ -87,12 +84,12 @@ namespace SlowAndReverb
         {
             get
             {
-                return _maxWidth * _scale.X;
+                return MaxWidth * _scale.X;
             }
 
             set
             {
-                _scale = new Vector2(value / _maxWidth, _scale.Y);
+                _scale = new Vector2(value / MaxWidth, _scale.Y);
             }
         }
 
@@ -100,12 +97,12 @@ namespace SlowAndReverb
         {
             get
             {
-                return _maxHeight * _scale.Y;
+                return MaxHeight * _scale.Y;
             }
 
             set
             {
-                _scale = new Vector2(_scale.X, value / _maxHeight);
+                _scale = new Vector2(_scale.X, value / MaxHeight);
             }
         }
 
@@ -162,7 +159,7 @@ namespace SlowAndReverb
 
         public void SetCenterOrigin()
         {
-            Origin = new Vector2(_maxWidth, _maxHeight) / 2f;
+            Origin = new Vector2(MaxWidth, MaxHeight) / 2f;
         }
     }
 }

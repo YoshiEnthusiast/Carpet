@@ -12,11 +12,6 @@ namespace SlowAndReverb
         private const string WaveFormatSignature = "fmt ";
         private const string WaveDataSignature = "data";
 
-        private readonly byte[] _data;
-
-        private readonly ALFormat _format;
-        private readonly int _sampleRate;
-
         public WaveFile(Stream stream)
         {
             using (BinaryReader reader = new BinaryReader(stream))
@@ -36,7 +31,7 @@ namespace SlowAndReverb
                 short audioFormat = reader.ReadInt16();
                 short channels = reader.ReadInt16();
 
-                _sampleRate = reader.ReadInt32();
+                SampleRate = reader.ReadInt32();
 
                 int byteRate = reader.ReadInt32();
 
@@ -50,14 +45,14 @@ namespace SlowAndReverb
 
                 int dataChunkSize = reader.ReadInt32();
 
-                _data = reader.ReadBytes((int)reader.BaseStream.Length);
-                _format = GetWaveFormat(channels, bitsPerSample);
+                Buffer = reader.ReadBytes((int)reader.BaseStream.Length);
+                Format = GetWaveFormat(channels, bitsPerSample);
             }
         }
 
-        public IEnumerable<byte> Buffer => _data;
-        public ALFormat Format => _format;
-        public int SampleRate => _sampleRate;
+        public IEnumerable<byte> Buffer { get; private init; }
+        public ALFormat Format { get; private init; }
+        public int SampleRate { get; private init; }
 
         private static string ReadWaveFileProperty(BinaryReader reader)
         {

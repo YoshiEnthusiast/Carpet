@@ -9,8 +9,8 @@ namespace SlowAndReverb
     {
         private static IGLFWGraphicsContext s_context;
 
-        private static int s_maxTextureUnits;
-        private static int s_maxTextureSize;
+        public static int MaxTextureUnits { get; private set; }
+        public static int MaxTextureSize { get; private set; }
 
         internal static void Initialize(IGLFWGraphicsContext context)
         {
@@ -23,8 +23,11 @@ namespace SlowAndReverb
 
             GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
 
-            GL.GetInteger(GetPName.MaxTextureImageUnits, out s_maxTextureUnits);
-            GL.GetInteger(GetPName.MaxTextureSize, out s_maxTextureSize);
+            GL.GetInteger(GetPName.MaxTextureImageUnits, out int maxTextureUnits);
+            GL.GetInteger(GetPName.MaxTextureSize, out int maxTextureSize);
+
+            MaxTextureUnits = maxTextureUnits;
+            MaxTextureSize = maxTextureSize;
 
             Console.WriteLine("OpenGL initialized");
         }
@@ -40,8 +43,5 @@ namespace SlowAndReverb
 
             Console.WriteLine($"[OpenGL] {message}");
         }
-
-        public static int MaxTextureUnits => s_maxTextureUnits;
-        public static int MaxTextureSize => s_maxTextureSize;
     }
 }

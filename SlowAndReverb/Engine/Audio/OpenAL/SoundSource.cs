@@ -1,5 +1,4 @@
 ﻿using OpenTK.Audio.OpenAL;
-using OpenTK.Mathematics;
 
 namespace SlowAndReverb
 {

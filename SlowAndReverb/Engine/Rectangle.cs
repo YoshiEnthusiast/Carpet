@@ -11,13 +11,10 @@ namespace SlowAndReverb
     {
         public static readonly Rectangle Empty = new Rectangle(Vector2.Zero, Vector2.Zero);
 
-        private readonly Vector2 _position;
-        private readonly Vector2 _size;
-
         public Rectangle(Vector2 topLeft, Vector2 bottomRight)
         {
-            _position = topLeft;
-            _size = bottomRight - _position;
+            Position = topLeft;
+            Size = bottomRight - Position;
         }
 
         public Rectangle(float x, float y, float width, float height)
@@ -27,44 +24,44 @@ namespace SlowAndReverb
             this = new Rectangle(topLeft, topLeft + new Vector2(width, height));
         }
 
-        public Vector2 Position => _position;
-        public Vector2 Size => _size;
+        public Vector2 Position { get; private init; }
+        public Vector2 Size { get; private init; }
 
-        public Vector2 TopLeft => _position;
+        public Vector2 TopLeft => Position;
         public Vector2 TopRight => new Vector2(Right, Top);
         public Vector2 BottomLeft => new Vector2(Left, Bottom);
-        public Vector2 BottomRight => _position + _size;
+        public Vector2 BottomRight => Position + Size;
 
-        public float Left => _position.X;
-        public float Top => _position.Y;
-        public float Width => _size.X;
-        public float Height => _size.Y;
+        public float Left => Position.X;
+        public float Top => Position.Y;
+        public float Width => Size.X;
+        public float Height => Size.Y;
 
         public float Right => Left + Width;
         public float Bottom => Top + Height;
 
         public Rectangle Translate(Vector2 by)
         {
-            return new Rectangle(_position + by, _size);
+            return new Rectangle(Position + by, Size);
         }
 
         public Rectangle Scale(float by)
         {
-            return new Rectangle(_position, _position + _size * by);
+            return new Rectangle(Position, Position + Size * by);
         }
 
         public Rectangle Multiply(float by)
         {
-            Vector2 newPosition = _position * by;
+            Vector2 newPosition = Position * by;
 
-            return new Rectangle(newPosition, newPosition + _size * by);
+            return new Rectangle(newPosition, newPosition + Size * by);
         }
 
         public Rectangle Divide(Vector2 by)
         {
-            Vector2 newPosition = _position / by;
+            Vector2 newPosition = Position / by;
 
-            return new Rectangle(newPosition, newPosition + _size / by);
+            return new Rectangle(newPosition, newPosition + Size / by);
         }
 
         public Rectangle Divide(float by)
@@ -117,12 +114,12 @@ namespace SlowAndReverb
 
         public Vector4 ToVector4()
         {
-            return new Vector4(_position.X, _position.Y, _size.X, _size.Y);
+            return new Vector4(Position.X, Position.Y, Size.X, Size.Y);
         }
 
         public float GetArea()
         {
-            return _size.X * _size.Y;
+            return Size.X * Size.Y;
         }
 
         public override string ToString()
@@ -137,12 +134,12 @@ namespace SlowAndReverb
 
         public override int GetHashCode()
         {
-            return _position.GetHashCode() + _size.GetHashCode();
+            return Position.GetHashCode() + Size.GetHashCode();
         }
 
         public bool Equals(Rectangle other)
         {
-            return _position == other.Position && _size == other.Size;
+            return Position == other.Position && Size == other.Size;
         }
 
         public static Rectangle operator *(Rectangle rectangle, float by)

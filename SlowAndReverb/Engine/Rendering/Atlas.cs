@@ -12,16 +12,13 @@ namespace SlowAndReverb
         private readonly List<AtlasItem> _items = new List<AtlasItem>();
         private readonly int _maxSize;
 
-        private Texture _texture;
-        private XmlDocument _data;
-
         public Atlas(int maxSize)
         {
             _maxSize = maxSize;
         }
 
-        public Texture Texture => _texture;
-        public XmlDocument Data => _data;
+        public Texture Texture { get; set; }
+        public XmlDocument Data { get; set; }
 
         public bool Build(int preferredSize, int maxSteps)
         {
@@ -64,13 +61,13 @@ namespace SlowAndReverb
 
             SpriteBatch batch = Graphics.SpriteBatch;
 
-            _texture = Texture.CreateEmpty(currentSize, currentSize);
-            _data = new XmlDocument();
+            Texture = Texture.CreateEmpty(currentSize, currentSize);
+            Data = new XmlDocument();
 
-            XmlElement offsets = _data.CreateElement("Offsets");
-            _data.AppendChild(offsets); 
+            XmlElement offsets = Data.CreateElement("Offsets");
+            Data.AppendChild(offsets); 
 
-            batch.Begin(RenderTarget.FromTexture(_texture), BlendMode.AlphaBlend, Color.Transparent, new Rectangle(Vector2.Zero, new Vector2(currentSize)), Matrix4.Identity);
+            batch.Begin(RenderTarget.FromTexture(Texture), BlendMode.AlphaBlend, Color.Transparent, new Rectangle(Vector2.Zero, new Vector2(currentSize)), Matrix4.Identity);
 
             foreach (PackedTexture packedItem in lastSuccessfulResult)
             {
@@ -79,7 +76,7 @@ namespace SlowAndReverb
 
                 Vector2 position = packedItem.Position;
 
-                XmlElement offset = _data.CreateElement("Offset");
+                XmlElement offset = Data.CreateElement("Offset");
 
                 offset.SetAttribute("Name", item.FileName);
                 offset.SetAttribute("X", position.X);

@@ -8,7 +8,6 @@ namespace SlowAndReverb
         private readonly IEnumerator _enumerator;
 
         private float _delay;
-        private bool _finished;
 
         public Coroutine(IEnumerator enumerator, float initialDelay)
         {
@@ -22,11 +21,11 @@ namespace SlowAndReverb
 
         }
 
-        public bool Finished => _finished;
+        public bool Finished {get; private set; }
 
         public void Update(float deltaTime)
         {
-            if (_finished)
+            if (Finished)
                 return;
 
             while (deltaTime > 0f)
@@ -37,7 +36,7 @@ namespace SlowAndReverb
 
                 if (_delay <= 0f && !TakeStep(_enumerator))
                 {
-                    _finished = true;
+                    Finished = true;
 
                     return;
                 }
@@ -48,7 +47,7 @@ namespace SlowAndReverb
 
         public void Stop()
         {
-            _finished = true;
+            Finished = true;
         }
 
         private bool TakeStep(IEnumerator enumerator)

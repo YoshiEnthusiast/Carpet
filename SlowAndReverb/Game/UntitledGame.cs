@@ -61,11 +61,10 @@ namespace SlowAndReverb
             Scene.Current = new Scene();
 
             Scene.Add(new TestEntity(0f, 0f));
-            Scene.Add(new TestEntity2(180f, 90f));
-            Scene.Add(new Platform(120f, 100f));
+            //Scene.Add(new TestEntity2(180f, 90f));
+            //Scene.Add(new Platform(120f, 100f));
 
             Scene.Current.Brightness = 1f;
-            Engine.DebugLighting = true;
         }
 
         private void UpdateContentLoading(float deltaTime)

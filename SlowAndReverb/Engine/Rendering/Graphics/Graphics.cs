@@ -8,21 +8,16 @@ namespace SlowAndReverb
     public static class Graphics
     {
         private static readonly List<Layer> s_drawnLayers = new List<Layer>();
-        private static readonly SpriteBatch s_spriteBatch = new SpriteBatch();
 
         private static readonly List<CircleMaterial> s_circleMaterials = new List<CircleMaterial>();
         private static readonly Font s_defaultFont = null;
 
-        private static VirtualTexture s_blankTexture;
-
         private static RenderTarget s_finalTarget;
         private static RenderTarget s_screenTarget;
 
-        private static Layer s_currentLayer;
-        
-        public static SpriteBatch SpriteBatch => s_spriteBatch;
-        public static Layer CurrentLayer => s_currentLayer;
-        public static VirtualTexture BlankTexture => s_blankTexture;
+        public static SpriteBatch SpriteBatch { get; private set; } = new SpriteBatch();
+        public static Layer CurrentLayer { get; private set; }
+        public static VirtualTexture BlankTexture { get; private set; }
 
         public static Material PostProcessingEffect { get; set; }
         public static Color ClearColor { get; set; }
@@ -34,7 +29,7 @@ namespace SlowAndReverb
             Resolution.Change += OnResolutionChnaged;
             ApplyResolution();
 
-            s_blankTexture = Content.GetVirtualTexture("blank");
+            BlankTexture = Content.GetVirtualTexture("blank");
 
             Texture atlasTexture = Content.AtlasTexture;
             Rectangle localBounds = BlankTexture.GetBounds();  // clean this up
@@ -110,7 +105,7 @@ namespace SlowAndReverb
 
             float originY = centred ? 0.5f : 0f;
 
-            Draw(s_blankTexture, from, new Vector2(length, width), new Vector2(0f, originY), color, angle, depth);
+            Draw(BlankTexture, from, new Vector2(length, width), new Vector2(0f, originY), color, angle, depth);
         }
 
         public static void DrawRectangle(Rectangle rectangle, Color color, float depth, int lineWidth = 1, bool centred = false)
@@ -133,7 +128,7 @@ namespace SlowAndReverb
 
         public static void FillRectangle(Rectangle rectangle, Material material, Color color, float depth)
         {
-            Draw(s_blankTexture, material, rectangle.TopLeft, rectangle.Size, Vector2.Zero, color, 0f, depth);
+            Draw(BlankTexture, material, rectangle.TopLeft, rectangle.Size, Vector2.Zero, color, 0f, depth);
         }
 
         public static void FillRectangle(Rectangle rectangle, Color color, float depth)
@@ -151,7 +146,7 @@ namespace SlowAndReverb
             float circumference = radius * 2f;
             CircleMaterial material = GetCircleMaterial(lineWidth, circumference);
 
-            Draw(s_blankTexture, material, position, new Vector2(circumference), new Vector2(0.5f), color, 0f, depth);
+            Draw(BlankTexture, material, position, new Vector2(circumference), new Vector2(0.5f), color, 0f, depth);
         }
         
         public static void FillCircle(Vector2 position, Color color, int raduis, float depth)
@@ -162,14 +157,14 @@ namespace SlowAndReverb
         public static void DrawQuad(Vector2 point1, Vector2 point2, Vector2 point3, Vector2 point4, Color color, float depth)
         {
             Texture atlasTexture = Content.AtlasTexture;
-            Vector4 bounds = (s_blankTexture.GetBounds() / new Vector2(atlasTexture.Width, atlasTexture.Height)).ToVector4();
+            Vector4 bounds = (BlankTexture.GetBounds() / new Vector2(atlasTexture.Width, atlasTexture.Height)).ToVector4();
 
             var vertex1 = new VertexColorTextureCoordinate(point1, bounds.Xy, bounds, color);
             var vertex2 = new VertexColorTextureCoordinate(point2, bounds.Xy, bounds, color);
             var vertex3 = new VertexColorTextureCoordinate(point3, bounds.Xy, bounds, color);
             var vertex4 = new VertexColorTextureCoordinate(point4, bounds.Xy, bounds, color);
 
-            s_spriteBatch.Submit(s_blankTexture.ActualTexture, null, vertex1, vertex2, vertex3, vertex4, depth);
+            SpriteBatch.Submit(BlankTexture.ActualTexture, null, vertex1, vertex2, vertex3, vertex4, depth);
         }
 
         public static void DrawString(string text, Vector2 position, float depth)
@@ -196,12 +191,12 @@ namespace SlowAndReverb
 
         public static void BeginLayer(Layer layer)
         {
-            if (s_currentLayer is not null)
+            if (CurrentLayer is not null)
                 throw new InvalidOperationException("Current layer must be ended before starting drawing on a new one");
             else if (s_drawnLayers.Contains(layer))
                 throw new InvalidOperationException("This layer has already been drawn on this frame");
 
-            s_currentLayer = layer;
+            CurrentLayer = layer;
             s_drawnLayers.Add(layer);
 
             Rectangle layerScissor = layer.Scissor;
@@ -213,22 +208,22 @@ namespace SlowAndReverb
             if (scissorY != 0)
                 scissorY = layerHeight - scissorY - scissorHeight;
 
-            s_spriteBatch.Begin(layer.RenderTarget, BlendMode.AlphaBlend, layer.ClearColor, new Rectangle(layerScissor.Left, scissorY, layerScissor.Width, layerScissor.Height), layer.Camera.GetViewMatrix());
+            SpriteBatch.Begin(layer.RenderTarget, BlendMode.AlphaBlend, layer.ClearColor, new Rectangle(layerScissor.Left, scissorY, layerScissor.Width, layerScissor.Height), layer.Camera.GetViewMatrix());
         }
 
         public static void EndCurrentLayer()
         {
-            if (s_currentLayer is null)
+            if (CurrentLayer is null)
                 throw new InvalidOperationException("No current layer");
 
-            s_currentLayer = null;
+            CurrentLayer = null;
 
-            s_spriteBatch.End();
+            SpriteBatch.End();
         }
 
         public static void DrawLayers()
         {
-            if (s_currentLayer is not null)
+            if (CurrentLayer is not null)
                 throw new InvalidOperationException("Current layer must be ended before before drawing all layers");
 
             int resolutionWidth = Resolution.CurrentWidth;
@@ -236,7 +231,7 @@ namespace SlowAndReverb
 
             Matrix4 identity = Matrix4.Identity;
 
-            s_spriteBatch.Begin(s_finalTarget, BlendMode.AlphaBlend, ClearColor, Scissor, identity);
+            SpriteBatch.Begin(s_finalTarget, BlendMode.AlphaBlend, ClearColor, Scissor, identity);
 
             foreach (Layer layer in s_drawnLayers)
             {
@@ -253,20 +248,20 @@ namespace SlowAndReverb
                 float x = (resolutionWidth - newWidth) / 2f;
                 float y = (resolutionHeight - newHeight) / 2f;
 
-                s_spriteBatch.Submit(layer.RenderTarget.Texture, layer.Material, new Rectangle(0f, 0f, width, height), new Vector2(x, y), Resolution.CurrentSize / new Vector2(width, height) * zoom, Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, layer.Depth);
+                SpriteBatch.Submit(layer.RenderTarget.Texture, layer.Material, new Rectangle(0f, 0f, width, height), new Vector2(x, y), Resolution.CurrentSize / new Vector2(width, height) * zoom, Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, layer.Depth);
 
                 layer.ResetScissor();
             }
 
-            s_spriteBatch.End();
+            SpriteBatch.End();
             s_drawnLayers.Clear();
 
             ResetScissor();
 
-            s_spriteBatch.Begin(s_screenTarget, BlendMode.AlphaBlend, ClearColor, Scissor, identity);
-            s_spriteBatch.Submit(s_finalTarget.Texture, PostProcessingEffect, new Rectangle(0f, 0f, s_finalTarget.Width, s_finalTarget.Height), Vector2.Zero, new Vector2(1f), Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, 1f);
+            SpriteBatch.Begin(s_screenTarget, BlendMode.AlphaBlend, ClearColor, Scissor, identity);
+            SpriteBatch.Submit(s_finalTarget.Texture, PostProcessingEffect, new Rectangle(0f, 0f, s_finalTarget.Width, s_finalTarget.Height), Vector2.Zero, new Vector2(1f), Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, 1f);
 
-            s_spriteBatch.End();
+            SpriteBatch.End();
         }
 
         public static void ResetScissor()
@@ -276,7 +271,7 @@ namespace SlowAndReverb
 
         internal static void DrawWithoutRoundingPosition(Texture texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
         {
-            s_spriteBatch.Submit(texture, material, bounds, position, scale, origin, color, angle, horizontalEffect, verticalEffect, depth);
+            SpriteBatch.Submit(texture, material, bounds, position, scale, origin, color, angle, horizontalEffect, verticalEffect, depth);
         }
 
         internal static void DrawWithoutRoundingPosition(VirtualTexture virtualTexture, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)

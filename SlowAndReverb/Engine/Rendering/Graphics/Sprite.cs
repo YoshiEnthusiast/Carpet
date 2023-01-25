@@ -8,34 +8,25 @@ namespace SlowAndReverb
     {
         private readonly Dictionary<string, Animation> _animations = new Dictionary<string, Animation>();
 
-        private readonly VirtualTexture _texture;
-
-        private readonly int _frameWidth;
-        private readonly int _frameHeight;
-        private readonly int _framesPerRow;
-
         private Animation? _currentAnimation;
-        private string _currentAnimationName;
-
         private Rectangle _textureBounds;
+        private readonly int _framesPerRow;
 
         private int _frame;
         private int _frameIndex;
         private float _timePassed;
 
-        private bool _animationFinished;
-
         public Sprite(VirtualTexture texture, int frameWidth, int frameHeight)
         {
-            _texture = texture;
+            Texture = texture;
 
-            int textureWidth = _texture.Width;  
-            int textureHeight = _texture.Height;
+            int textureWidth = Texture.Width;  
+            int textureHeight = Texture.Height;
 
-            _frameWidth = Math.Min(frameWidth, textureWidth);
-            _frameHeight = Math.Min(frameHeight, textureHeight);
+            FrameWidth = Math.Min(frameWidth, textureWidth);
+            FrameHeight = Math.Min(frameHeight, textureHeight);
 
-            _framesPerRow = textureWidth / _frameWidth;
+            _framesPerRow = textureWidth / FrameWidth;
 
             UpdateTextureBounds();
         }
@@ -57,17 +48,40 @@ namespace SlowAndReverb
 
         private Sprite(VirtualTexture texture, int frameWidth, int frameHeight, int framesPerRow, Dictionary<string, Animation> animations, Rectangle bounds)
         {
-            _texture = texture;
+            Texture = texture;
 
-            _frameWidth = frameWidth;
-            _frameHeight = frameHeight;
+            FrameWidth = frameWidth;
+            FrameHeight = frameHeight;
             _framesPerRow = framesPerRow;
 
             _animations = animations;
             _textureBounds = bounds;
         }
 
+        public int Frame
+        {
+            get
+            {
+                return _frame;
+            }
+
+            set
+            {
+                _frame = value;
+                _timePassed = 0;
+
+                UpdateTextureBounds();
+            }
+        }
+
+        public VirtualTexture Texture { get; private init; }
+        public int FrameWidth { get; private init; }
+        public int FrameHeight { get; private init; }
+
         public Material Material { get; set; }
+
+        public string CurrentAnimationName { get; private set; }
+        public bool AnimationFinished { get; private set; }
 
         public Vector2 Scale { get; set; } = Vector2.One;
         public Vector2 Origin { get; set; }
@@ -79,19 +93,12 @@ namespace SlowAndReverb
         public SpriteEffect VerticalEffect { get; set; }
         public SpriteEffect HorizontalEffect { get; set; }
 
-        public VirtualTexture Texture => _texture;
-        public int Frame => _frame;
-        public float Width => _frameWidth * Scale.X;
-        public float Height => _frameHeight * Scale.Y;
-        public float FrameWidth => _frameWidth;
-        public float FrameHeight => _frameHeight;
-
-        public string CurrentAnimationName => _currentAnimationName;
-        public bool AnimationFinished => _animationFinished;
+        public float Width => FrameWidth * Scale.X;
+        public float Height => FrameHeight * Scale.Y;
 
         public override void Update(float deltaTime)
         {
-            if (_currentAnimation is null || _animationFinished)
+            if (_currentAnimation is null || AnimationFinished)
                 return;
 
             _timePassed += deltaTime;
@@ -113,7 +120,7 @@ namespace SlowAndReverb
                     if (animation.Looped)
                         _frameIndex = 0;
                     else
-                        _animationFinished = true;
+                        AnimationFinished = true;
                 }
                 else
                 {
@@ -121,16 +128,8 @@ namespace SlowAndReverb
                 }
 
                 int frame = animation.SegmentAt(_frameIndex).Frame;
-                SetFrame(frame);
+                Frame = frame;
             }
-        }
-
-        public void SetFrame(int frame)
-        {
-            _frame = frame;
-            _timePassed = 0;
-
-            UpdateTextureBounds();
         }
 
         public void ResetAnimation()
@@ -141,9 +140,9 @@ namespace SlowAndReverb
             Animation animation = _currentAnimation.Value;
 
             int frame = animation.SegmentAt(0).Frame;
-            SetFrame(frame);
+            Frame = frame;
 
-            _animationFinished = false;
+            AnimationFinished = false;
         }
 
         public void AddAnimation(string name, Animation animation)
@@ -173,7 +172,7 @@ namespace SlowAndReverb
             if (name is null)
             {
                 _currentAnimation = null;
-                _currentAnimationName = null;
+                CurrentAnimationName = null;
 
                 return true;
             }
@@ -182,7 +181,7 @@ namespace SlowAndReverb
                 return false;
 
             _currentAnimation = animation;
-            _currentAnimationName = name;
+            CurrentAnimationName = name;
 
             ResetAnimation();
 
@@ -191,14 +190,14 @@ namespace SlowAndReverb
 
         public void SetCenterOrigin()
         {
-            Origin = new Vector2(_frameWidth, _frameHeight) / 2f;  
+            Origin = new Vector2(FrameWidth, FrameHeight) / 2f;  
         }
 
         public Sprite Clone()
         {
-            var sprite = new Sprite(_texture, _frameWidth, _frameHeight, _framesPerRow, new Dictionary<string, Animation>(_animations), _textureBounds);
+            var sprite = new Sprite(Texture, FrameWidth, FrameHeight, _framesPerRow, new Dictionary<string, Animation>(_animations), _textureBounds);
 
-            sprite.SetAnimation(_currentAnimationName);
+            sprite.SetAnimation(CurrentAnimationName);
 
             return sprite;
         }
@@ -210,7 +209,7 @@ namespace SlowAndReverb
 
         public void Draw(Vector2 position)
         {
-            Graphics.Draw(_texture, Material, _textureBounds, position, Scale, Origin, Color, Angle, HorizontalEffect, VerticalEffect, Depth);
+            Graphics.Draw(Texture, Material, _textureBounds, position, Scale, Origin, Color, Angle, HorizontalEffect, VerticalEffect, Depth);
         }
 
         public void Draw(float x, float y)
@@ -220,10 +219,10 @@ namespace SlowAndReverb
 
         private void UpdateTextureBounds()
         {
-            float x = _frame % _framesPerRow * _frameWidth;
-            float y = _frame / _framesPerRow * _frameHeight;
+            float x = _frame % _framesPerRow * FrameWidth;
+            float y = _frame / _framesPerRow * FrameHeight;
 
-            _textureBounds = new Rectangle(x, y, _frameWidth, _frameHeight);
+            _textureBounds = new Rectangle(x, y, FrameWidth, FrameHeight);
         }
     }
 }

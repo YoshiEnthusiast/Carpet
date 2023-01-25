@@ -8,22 +8,16 @@ namespace SlowAndReverb
 {
     public class Layer
     {
-        private readonly RenderTarget _renderTarget;
-        private readonly Camera _camera;
-
-        private readonly Vector2 _size;
-        private readonly float _depth;
-
         public Layer(int width, int height, float depth, Camera camera)
         {
-            _size = new Vector2(width, height);
+            Size = new Vector2(width, height);
 
-            _depth = depth;
+            Depth = depth;
 
-            _camera = camera;
+            Camera = camera;
 
-            Texture texture = Texture.CreateEmpty(width, height); 
-            _renderTarget = RenderTarget.FromTexture(texture);
+            Texture texture = Texture.CreateEmpty(width, height);
+            RenderTarget = RenderTarget.FromTexture(texture);
 
             ResetScissor();
         }
@@ -33,14 +27,15 @@ namespace SlowAndReverb
 
         }
 
-        public RenderTarget RenderTarget => _renderTarget;
-        public Camera Camera => _camera;
+        public RenderTarget RenderTarget { get; private init; }
+        public Camera Camera { get; private init; }
 
-        public Vector2 MousePosition => Input.MousePosition * _size / Resolution.CurrentSize;
-        public Vector2 Size => _size;
-        public int Width => _size.RoundedX;
-        public int Height => _size.RoundedY;
-        public float Depth => _depth;
+        public float Depth { get; private init; }
+        public Vector2 Size { get; private init; }
+
+        public Vector2 MousePosition => Input.MousePosition * Size / Resolution.CurrentSize;
+        public int Width => Size.RoundedX;
+        public int Height => Size.RoundedY;
 
         public Material Material { get; set; }
         public Color ClearColor { get; set; }

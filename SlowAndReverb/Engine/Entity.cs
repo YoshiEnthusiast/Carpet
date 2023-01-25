@@ -9,14 +9,12 @@ namespace SlowAndReverb
         // Component collection?????
         private readonly List<Component> _components = new List<Component>();
 
-        private Scene _scene;
-
         public Entity(float x, float y)
         {
             Position = new Vector2(x, y);
         }
 
-        public Scene CurrentScene => _scene;
+        public Scene Scene { get; private set; }
         public IEnumerable<Component> Components => _components;
 
         public Vector2 HalfSize => Size / 2f;
@@ -124,12 +122,17 @@ namespace SlowAndReverb
 
         public virtual void OnAdded(Scene to)
         {
-            _scene = to;
+            Scene = to;
         }
 
         public virtual void OnRemoved()
         {
-            _scene = null;
+            Scene = null;
+        }
+
+        public virtual void OnInitialize()
+        {
+
         }
 
         public T GetComponent<T>() where T : Component
@@ -148,10 +151,10 @@ namespace SlowAndReverb
                     yield return result;
         }
 
-        public void Add(Component component)
+        public T Add<T>(T component) where T : Component
         {
             if (_components.Contains(component))
-                return;
+                return null;
 
             Entity entity = component.Entity;
 
@@ -159,10 +162,12 @@ namespace SlowAndReverb
                 entity.Remove(component);
 
             _components.Add(component);
-            CurrentScene?.OnComponentAdded(this, component);
+            Scene?.OnComponentAdded(this, component);
             component.Entity = this;
 
             component.OnAdded();
+
+            return component;
         }
 
         public void Remove(Component component)
@@ -171,7 +176,7 @@ namespace SlowAndReverb
                 return;
 
             _components.Remove(component);
-            CurrentScene?.OnComponentRemoved(this, component);
+            Scene?.OnComponentRemoved(this, component);
             component.Entity = null;
 
             component.OnRemoved(this);

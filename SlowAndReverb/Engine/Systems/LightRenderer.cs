@@ -8,8 +8,6 @@ using System.Linq;
 
 namespace SlowAndReverb
 {
-    // Deal with max number of lights and max radius
-
     public class LightRenderer : System
     {
         public const float MaxRadius = 320f;

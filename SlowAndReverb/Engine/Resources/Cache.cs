@@ -6,28 +6,23 @@ namespace SlowAndReverb
 {
     public abstract class Cache<T>
     {
-        public const string ContentFolder = "Content";
-
         private readonly Dictionary<string, T> _items = new Dictionary<string, T>();
-
-        private readonly string _extension;
-        private readonly string _mainDirectory;
 
         public Cache(string extension, string mainDirectory, bool load)
         {
-            _extension = extension;
+            Extension = extension;
 
             if (mainDirectory is not null)
             {
-                _mainDirectory = Path.Combine(ContentFolder, mainDirectory);
+                MainDirectory = Path.Combine(Content.Folder, mainDirectory);
 
                 if (load)
-                    LoadFromDirectory(_mainDirectory);
+                    LoadFromDirectory(MainDirectory);
             }
         }
 
-        public string MainDirectory => _mainDirectory;
-        public string Extension => _extension;  
+        public string MainDirectory { get; private init; }
+        public string Extension { get; private init; }
 
         public T GetItem(string fileName)
         {
@@ -42,7 +37,7 @@ namespace SlowAndReverb
         public void LoadFromDirectory(string directory)
         {
             foreach (string path in Directory.GetFiles(directory))
-                if (Path.GetExtension(path) == _extension)
+                if (Path.GetExtension(path) == Extension)
                     AddItem(path);
 
             foreach (string subDirectory in Directory.GetDirectories(directory))
@@ -65,13 +60,13 @@ namespace SlowAndReverb
                 string extension = Path.GetExtension(fileName);
 
                 if (!IsValidExtension(extension))                                                                         // Remove this??????
-                    throw new Exception($"This is an invalid file extension for this type of content({extension}). Expected extension: {_extension}");
+                    throw new Exception($"This is an invalid file extension for this type of content({extension}). Expected extension: {Extension}");
             }
 
-            if (File.Exists(fileName) || _mainDirectory is null)
+            if (File.Exists(fileName) || MainDirectory is null)
                 return fileName;
 
-            return Path.Combine(_mainDirectory, fileName);
+            return Path.Combine(MainDirectory, fileName);
         }
 
         public IEnumerable<CachedItem<T>> GetAllValues()
@@ -84,12 +79,12 @@ namespace SlowAndReverb
 
         protected virtual string AddExtention(string fileName)
         {
-            return fileName + _extension;
+            return fileName + Extension;
         }
 
         protected virtual bool IsValidExtension(string extension)
         {
-            return extension == _extension; 
+            return extension == Extension; 
         }
 
         private T AddItem(string path)

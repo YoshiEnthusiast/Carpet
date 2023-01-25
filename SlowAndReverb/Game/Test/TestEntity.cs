@@ -30,11 +30,11 @@ namespace SlowAndReverb
 
             //Add(sprite);
 
-            Add(new Light()
-            {
-                Color = Color.White,
-                Radius = 60f
-            });
+            //Add(new Light()
+            //{
+            //    Color = Color.White,
+            //    Radius = 60f
+            //});
         }
 
         public override void Update(float deltaTime)

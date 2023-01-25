@@ -9,7 +9,7 @@ namespace SlowAndReverb
     public abstract class Component
     {
         // Add null checks??????
-        public Scene Scene => Entity.CurrentScene;
+        public Scene Scene => Entity.Scene;
         public Vector2 Position => Entity.Position;
 
         public Entity Entity { get; set; }

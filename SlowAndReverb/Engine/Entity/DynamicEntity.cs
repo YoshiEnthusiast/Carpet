@@ -58,7 +58,7 @@ namespace SlowAndReverb
             if (!UpdatePhysics)
                 return;
 
-            _grounded = CurrentScene.CheckPointCollision<StaticEntity>(new Vector2(Position.X, Bottom + 1f)) is not null;
+            _grounded = Scene.CheckPointCollision<StaticEntity>(new Vector2(Position.X, Bottom + 1f)) is not null;
 
             if (!_grounded)
                 VelocityY += Weight;
@@ -81,7 +81,7 @@ namespace SlowAndReverb
                 Vector2 futurePosition = Position + new Vector2(sign, 0f);
                 var futureRectangle = new Rectangle(futurePosition - HalfSize, futurePosition + HalfSize);
 
-                IEnumerable<StaticEntity> collidesWith = CurrentScene.CheckRectangleCollisionAll<StaticEntity>(futureRectangle);
+                IEnumerable<StaticEntity> collidesWith = Scene.CheckRectangleCollisionAll<StaticEntity>(futureRectangle);
                 
                 if (collidesWith.Any())
                 {
@@ -109,7 +109,7 @@ namespace SlowAndReverb
                 Vector2 futurePosition = Position + new Vector2(0f, sign);
                 var futureRectangle = new Rectangle(futurePosition - HalfSize, futurePosition + HalfSize);
 
-                IEnumerable<StaticEntity> collidesWith = CurrentScene.CheckRectangleCollisionAll<StaticEntity>(futureRectangle);
+                IEnumerable<StaticEntity> collidesWith = Scene.CheckRectangleCollisionAll<StaticEntity>(futureRectangle);
 
                 if (collidesWith.Any())
                 {

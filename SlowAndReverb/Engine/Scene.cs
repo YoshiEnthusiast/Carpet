@@ -7,33 +7,55 @@ namespace SlowAndReverb
 {
     public class Scene 
     {
-        private readonly EntityHashMap _entities;
         private readonly HashSet<Component> _components = new HashSet<Component>();
-
         private readonly HashSet<System> _systems = new HashSet<System>();
 
         public Scene()
         {
-            _entities = new EntityHashMap(this, 100f);
+            Entities = new EntityHashMap(this, 100f);
 
             _systems.Add(new LightRenderer(this)); 
         }
 
         public static Scene Current { get; set; }
 
+        public EntityHashMap Entities { get; private init; }
         public float Brightness { get; set; } = 1f;
-        public EntityHashMap Entities => _entities;
+
         public IEnumerable<Component> Components => _components; 
 
         public virtual void Update(float deltaTime)
         {
-            _entities.Update();
+            Entities.Update();
 
-            foreach (Entity entity in _entities)
+            foreach (Entity entity in Entities)
                 entity.DoUpdate(deltaTime);
 
             foreach (System system in _systems)
                 system.Update(deltaTime);
+
+
+
+            if (Input.IsMouseDown(MouseButton.Left))
+            {
+                Vector2 mousePosition = Layers.Foreground.MousePosition;
+                Vector2 blockPosition = new Vector2(mousePosition.RoundedX / 8, mousePosition.RoundedY / 8) * 8f;
+
+                Block block = Scene.CheckPoint<Block>(blockPosition);
+
+                if (block is not null)
+                    return;
+
+                foreach (Block b in CheckCircleAll<Block>(blockPosition, 16))
+                    b.NeedsRefresh = true;
+
+                var n = new Block("tileset", blockPosition.X, blockPosition.Y)
+                {
+                    NeedsRefresh = true
+                };
+
+                Scene.Add(n);
+            }
         }
 
         public virtual void Draw()
@@ -43,7 +65,7 @@ namespace SlowAndReverb
 
             Graphics.BeginLayer(Layers.Foreground);
 
-            foreach (Entity entity in _entities)
+            foreach (Entity entity in Entities)
                 entity.DoDraw();
 
             foreach (System system in _systems)
@@ -51,13 +73,19 @@ namespace SlowAndReverb
 
             if (Engine.DebugCollition)
             {
-                _entities.DrawBuckets(0f);
+                Entities.DrawBuckets(0f);
 
-                foreach (Entity entity in _entities)
+                foreach (Entity entity in Entities)
                     entity.DrawCollision(5f);
             }
 
             Graphics.EndCurrentLayer();
+        }
+
+        public virtual void Initilize()
+        {
+            foreach (Entity entity in Entities)
+                entity.OnInitialize();
         }
 
         public virtual void OnEntityAdded(Entity entity)
@@ -124,7 +152,7 @@ namespace SlowAndReverb
 
         public IEnumerable<T> CheckRectangleCollisionAll<T>(Rectangle rectangle) where T : Entity
         {
-            foreach (Entity entity in _entities.GetNearby(rectangle))
+            foreach (Entity entity in Entities.GetNearby(rectangle))
             {
                 if (entity is not T result)
                     continue;
@@ -142,7 +170,11 @@ namespace SlowAndReverb
 
         public IEnumerable<T> CheckPointCollisionAll<T>(Vector2 point) where T : Entity
         {
-            return CheckRectangleCollisionAll<T>(new Rectangle(point, point + Vector2.One));
+            var rectangle = new Rectangle(point, point + Vector2.One);
+
+            foreach (T entity in CheckRectangleAll<T>(rectangle))
+                if (entity.Position == point)
+                    yield return entity;
         }
 
         public T CheckPointCollision<T>(Vector2 point) where T : Entity
@@ -155,7 +187,7 @@ namespace SlowAndReverb
             var radiusVector = new Vector2(radius);
             var rectangle = new Rectangle(position - radiusVector, position + radiusVector);
 
-            foreach (Entity entity in _entities.GetNearby(rectangle))
+            foreach (Entity entity in Entities.GetNearby(rectangle))
             {
                 if (entity is not T result)
                     continue;
@@ -180,15 +212,15 @@ namespace SlowAndReverb
 
         public void AddEntity(Entity entity)
         {
-            if (entity.CurrentScene is not null)
+            if (entity.Scene is not null)
                 return;
 
-            _entities.Add(entity);
+            Entities.Add(entity);
         }
 
         public void RemoveEntity(Entity entity)
         {
-            _entities.Remove(entity);
+            Entities.Remove(entity);
         }
     }
 }

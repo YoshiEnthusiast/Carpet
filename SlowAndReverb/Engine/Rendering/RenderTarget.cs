@@ -2,17 +2,12 @@
 {
     public sealed class RenderTarget
     {
-        private readonly Texture _texture;
-
-        private readonly int _width;
-        private readonly int _height;
-
         private RenderTarget(Texture texture, int width, int height)
         {
-            _texture = texture;
+            Texture = texture;
 
-            _width = width;
-            _height = height;
+            Width = width;
+            Height = height;
         }
 
         public static RenderTarget FromTexture(Texture texture)
@@ -25,9 +20,9 @@
             return new RenderTarget(null, width, height);
         }
 
-        public Texture Texture => _texture;
+        public Texture Texture { get; private init; }
 
-        public int Width => _width;
-        public int Height => _height;
+        public int Width { get; private init; }
+        public int Height { get; private init; }
     }
 }

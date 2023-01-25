@@ -4,25 +4,22 @@ namespace SlowAndReverb
 {
     public sealed class AudioContext
     {
-        private readonly SoundDevice _device;
         private readonly ALContext _context;
-
-        private bool _destroyed;
 
         public unsafe AudioContext(string deviceName)
         {
-            _device = new SoundDevice(deviceName);
-            _device.Open();
+            Device = new SoundDevice(deviceName);
+            Device.Open();
 
-            _context = ALC.CreateContext(_device.Handle, (int*)null);
+            _context = ALC.CreateContext(Device.Handle, (int*)null);
         }
 
-        public SoundDevice Device => _device;
-        public bool Destroyed => _destroyed;    
+        public SoundDevice Device { get; private init; }
+        public bool Destroyed { get; private set; }  
 
         public void MakeCurrent()
         {
-            if (_destroyed)
+            if (Destroyed)
                 return;
 
             ALC.MakeContextCurrent(_context);
@@ -30,17 +27,17 @@ namespace SlowAndReverb
 
         public ALContextAttributes GetAttributes()
         {
-            return ALC.GetContextAttributes(_device.Handle);
+            return ALC.GetContextAttributes(Device.Handle);
         }
 
         public void Destroy()
         {
-            if (_destroyed)
+            if (Destroyed)
                 return;
 
             ALC.DestroyContext(_context);
 
-            _destroyed = true;
+            Destroyed = true;
         }
     }
 }

@@ -9,12 +9,6 @@ namespace SlowAndReverb
 {
     public abstract class Engine
     {
-        private static Engine s_instance;
-
-        private static float s_deltaTime;
-        private static float s_updatesPerSecond;
-        private static double s_timeElapsed;
-
         private readonly string _name;
 
         private readonly double _updateFrequency;
@@ -29,14 +23,14 @@ namespace SlowAndReverb
             _updateFrequency = updateFrequency;
             _drawFrequency = drawFrequency;
 
-            s_instance = this;
+            Instance = this;
         }
 
-        public static Engine Instance => s_instance;
+        public static Engine Instance { get; private set; }
 
-        public static float DeltaTime => s_deltaTime;
-        public static float UpdatesPerSecond => s_updatesPerSecond;
-        public static double TimeElapsed => s_timeElapsed;  
+        public static float DeltaTime { get; private set; }
+        public static float UpdatesPerSecond { get; private set; }
+        public static double TimeElapsed { get; private set; }
 
         public static float TimeMultiplier { get; set; } = 1f;
         public static bool DebugCollition { get; set; }
@@ -70,7 +64,8 @@ namespace SlowAndReverb
             Input.Initialize(_window);
 
             Material.InitializeUniforms();
-            Content.LoadGraphics(TextureLoadMode.LoadAtlas);
+            Content.Initialize("Content");
+            Content.LoadGraphics(TextureLoadMode.SaveAtlas);
             Graphics.Initialize();
 
             OnInitialize();
@@ -100,11 +95,11 @@ namespace SlowAndReverb
         {
             double time = args.Time;
 
-            s_updatesPerSecond = 1f / (float)args.Time;
-            s_deltaTime = (float)time * TimeMultiplier;
-            s_timeElapsed += time;
+            UpdatesPerSecond = 1f / (float)args.Time;
+            DeltaTime = (float)time * TimeMultiplier;
+            TimeElapsed += time;
 
-            Update(s_deltaTime);
+            Update(DeltaTime);
 
             Input.Update();
         }

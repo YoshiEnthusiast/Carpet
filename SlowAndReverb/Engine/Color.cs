@@ -1,6 +1,5 @@
 ﻿using OpenTK.Mathematics;
 using System;
-using System.Runtime.CompilerServices;
 
 namespace SlowAndReverb
 {

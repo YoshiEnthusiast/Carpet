@@ -7,20 +7,17 @@ namespace SlowAndReverb
     {
         private readonly Dictionary<T, IState> _states = new Dictionary<T, IState>();
 
-        private T? _stateID;
-        private T? _previousStateID;
-
-        public T? CurrentStateID => _stateID;
-        public T? PreviousStateID => _previousStateID;  
+        public T? StateID { get; private set; }
+        public T? PreviousStateID { get; private set; }
 
         private IState CurrentState
         {
             get
             {
-                if (_stateID is null)
+                if (StateID is null)
                     return null;
 
-                return _states[_stateID.Value];
+                return _states[StateID.Value];
             }
         }
 
@@ -50,13 +47,13 @@ namespace SlowAndReverb
 
         public void ForceState(T? id)
         {
-            if (Equals(_stateID, id))
+            if (Equals(StateID, id))
                 return;
 
             CurrentState?.OnTerminate();
 
-            _previousStateID = _stateID;
-            _stateID = id;
+            PreviousStateID = StateID;
+            StateID = id;
 
             CurrentState?.OnStart();
         }

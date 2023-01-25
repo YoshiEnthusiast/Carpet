@@ -17,11 +17,9 @@ namespace SlowAndReverb
         private static Resolution s_current;
         private static EventHandler _change;
 
-        private readonly Vector2 _size;
-
         private Resolution(int width, int height)
         {
-            _size = new Vector2(width, height);
+            Size = new Vector2(width, height);
         }
 
         public static event EventHandler Change
@@ -64,9 +62,9 @@ namespace SlowAndReverb
 
         public static Vector2 CurrentSize => s_current.Size;
 
-        public Vector2 Size => _size;
-        public int Width => (int)_size.X;
-        public int Height => (int)_size.Y;
+        public Vector2 Size { get; private init; }
+        public int Width => (int)Size.X;
+        public int Height => (int)Size.Y;
 
         public static void SetCurrent(Resolution resolution)
         {

@@ -81,8 +81,6 @@ namespace SlowAndReverb
             _frameBuffer.SetRenderBuffer(_renderBuffer);
         }
 
-        public RenderTarget CurrentTarget => _renderTarget;
-
         public void Begin(RenderTarget target, BlendMode blendMode, Color clearColor, Rectangle? scissor, Matrix4? view)
         {
             if (_began)

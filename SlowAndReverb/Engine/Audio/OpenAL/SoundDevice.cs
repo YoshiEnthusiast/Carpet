@@ -5,19 +5,14 @@ namespace SlowAndReverb
 {
     public sealed class SoundDevice
     {
-        private readonly string _name;
-
-        private ALDevice _device;
-        private bool _opened;
-
         public SoundDevice(string name)
         {
-            _name = name;
+            Name = name;
         }
 
-        public string Name => _name;
-        public bool Opened => _opened;
-        public ALDevice Handle => _device;
+        public string Name { get; private init; }
+        public bool Opened { get; private set; }
+        public ALDevice Handle { get; private set; }
 
         public static IEnumerable<string> GetAvailableDevicesNames()
         {
@@ -26,27 +21,27 @@ namespace SlowAndReverb
 
         public void Open()
         {
-            if (_opened)
+            if (Opened)
                 return;
 
-            _device = ALC.OpenDevice(_name);
+            Handle = ALC.OpenDevice(Name);
 
-            if (_device == ALDevice.Null)
+            if (Handle == ALDevice.Null)
             {
                 // Throw exception
             }
 
-            _opened = true;
+            Opened = true;
         }
 
         public void Close()
         {
-            if (!_opened)
+            if (!Opened)
                 return;
 
-            ALC.CloseDevice(_device);   
+            ALC.CloseDevice(Handle);
 
-            _opened = false;
+            Opened = false;
         }
     }
 }

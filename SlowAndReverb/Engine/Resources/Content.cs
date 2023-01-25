@@ -22,13 +22,20 @@ namespace SlowAndReverb
         private static ShaderSourceCache s_fragmentSourceCache;
         private static ShaderSourceCache s_geometrySourceCache;
 
-        private static Texture s_atlasTexture;
         private static VirtualTexture s_noTexture;
 
         private static readonly Dictionary<string, ShaderProgram> s_shaders = new Dictionary<string, ShaderProgram>();
         private static readonly Dictionary<string, VirtualTexture> s_virtualTextures = new Dictionary<string, VirtualTexture>();
 
-        public static Texture AtlasTexture => s_atlasTexture;
+        private static readonly Dictionary<int, int> s_tileFrames = new Dictionary<int, int>();
+
+        public static Texture AtlasTexture { get; private set; }
+        public static string Folder { get; private set; }
+
+        internal static void Initialize(string folder)
+        {
+            Folder = folder;
+        }
 
         internal static void LoadGraphics(TextureLoadMode mode)
         {
@@ -60,7 +67,6 @@ namespace SlowAndReverb
 
                     string name = Path.ChangeExtension(localPath, null);
 
-                    Console.WriteLine(name);
                     atlas.Add(item.Value, name);
                 }
 
@@ -79,7 +85,7 @@ namespace SlowAndReverb
                 Texture atlasTexture = atlas.Texture;
                 XmlDocument atlasData = atlas.Data;
 
-                s_atlasTexture = atlasTexture;
+                AtlasTexture = atlasTexture;
 
                 if (mode == TextureLoadMode.SaveAtlas)
                 {
@@ -94,7 +100,7 @@ namespace SlowAndReverb
                 Texture atlasTexture = GetTexture(atlasFileName);
                 XmlDocument atlasData = Utilities.LoadXML(atlasDataFileName);
 
-                s_atlasTexture = atlasTexture;
+                AtlasTexture = atlasTexture;
 
                 LoadVirtualTextures(atlasTexture, atlasData);
             }
@@ -108,6 +114,17 @@ namespace SlowAndReverb
         internal static void Load()
         {
             s_waveFileCache = new WaveFileCache("SFX", true);
+
+            XmlDocument document = Utilities.LoadXML(Path.Combine(Folder, "tiles.xml"));
+            XmlElement tiles = document["Tiles"];
+
+            foreach (XmlElement tile in tiles)
+            {
+                int mask = tile.GetIntAttribute("Mask");
+                int frame = tile.GetIntAttribute("Frame");
+
+                s_tileFrames[mask] = frame;
+            }
 
             // Levels
             // Save data????
@@ -180,6 +197,14 @@ namespace SlowAndReverb
         public static WaveFile GetWaveFile(string fileName)
         {
             return s_waveFileCache.GetItem(fileName);
+        }
+
+        public static int GetTileFrame(int mask)
+        {
+            if (s_tileFrames.TryGetValue(mask, out int frame))
+                return frame;
+
+            return default;
         }
 
         private static void LoadVirtualTextures(Texture atlasTexture, XmlDocument data)

@@ -11,9 +11,6 @@ namespace SlowAndReverb
 {
     public class Texture : OpenGLObject
     {
-        private readonly int _width;
-        private readonly int _height;
-
         private readonly int _colorComponentsCount = 4;
 
         private TextureUnit? _unit;
@@ -22,12 +19,12 @@ namespace SlowAndReverb
         {
             Handle = handle;
 
-            _width = width;
-            _height = height;
+            Width = width;
+            Height = height;
         }
 
-        public int Width => _width;
-        public int Height => _height;
+        public int Width { get; private init; }
+        public int Height {get; private init; }
 
         public static Texture CreateEmpty(int width, int height)
         {
@@ -85,13 +82,13 @@ namespace SlowAndReverb
             if (Deleted)
                 return;
 
-            int bufferSize = _width * _height * _colorComponentsCount;
+            int bufferSize = Width * Height * _colorComponentsCount;
             var buffer = new byte[bufferSize];
 
             GL.GetTextureImage(Handle, 0, PixelFormat.Rgba, PixelType.UnsignedByte, bufferSize, buffer);
 
             var writer = new ImageWriter();
-            writer.WritePng(buffer, _width, _height, ImageWriteColorComponents.RedGreenBlueAlpha, stream);
+            writer.WritePng(buffer, Width, Height, ImageWriteColorComponents.RedGreenBlueAlpha, stream);
         }
 
         public void SaveAsPng(string fileName)

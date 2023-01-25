@@ -5,19 +5,12 @@ namespace SlowAndReverb
 {
     public abstract class SoundPlayer
     {
-        private readonly byte[] _data;
-
-        private readonly ALFormat _format;
-        private readonly int _sampleRate;
-
-        private ALSourceState _sourceState = ALSourceState.Initial;
-
         public SoundPlayer(WaveFile file)
         {
-            _data = file.Buffer.ToArray();
+            Data = file.Buffer.ToArray();
 
-            _format = file.Format;
-            _sampleRate = file.SampleRate;
+            Format = file.Format;
+            SampleRate = file.SampleRate;
         }
 
         public float Volume
@@ -66,19 +59,20 @@ namespace SlowAndReverb
         }
 
         public abstract bool Looping { get; set; }
+
+        public ALFormat Format { get; private init; }
+        public int SampleRate { get; private init; }
+
         public bool Prioritized { get; set; }
 
-        public ALFormat Format => _format;
-        public int SampleRate => _sampleRate;
+        protected byte[] Data { get; private init; }
+        protected ALSourceState SourceState { get; private set; }
 
         protected SoundSource Source { get; set; }
 
         protected float VolumeCached { get; set; }
         protected float PitchCached { get; set; }
         protected Vector2 PositionCached { get; set; }
-
-        protected byte[] Data => _data;
-        protected ALSourceState SourceState => _sourceState;
 
         public abstract SoundState GetState();
 
@@ -94,7 +88,7 @@ namespace SlowAndReverb
         public virtual void Update()
         {
             if (Source is not null)
-                _sourceState = Source.GetState();
+                SourceState = Source.GetState();
         }
 
         public virtual void Pause()

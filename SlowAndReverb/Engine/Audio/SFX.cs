@@ -7,29 +7,27 @@ namespace SlowAndReverb
 {
     public static class SFX
     {
-        private static AudioContext s_currentContext;
-
         private static readonly List<SoundSource> s_freeSources = new List<SoundSource>();
         private static readonly Dictionary<SoundPlayer, SoundSource> s_soundPool = new Dictionary<SoundPlayer, SoundSource>();
 
         private static readonly int s_maxSources = 32;
 
-        public static AudioContext CurrentContext => s_currentContext;
+        public static AudioContext CurrentContext { get; private set; }
 
         internal static void Initialize(string deviceName)
         {
-            if (s_currentContext is not null)
+            if (CurrentContext is not null)
             {
-                s_currentContext.Device.Close();
-                s_currentContext.Destroy();
+                CurrentContext.Device.Close();
+                CurrentContext.Destroy();
             }
 
-            s_currentContext = new AudioContext(deviceName);
-            s_currentContext.MakeCurrent();
+            CurrentContext = new AudioContext(deviceName);
+            CurrentContext.MakeCurrent();
 
             s_freeSources.Clear();
 
-            ALContextAttributes attributes = s_currentContext.GetAttributes();
+            ALContextAttributes attributes = CurrentContext.GetAttributes();
             int sourcesCount = Math.Min(attributes.MonoSources.Value, s_maxSources);
 
             for (int i = 0; i < sourcesCount; i++)
