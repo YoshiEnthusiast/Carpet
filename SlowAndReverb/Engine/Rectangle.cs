@@ -76,8 +76,8 @@ namespace SlowAndReverb
             float otherRight = other.Right;
             float otherBottom = other.Bottom;
 
-            return !(Left < otherLeft && Right < otherLeft || Right > otherRight && Left > otherRight
-                || Top < otherTop && Bottom < otherTop || Bottom > otherBottom && Top > otherBottom);
+            return !(Left < otherLeft && Right <= otherLeft || Right > otherRight && Left >= otherRight
+                || Top < otherTop && Bottom <= otherTop || Bottom > otherBottom && Top >= otherBottom);
         }
 
         public bool TryGetIntersectionRectangle(Rectangle other, out Rectangle result)

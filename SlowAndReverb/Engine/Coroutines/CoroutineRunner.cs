@@ -1,16 +1,17 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace SlowAndReverb
 {
-    public sealed class CoroutineRunner
+    public sealed class CoroutineRunner : Component
     {
         private Dictionary<int, Coroutine> _coroutines = new Dictionary<int, Coroutine>();
         private int _totalCoroutinesAdded;
 
         public int AliveCount => _coroutines.Count;
 
-        public void Update(float deltaTime)
+        public override void Update(float deltaTime)
         {
             foreach (int id in _coroutines.Keys)
             {

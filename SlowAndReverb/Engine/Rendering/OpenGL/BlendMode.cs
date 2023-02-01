@@ -18,6 +18,11 @@ namespace SlowAndReverb
             DestinationFactor = BlendingFactor.One
         };
 
+        public BlendMode(BlendingFactor sourceFactor, BlendingFactor destinationFactor)
+        {
+            SourceFactor = 
+        }
+
         public BlendingFactor SourceFactor { get; init; }
         public BlendingFactor DestinationFactor { get; init; }
     }

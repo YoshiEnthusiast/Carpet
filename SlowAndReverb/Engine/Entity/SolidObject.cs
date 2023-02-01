@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace SlowAndReverb
 {
-    public abstract class StaticEntity : Entity
+    public abstract class SolidObject : Entity
     {
-        public StaticEntity(float x, float y) : base(x, y)
+        public SolidObject(float x, float y) : base(x, y)
         {
 
         }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SlowAndReverb
 {
-    public class TestEntity2 : StaticEntity
+    public class TestEntity2 : SolidObject
     {
         public TestEntity2(float x, float y) : base(x, y)
         {

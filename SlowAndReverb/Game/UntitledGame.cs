@@ -1,5 +1,4 @@
-﻿using OpenTK.Graphics.ES20;
-using System;
+﻿using System;
 using System.Threading;
 
 namespace SlowAndReverb
@@ -63,6 +62,14 @@ namespace SlowAndReverb
             Scene.Add(new TestEntity(0f, 0f));
             //Scene.Add(new TestEntity2(180f, 90f));
             //Scene.Add(new Platform(120f, 100f));
+
+            for (int i = 0; i < 25; i++)
+                Scene.Add(new Block("tileset", 68f + i * 8f, 148));
+
+            Scene.Add(new Block("tileset", 68f, 140f));
+            Scene.Add(new Block("tileset", 68f + 8f * 25f, 140f));
+
+            Scene.Add(new Player(100f, 120f));
 
             Scene.Current.Brightness = 1f;
         }

@@ -14,6 +14,8 @@ namespace SlowAndReverb
         private readonly double _updateFrequency;
         private readonly double _drawFrequency;
 
+        private readonly float _deltaTimeMultiplier = 50f;
+
         private GameWindow _window;
 
         public Engine(double updateFrequency, double drawFrequency, string name)
@@ -70,6 +72,7 @@ namespace SlowAndReverb
 
             OnInitialize();
 
+            _window.VSync = VSyncMode.On;
             _window.Load += LoadContent;
             _window.UpdateFrame += OnUpdate;
             _window.RenderFrame += OnDraw;
@@ -96,7 +99,7 @@ namespace SlowAndReverb
             double time = args.Time;
 
             UpdatesPerSecond = 1f / (float)args.Time;
-            DeltaTime = (float)time * TimeMultiplier;
+            DeltaTime = (float)time * TimeMultiplier * _deltaTimeMultiplier;
             TimeElapsed += time;
 
             Update(DeltaTime);

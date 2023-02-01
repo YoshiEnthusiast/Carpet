@@ -12,14 +12,14 @@ namespace SlowAndReverb
 
         public Scene()
         {
-            Entities = new EntityHashMap(this, 100f);
+            Entities = new EntityMap(this, 100f);
 
             _systems.Add(new LightRenderer(this)); 
         }
 
         public static Scene Current { get; set; }
 
-        public EntityHashMap Entities { get; private init; }
+        public EntityMap Entities { get; private init; }
         public float Brightness { get; set; } = 1f;
 
         public IEnumerable<Component> Components => _components; 
@@ -34,14 +34,18 @@ namespace SlowAndReverb
             foreach (System system in _systems)
                 system.Update(deltaTime);
 
+            // Debug garbage
 
+            if (Input.IsPressed(Key.O))
+                foreach (Block block in GetEntitiesOfType<Block>())
+                    block.Position = Vector2.Zero;
 
             if (Input.IsMouseDown(MouseButton.Left))
             {
                 Vector2 mousePosition = Layers.Foreground.MousePosition;
-                Vector2 blockPosition = new Vector2(mousePosition.RoundedX / 8, mousePosition.RoundedY / 8) * 8f;
+                Vector2 blockPosition = new Vector2(mousePosition.RoundedX / 8, mousePosition.RoundedY / 8) * 8f + new Vector2(4f);
 
-                Block block = Scene.CheckPoint<Block>(blockPosition);
+                Block block = CheckPoint<Block>(blockPosition);
 
                 if (block is not null)
                     return;
@@ -54,8 +58,20 @@ namespace SlowAndReverb
                     NeedsRefresh = true
                 };
 
-                Scene.Add(n);
+                Add(n);
             }
+
+            if (Input.IsPressed(Key.P))
+            {
+                if (Brightness == 1f)
+                {
+                    Brightness = 0.4f;
+
+                    return;
+                }
+
+                Brightness = 1f;
+            }    
         }
 
         public virtual void Draw()
@@ -80,12 +96,6 @@ namespace SlowAndReverb
             }
 
             Graphics.EndCurrentLayer();
-        }
-
-        public virtual void Initilize()
-        {
-            foreach (Entity entity in Entities)
-                entity.OnInitialize();
         }
 
         public virtual void OnEntityAdded(Entity entity)
@@ -148,6 +158,11 @@ namespace SlowAndReverb
         public static T CheckCircle<T>(Vector2 position, float radius) where T : Entity
         {
             return Current.CheckCircleCollision<T>(position, radius);   
+        }
+
+        public IEnumerable<T> GetEntitiesOfType<T>() where T : Entity
+        {
+            return Entities.GetEntitiesOfType<T>();
         }
 
         public IEnumerable<T> CheckRectangleCollisionAll<T>(Rectangle rectangle) where T : Entity

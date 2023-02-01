@@ -1,13 +1,15 @@
 ﻿using OpenTK.Graphics.ES20;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace SlowAndReverb
 {
-    public sealed class EntityHashMap : IEnumerable<Entity>
+    public sealed class EntityMap : IEnumerable<Entity>
     {
         private readonly Dictionary<Vector2, HashSet<Entity>> _buckets = new Dictionary<Vector2, HashSet<Entity>>();
+        private readonly Dictionary<Type, HashSet<Entity>> _entitiesByType = new Dictionary<Type, HashSet<Entity>>();
         private readonly HashSet<Entity> _entities = new HashSet<Entity>();
 
         private readonly HashSet<Entity> _entitiesToAdd = new HashSet<Entity>();    
@@ -16,7 +18,7 @@ namespace SlowAndReverb
         private readonly Scene _scene;
         private readonly float _bucketSize;
 
-        public EntityHashMap(Scene scene, float bucketSize)
+        public EntityMap(Scene scene, float bucketSize)
         {
             _scene = scene;
             _bucketSize = bucketSize;
@@ -30,6 +32,10 @@ namespace SlowAndReverb
                     continue;
 
                 RemoveFromBuckets(entityToRemove);
+
+                HashSet<Entity> entities = _entitiesByType[entityToRemove.GetType()];
+                entities.Remove(entityToRemove);
+
                 entityToRemove.OnRemoved();
                 _scene.OnEntityRemoved(entityToRemove);
             }
@@ -49,7 +55,21 @@ namespace SlowAndReverb
                 if (!_entities.Add(entityToAdd))
                     continue;
 
+                Type type = entityToAdd.GetType();
                 AddToBuckets(entityToAdd);
+
+                if (_entitiesByType.TryGetValue(type, out HashSet<Entity> entities))
+                {
+                    entities.Add(entityToAdd);
+                }
+                else
+                {
+                    _entitiesByType[type] = new HashSet<Entity>()
+                    {
+                        entityToAdd
+                    };
+                }
+
                 entityToAdd.OnAdded(_scene);
                 _scene.OnEntityAdded(entityToAdd);  
             }
@@ -91,6 +111,20 @@ namespace SlowAndReverb
                         result.Add(entity);
 
             return result;
+        }
+
+        public IEnumerable<T> GetEntitiesOfType<T>() where T : Entity
+        {
+            foreach (Entity entity in GetEntitiesOfType(typeof(T)))
+                yield return (T)entity;
+        }
+
+        public IEnumerable<Entity> GetEntitiesOfType(Type type)
+        {
+            if (_entitiesByType.TryGetValue(type, out HashSet<Entity> entities))
+                return entities;
+
+            return Enumerable.Empty<Entity>();  
         }
 
         public void DrawBuckets(float depth)
@@ -137,7 +171,7 @@ namespace SlowAndReverb
 
         private void RemoveFromBuckets(Entity entity)
         {
-            // Slow.
+            // Slow.    Dictionary<Entity, IEnumerable<Vector2>> ???????
             foreach (HashSet<Entity> entities in _buckets.Values)
                 entities.Remove(entity);
 

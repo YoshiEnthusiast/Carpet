@@ -28,20 +28,15 @@ namespace SlowAndReverb
             if (Finished)
                 return;
 
-            while (deltaTime > 0f)
+            float time = Math.Min(deltaTime, _delay);
+
+            _delay -= time;
+
+            if (_delay <= 0f && !TakeStep(_enumerator))
             {
-                float time = Math.Min(deltaTime, _delay);
+                Finished = true;
 
-                _delay -= time;
-
-                if (_delay <= 0f && !TakeStep(_enumerator))
-                {
-                    Finished = true;
-
-                    return;
-                }
-
-                deltaTime -= time;
+                return;
             }
         }
 

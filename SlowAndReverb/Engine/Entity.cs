@@ -130,11 +130,6 @@ namespace SlowAndReverb
             Scene = null;
         }
 
-        public virtual void OnInitialize()
-        {
-
-        }
-
         public T GetComponent<T>() where T : Component
         {
             foreach (Component component in _components)
@@ -199,7 +194,7 @@ namespace SlowAndReverb
             Visible = false;
         }
 
-        public bool ColliderWith(Rectangle rectangle)
+        public bool CollidesWith(Rectangle rectangle)
         {
             return Rectangle.Intersects(rectangle);
         }

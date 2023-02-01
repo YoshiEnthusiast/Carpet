@@ -28,6 +28,7 @@ namespace SlowAndReverb
 
             _framesPerRow = textureWidth / FrameWidth;
 
+            SetCenterOrigin();
             UpdateTextureBounds();
         }
 
@@ -43,7 +44,7 @@ namespace SlowAndReverb
 
         public Sprite(string fileName) : this(Content.GetVirtualTexture(fileName))
         {
-            SetCenterOrigin();
+            
         }
 
         private Sprite(VirtualTexture texture, int frameWidth, int frameHeight, int framesPerRow, Dictionary<string, Animation> animations, Rectangle bounds)
@@ -174,6 +175,10 @@ namespace SlowAndReverb
                 _currentAnimation = null;
                 CurrentAnimationName = null;
 
+                return true;
+            }
+            else if (name == CurrentAnimationName)
+            {
                 return true;
             }
 

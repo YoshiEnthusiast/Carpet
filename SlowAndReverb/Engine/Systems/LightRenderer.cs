@@ -214,7 +214,7 @@ namespace SlowAndReverb
             Vector2 position = light.Position;
             Rectangle bounds = light.Bounds;
 
-            foreach (StaticEntity entity in Scene.CheckRectangleAll<StaticEntity>(bounds))
+            foreach (SolidObject entity in Scene.CheckRectangleAll<SolidObject>(bounds))
             {
                 Rectangle occluder = entity.Rectangle;
 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SlowAndReverb
 {
-    public class Block : StaticEntity
+    public class Block : SolidObject
     {
         private readonly Sprite _sprite;
         private readonly Dictionary<Vector2, Block> _neighbours = new Dictionary<Vector2, Block>();
@@ -11,10 +11,12 @@ namespace SlowAndReverb
         public Block(string tileSet, float x, float y) : base(x, y)
         {
             Size = new Vector2(8f);
+            TileSet = tileSet;
 
             _sprite = Add(new Sprite(tileSet, (int)Width, (int)Height));
         }
 
+        public string TileSet { get; private init; }
         public bool NeedsRefresh { get; set; } = true;
 
         public override void Update(float deltaTime)
@@ -74,7 +76,7 @@ namespace SlowAndReverb
             var offset = new Vector2(x, y);
             neighbour = Scene.CheckPoint<Block>(Position + offset * Size);
 
-            if (neighbour is not null)
+            if (neighbour is not null && neighbour.TileSet == TileSet)
                 _neighbours[offset] = neighbour;
 
             return neighbour;

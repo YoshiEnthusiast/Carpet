@@ -19,7 +19,7 @@ namespace SlowAndReverb
 
         private readonly VertexColorTextureIndex[] _vertices = new VertexColorTextureIndex[MaxVertices];
         private readonly uint[] _elements = new uint[MaxElements];
-        private readonly int[] _textureUnits = new int[OpenGL.MaxTextureUnits];
+        private readonly int[] _textureUnits;
 
         private readonly VertexArray<VertexColorTextureIndex> _vertexArray;
         private readonly RenderBuffer _renderBuffer;
@@ -79,6 +79,8 @@ namespace SlowAndReverb
 
             _frameBuffer.Bind();
             _frameBuffer.SetRenderBuffer(_renderBuffer);
+
+            _textureUnits = Enumerable.Range(0, OpenGL.MaxTextureSize).ToArray();
         }
 
         public void Begin(RenderTarget target, BlendMode blendMode, Color clearColor, Rectangle? scissor, Matrix4? view)
@@ -305,8 +307,6 @@ namespace SlowAndReverb
 
                     currentTexture.Bind(TextureUnit.Texture0 + unit);
 
-                    _textureUnits[unit] = unit;
-
                     lastTexture = currentTexture;
                     _texturesCount++;
                 }
@@ -344,7 +344,7 @@ namespace SlowAndReverb
         {
             ShaderProgram program = material.ShaderProgram;
 
-            program.SetUniform("u_Textures", 10, _textureUnits); 
+            program.SetUniform("u_Textures", _textureUnits.Length, _textureUnits); 
 
             _vertexArray.VertexBuffer.SetData(_verticesCount, _vertices);
             _vertexArray.ElementBuffer.SetData(_elementsCount, _elements);

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SlowAndReverb
 {
-    public class Platform : StaticEntity
+    public class Platform : SolidObject
     {
         //[[164 93] [196 125]]
         //[[60 125] [260 175]]
