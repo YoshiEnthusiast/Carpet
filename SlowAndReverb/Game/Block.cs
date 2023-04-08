@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace SlowAndReverb
 {
@@ -7,6 +8,8 @@ namespace SlowAndReverb
     {
         private readonly Sprite _sprite;
         private readonly Dictionary<Vector2, Block> _neighbours = new Dictionary<Vector2, Block>();
+
+        private bool _fake;
 
         public Block(string tileSet, float x, float y) : base(x, y)
         {
@@ -16,16 +19,44 @@ namespace SlowAndReverb
             _sprite = Add(new Sprite(tileSet, (int)Width, (int)Height));
         }
 
+        public bool Fake
+        {
+            get
+            {
+                return _fake;
+            }
+
+            set
+            {
+                if (_fake == value)
+                    return;
+
+                NeedsRefresh = true;
+                IgnoreCollisions = value;
+
+                _fake = value;
+            }
+        }
+
+        public BlockGroup Group { get; set; }
+
         public string TileSet { get; private init; }
         public bool NeedsRefresh { get; set; } = true;
 
-        public override void Update(float deltaTime)
+        protected override void Update(float deltaTime)
         {
             if (NeedsRefresh)
             {
                 Refresh();
 
                 NeedsRefresh = false;
+            }
+            
+            if (Fake && Scene.CheckRectangle<Player>(Rectangle) is not null)
+            {
+                Awake = false;
+
+                Group?.FadeAway();
             }
         }
 
@@ -76,7 +107,7 @@ namespace SlowAndReverb
             var offset = new Vector2(x, y);
             neighbour = Scene.CheckPoint<Block>(Position + offset * Size);
 
-            if (neighbour is not null && neighbour.TileSet == TileSet)
+            if (neighbour is not null && neighbour.TileSet == TileSet && neighbour.Fake == Fake)
                 _neighbours[offset] = neighbour;
 
             return neighbour;

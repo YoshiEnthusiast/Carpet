@@ -24,14 +24,13 @@ namespace SlowAndReverb
             //Add(new Light(Color.LightGreen, 100f));
         }
 
-        public override void Update(float deltaTime)
+        protected override void Update(float deltaTime)
         {
             base.Update(deltaTime);
         }
 
-        public override void Draw()
+        protected override void Draw()
         {
-            DrawCollision(5f);
             //Graphics.DrawCircle(Layers.Foreground.MousePosition, Color.Pink, 20, 30f);
         }
     }

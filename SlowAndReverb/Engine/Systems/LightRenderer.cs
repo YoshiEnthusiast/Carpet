@@ -1,10 +1,8 @@
-﻿using OpenTK.Graphics.ES11;
-using OpenTK.Graphics.OpenGL;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Net.Http.Headers;
 
 namespace SlowAndReverb
 {
@@ -14,7 +12,7 @@ namespace SlowAndReverb
 
         private readonly VertexColorTextureCoordinate[] _vertices = new VertexColorTextureCoordinate[4000];
         private readonly uint[] _elements = new uint[6000];
-        private readonly float _shadowLengthMultiplier = Maths.Sqrt(2f);
+        private readonly float _shadowLengthMultiplier = Maths.Sqrt(2f) * 2f;
 
         private readonly List<Line> _debugSurfaces = new List<Line>();
         private readonly List<Line> _debugRays = new List<Line>();
@@ -29,7 +27,7 @@ namespace SlowAndReverb
 
         private readonly int _maxLights;
         private readonly int _shadowCellWidth;
-        private readonly int _iterations = 6;
+        private readonly int _iterations = 12;
 
         private int _verticesCount;
         private int _elementsCount;
@@ -59,8 +57,9 @@ namespace SlowAndReverb
 
                 Vector2 lightPosition = light.Position.Round();
                 Rectangle lightBounds = light.Bounds;
+                var bounds = new Rectangle(lightBounds.TopLeft - Vector2.One, lightBounds.BottomRight + Vector2.One);
 
-                IEnumerable<Line> boundsSurfaces = GetRectangleSurfaces(lightBounds);
+                IEnumerable<Line> boundsSurfaces = GetRectangleSurfaces(bounds);
 
                 int masksCount = _masks.Length;
                 int maskIndex = i % masksCount;
@@ -77,12 +76,16 @@ namespace SlowAndReverb
                     Vector2 end = surface.End;
 
                     float startAngle = Maths.Atan2(lightPosition, start);
-                    float destinationAngle = Maths.Atan2(lightPosition, end);
+                    float endAngle = Maths.Atan2(lightPosition, end);
+
+                    float length = light.Radius * _shadowLengthMultiplier;
+                    Vector2 endProjection = ProjectPoint(end, endAngle, length, boundsSurfaces);
+
+                    float destinationAngle = Maths.Atan2(start, endProjection);
 
                     float delta = Maths.DeltaAngle(startAngle, destinationAngle);
 
                     float increment = delta / _iterations;
-                    float length = light.Radius * _shadowLengthMultiplier;
 
                     uint startElement = AddVertex(start, offset, mask);
 
@@ -113,7 +116,6 @@ namespace SlowAndReverb
                     AddElement(previousElement);
                     AddElement(endElement);
 
-                    Vector2 endProjection = ProjectPoint(end, destinationAngle, length, boundsSurfaces);
                     uint endProjectionElement = AddVertex(endProjection, offset, mask);
 
                     AddElement(endElement);
@@ -144,8 +146,7 @@ namespace SlowAndReverb
             _elementsCount = 0;
             _currentElement = 0;
 
-            float brightness = Scene.Brightness;
-            batch.Begin(RenderTargets.LightMap, BlendMode.AlphaBlend, new Color(brightness, brightness, brightness), null, null);
+            batch.Begin(RenderTargets.LightMap, BlendMode.Additive, Scene.Color, null, null);
 
             for (int i = 0; i < lightsCount; i++)
             {
@@ -214,8 +215,12 @@ namespace SlowAndReverb
             Vector2 position = light.Position;
             Rectangle bounds = light.Bounds;
 
-            foreach (SolidObject entity in Scene.CheckRectangleAll<SolidObject>(bounds))
+            foreach (Entity entity in Scene.CheckRectangleAll<Entity>(bounds))
             {
+                // temporary
+                if (entity.Get<LightOccluder>() is null)
+                    continue;
+
                 Rectangle occluder = entity.Rectangle;
 
                 if (occluder.Contains(position))
@@ -230,18 +235,7 @@ namespace SlowAndReverb
 
                 Line closest = surfaces[0];
 
-                Vector2 start = closest.Start;
-                Vector2 end = closest.End;
-
-                float startX = start.X;
-                float startY = start.Y;
-                float endX = end.X;
-                float endY = end.Y;
-
-                float x = position.X;
-                float y = position.Y;
-
-                if (!(x >= Math.Min(startX, endX) && x <= Math.Max(startX, endX) || y >= Math.Min(startY, endY) && y <= Math.Max(startY, endY)))
+                if (!PointIsTowards(position, closest))
                     yield return surfaces[1];
 
                 yield return closest;
@@ -271,6 +265,28 @@ namespace SlowAndReverb
             yield return new Line(topRight, bottomRight);
             yield return new Line(bottomRight, bottomLeft);
             yield return new Line(bottomLeft, topLeft);
+        }
+
+        private bool PointIsTowards(Vector2 point, Line surface)
+        {
+            float x = point.X;
+            float y = point.Y;
+
+            Vector2 start = surface.Start;
+            Vector2 end = surface.End;
+
+            float startX = start.X;
+            float startY = start.Y;
+            float endX = end.X;
+            float endY = end.Y;
+
+            if (x == startX || y == startY)
+                return false;
+
+            if (x >= Math.Min(startX, endX) && x <= Math.Max(startX, endX) || y >= Math.Min(startY, endY) && y <= Math.Max(startY, endY))
+                return true;
+
+            return false;
         }
 
         private readonly record struct LightData(Vector2 CellPosition, int MaskIndex);

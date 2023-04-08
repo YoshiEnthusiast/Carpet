@@ -10,7 +10,7 @@ namespace SlowAndReverb
 
         public static void Update(float deltaTime)
         {
-            s_runner.Update(deltaTime);
+            s_runner.DoUpdate(deltaTime);
         }
 
         public static int Start(IEnumerator enumerator, float initialDelay)

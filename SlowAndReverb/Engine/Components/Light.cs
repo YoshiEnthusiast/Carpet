@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SlowAndReverb
 {
     public class Light : Component
     {
+        private float _radius;
+
         public Light(Color color, float radius)
         {
             Color = color;
@@ -19,9 +22,20 @@ namespace SlowAndReverb
 
         }
 
-        public Color Color { get; set; }
+        public Color Color { get; set; } = Color.White;
 
-        public float Radius { get; set; }
+        public float Radius
+        {
+            get
+            {
+                return _radius;
+            }
+
+            set
+            {
+                _radius = Maths.Floor(value);
+            }
+        }
 
         public Rectangle Bounds
         {

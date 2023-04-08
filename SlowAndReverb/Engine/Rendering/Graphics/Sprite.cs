@@ -97,7 +97,7 @@ namespace SlowAndReverb
         public float Width => FrameWidth * Scale.X;
         public float Height => FrameHeight * Scale.Y;
 
-        public override void Update(float deltaTime)
+        protected override void Update(float deltaTime)
         {
             if (_currentAnimation is null || AnimationFinished)
                 return;
@@ -207,7 +207,7 @@ namespace SlowAndReverb
             return sprite;
         }
 
-        public override void Draw()
+        protected override void Draw()
         {
             Draw(Entity.Position);
         }

@@ -3,7 +3,6 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using StbImageSharp;
 using StbImageWriteSharp;
-using System;
 
 namespace SlowAndReverb
 {

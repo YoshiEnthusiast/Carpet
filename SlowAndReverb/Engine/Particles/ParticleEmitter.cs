@@ -1,0 +1,56 @@
+﻿using System;
+
+namespace SlowAndReverb
+{
+    public abstract class ParticleEmitter : Component
+    {
+        private ParticleSystem _system;
+        private float _timer;
+
+        public ParticleEmitter(ParticleBehaviour behaviour)
+        {
+            Behaviour = behaviour;
+        }
+
+        public ParticleBehaviour Behaviour { get; set; }
+
+        public int EmitCount { get; set; } = 1;
+        public int EmitCountVariation { get; set; }
+        public float Interval { get; set; } = 10f;
+        public float IntervalVariation { get; set; }
+
+        public void Emit(Vector2 position)
+        {
+            ParticleData data = Behaviour.Create(position, Position);
+
+            _system.Add(data);
+        }
+
+        public void Emit()
+        {
+            Emit(GeneratePosition());
+        }
+
+        protected abstract Vector2 GeneratePosition();
+
+        protected override void Update(float deltaTime)
+        {
+            _timer -= deltaTime;
+
+            if (_timer <= 0f)
+            {
+                int count = EmitCount + Random.NextInt(-EmitCountVariation, EmitCountVariation);
+
+                for (int i = 0; i < count; i++)
+                    Emit();
+
+                _timer = Interval + Random.NextFloat(-IntervalVariation, IntervalVariation);
+            }
+        }
+
+        protected override void OnAdded()
+        {
+            _system = Scene.GetSystem<ParticleSystem>();
+        }
+    }
+}

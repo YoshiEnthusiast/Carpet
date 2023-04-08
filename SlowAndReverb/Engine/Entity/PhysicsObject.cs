@@ -46,7 +46,7 @@ namespace SlowAndReverb
 
         public bool Grounded => Ground is not null;
 
-        public override void Update(float deltaTime)
+        protected override void Update(float deltaTime)
         {
             if (!UpdatePhysics)
                 return;
@@ -120,9 +120,9 @@ namespace SlowAndReverb
             Vector2 futurePosition = Position + by;
             var futureRectangle = new Rectangle(futurePosition - HalfSize, futurePosition + HalfSize);
 
-            IEnumerable<SolidObject> collidesWith = Scene.CheckRectangleCollisionAll<SolidObject>(futureRectangle);
+            IEnumerable<SolidObject> collidesWith = Scene.CheckRectangleAll<SolidObject>(futureRectangle);
 
-            if (collidesWith.Any())
+            if (collidesWith.Any(solid => !solid.IgnoreCollisions))
             {
                 foreach (SolidObject entity in collidesWith)
                     OnCollide(entity);

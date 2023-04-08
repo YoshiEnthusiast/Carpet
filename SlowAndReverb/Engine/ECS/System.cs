@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SlowAndReverb
+﻿namespace SlowAndReverb
 {
     public abstract class System
     {
@@ -13,7 +7,12 @@ namespace SlowAndReverb
             Scene = scene;
         }
 
-        public Scene Scene { get; private init; }
+        protected Scene Scene { get; private init; }
+
+        public virtual void Initialize()
+        {
+
+        }
 
         public virtual void Update(float deltaTime)
         {
@@ -22,10 +21,15 @@ namespace SlowAndReverb
 
         public virtual void OnBeforeDraw()
         {
-
+            
         }
 
         public virtual void Draw()
+        {
+
+        }
+
+        public virtual void OnLateDraw()
         {
 
         }

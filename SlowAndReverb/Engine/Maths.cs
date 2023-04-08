@@ -106,7 +106,7 @@ namespace SlowAndReverb
                 return true;
             }
 
-            intersectionPoint = default(Vector2);
+            intersectionPoint = default;
 
             return false;
         }
@@ -114,6 +114,13 @@ namespace SlowAndReverb
         public static bool TryGetIntersectionPoint(Line lineOne, Line lineTwo, out Vector2 intersectionPoint)
         {
             return TryGetIntersectionPoint(lineOne.Start, lineOne.End, lineTwo.Start, lineTwo.End, out intersectionPoint);
+        }
+
+        public static float Lerp(float value, float destination, float amount)
+        {
+            amount = Clamp(amount, 0f, 1f);
+            
+            return value + (destination - value) * amount;
         }
     }
 }

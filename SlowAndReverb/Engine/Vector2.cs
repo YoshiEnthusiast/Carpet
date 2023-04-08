@@ -39,6 +39,11 @@ namespace SlowAndReverb
             return Unsafe.As<Vector2GL, Vector2>(ref vector);
         }
 
+        public static Vector2 Lerp(Vector2 vector, Vector2 destination, float amount)
+        {
+            return vector.Lerp(destination, amount);
+        }
+
         public override bool Equals(object obj)
         {
             return obj is Vector2 vector && Equals(vector); 
@@ -138,6 +143,14 @@ namespace SlowAndReverb
         public float GetMagnitude()
         {
             return (float)Math.Sqrt(Math.Pow(X, 2) + Math.Pow(Y, 2));
+        }
+
+        public Vector2 Lerp(Vector2 destination, float amount)
+        {
+            float x = Maths.Lerp(X, destination.X, amount);
+            float y = Maths.Lerp(Y, destination.Y, amount);
+
+            return new Vector2(x, y);
         }
 
         public Vector2GL ToVector2GL()

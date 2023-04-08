@@ -15,5 +15,12 @@ namespace SlowAndReverb
 
             return document;
         }
+
+        public static Rectangle RectangleFromCircle(Vector2 position, float radius)
+        {
+            var radiusVector = new Vector2(radius);
+
+            return new Rectangle(position - radiusVector, position + radiusVector);
+        }
     }
 }

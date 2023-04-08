@@ -1,4 +1,5 @@
 ﻿global using Vector2GL = OpenTK.Mathematics.Vector2;
+global using SystemRandom = System.Random;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;

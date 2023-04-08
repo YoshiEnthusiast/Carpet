@@ -18,9 +18,9 @@ namespace SlowAndReverb
             Console.WriteLine(Top);
         }
 
-        public override void Draw()
+        protected override void Draw()
         {
-            DrawCollision(5f);
+
         }
     }
 }

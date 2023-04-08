@@ -1,99 +1,29 @@
-﻿using OpenTK.Graphics.ES20;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace SlowAndReverb
 {
-    public sealed class EntityMap : IEnumerable<Entity>
+    public sealed class EntityMap : DynamicCollection<Entity>
     {
         private readonly Dictionary<Vector2, HashSet<Entity>> _buckets = new Dictionary<Vector2, HashSet<Entity>>();
-        private readonly Dictionary<Type, HashSet<Entity>> _entitiesByType = new Dictionary<Type, HashSet<Entity>>();
-        private readonly HashSet<Entity> _entities = new HashSet<Entity>();
 
-        private readonly HashSet<Entity> _entitiesToAdd = new HashSet<Entity>();    
-        private readonly HashSet<Entity> _entitiesToRemove = new HashSet<Entity>();
-
-        private readonly Scene _scene;
+        private readonly World _world;
         private readonly float _bucketSize;
 
-        public EntityMap(Scene scene, float bucketSize)
+        public EntityMap(World world, float bucketSize)
         {
-            _scene = scene;
+            _world = world;
             _bucketSize = bucketSize;
         }
 
-        public void Update()
+        public override void Clear()
         {
-            foreach (Entity entityToRemove in _entitiesToRemove)
-            {
-                if (!_entities.Remove(entityToRemove))
-                    continue;
+            base.Clear();
 
-                RemoveFromBuckets(entityToRemove);
-
-                HashSet<Entity> entities = _entitiesByType[entityToRemove.GetType()];
-                entities.Remove(entityToRemove);
-
-                entityToRemove.OnRemoved();
-                _scene.OnEntityRemoved(entityToRemove);
-            }
-
-            foreach (Entity entity in _entities)
-            {
-                if (entity.NeverMoves)
-                    continue; 
-
-                RemoveFromBuckets(entity);
-
-                AddToBuckets(entity);
-            }
-
-            foreach (Entity entityToAdd in _entitiesToAdd)
-            {
-                if (!_entities.Add(entityToAdd))
-                    continue;
-
-                Type type = entityToAdd.GetType();
-                AddToBuckets(entityToAdd);
-
-                if (_entitiesByType.TryGetValue(type, out HashSet<Entity> entities))
-                {
-                    entities.Add(entityToAdd);
-                }
-                else
-                {
-                    _entitiesByType[type] = new HashSet<Entity>()
-                    {
-                        entityToAdd
-                    };
-                }
-
-                entityToAdd.OnAdded(_scene);
-                _scene.OnEntityAdded(entityToAdd);  
-            }
-
-            _entitiesToAdd.Clear();
-            _entitiesToRemove.Clear();
-        }
-
-        public void Add(Entity entity)
-        {
-            _entitiesToAdd.Add(entity);
-        }
-
-        public void Remove(Entity entity)
-        {
-            _entitiesToRemove.Add(entity);
-        } 
-
-        public void Clear()
-        {
-            _entities.Clear();
             _buckets.Clear();
-            _entitiesToAdd.Clear();
-            _entitiesToRemove.Clear();
         }
 
         public IEnumerable<Entity> GetNearby(Entity entity)
@@ -113,20 +43,6 @@ namespace SlowAndReverb
             return result;
         }
 
-        public IEnumerable<T> GetEntitiesOfType<T>() where T : Entity
-        {
-            foreach (Entity entity in GetEntitiesOfType(typeof(T)))
-                yield return (T)entity;
-        }
-
-        public IEnumerable<Entity> GetEntitiesOfType(Type type)
-        {
-            if (_entitiesByType.TryGetValue(type, out HashSet<Entity> entities))
-                return entities;
-
-            return Enumerable.Empty<Entity>();  
-        }
-
         public void DrawBuckets(float depth)
         {
             foreach (Vector2 hash in _buckets.Keys)
@@ -141,14 +57,31 @@ namespace SlowAndReverb
             }
         }
 
-        public IEnumerator<Entity> GetEnumerator()
+        protected override void OnUpdate()
         {
-            return _entities.GetEnumerator();
+            foreach (Entity entity in this)
+            {
+                if (entity.NeverMoves)
+                    continue;
+
+                RemoveFromBuckets(entity);
+
+                AddToBuckets(entity);
+            }
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        protected override void OnItemAdded(Entity entity)
         {
-            return GetEnumerator();
+            AddToBuckets(entity);
+
+            _world.OnEntityAdded(entity);
+        }
+
+        protected override void OnItemRemoved(Entity entity)
+        {
+            RemoveFromBuckets(entity);
+
+            _world.OnEntityRemoved(entity);
         }
 
         private void AddToBuckets(Entity entity)

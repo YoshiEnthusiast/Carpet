@@ -11,7 +11,7 @@ namespace SlowAndReverb
 
         public int AliveCount => _coroutines.Count;
 
-        public override void Update(float deltaTime)
+        protected override void Update(float deltaTime)
         {
             foreach (int id in _coroutines.Keys)
             {

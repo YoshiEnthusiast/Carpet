@@ -12,5 +12,7 @@ namespace SlowAndReverb
         {
 
         }
+
+        public bool IgnoreCollisions { get; set; }
     }
 }

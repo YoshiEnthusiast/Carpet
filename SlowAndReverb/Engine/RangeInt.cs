@@ -1,0 +1,4 @@
+﻿namespace SlowAndReverb
+{
+    public readonly record struct RangeInt(int Min, int Max);
+}

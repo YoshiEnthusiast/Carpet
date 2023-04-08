@@ -36,7 +36,7 @@ namespace SlowAndReverb
 
         public sbyte Direction { get; set; }
 
-        public override void Update(float deltaTime)
+        protected override void Update(float deltaTime)
         {
             float acceleration = (Grounded ? Acceleration : AirAcceleration) * deltaTime;
 

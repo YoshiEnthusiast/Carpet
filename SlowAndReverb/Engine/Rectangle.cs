@@ -14,7 +14,7 @@ namespace SlowAndReverb
         public Rectangle(Vector2 topLeft, Vector2 bottomRight)
         {
             Position = topLeft;
-            Size = bottomRight - Position;
+            Size = bottomRight - topLeft;
         }
 
         public Rectangle(float x, float y, float width, float height)

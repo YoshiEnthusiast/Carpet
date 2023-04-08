@@ -136,7 +136,7 @@ namespace SlowAndReverb
             FillRectangle(rectangle, null, color, depth);
         }
 
-        public static void FillRectabgle(Vector2 topLeft, Vector2 bottomRight, Color color, float depth)
+        public static void FillRectangle(Vector2 topLeft, Vector2 bottomRight, Color color, float depth)
         {
             FillRectangle(new Rectangle(topLeft, bottomRight), null, color, depth);
         }
