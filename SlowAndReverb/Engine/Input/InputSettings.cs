@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Xml;
 
 namespace SlowAndReverb
@@ -36,6 +37,8 @@ namespace SlowAndReverb
 
                 _axes[settingName] = axis;
             }
+
+            Console.WriteLine(Save().InnerXml);
         }
 
         public Key GetKey(string name)
@@ -68,9 +71,52 @@ namespace SlowAndReverb
             _axes[name] = axis;
         }
 
-        public void Save(XmlElement into)
+        public XmlDocument Save()
         {
-            // I will make this later...
+            var document = new XmlDocument();
+
+            XmlElement settings = document.CreateElement("Settings");
+            document.AppendChild(settings);
+
+            XmlElement keyboard = document.CreateElement("Keyboard");
+
+            foreach (string name in _keys.Keys)
+            {
+                XmlElement keyboardSetting = document.CreateElement("Key");
+
+                keyboardSetting.SetAttribute("Name", name);
+                keyboardSetting.SetAttribute("Value", _keys[name]); 
+
+                keyboard.AppendChild(keyboardSetting);
+            }
+
+            settings.AppendChild(keyboard);
+
+            XmlElement controller = document.CreateElement("Controller");
+
+            foreach (string name in _buttons.Keys)
+            {
+                XmlElement buttonSetting = document.CreateElement("Button");
+
+                buttonSetting.SetAttribute("Name", name);
+                buttonSetting.SetAttribute("Value", _buttons[name]);
+
+                controller.AppendChild(buttonSetting);
+            }
+
+            foreach (string name in _axes.Keys)
+            {
+                XmlElement axisSetting = document.CreateElement("Axis");
+
+                axisSetting.SetAttribute("Name", name);
+                axisSetting.SetAttribute("Value", _axes[name]);
+
+                controller.AppendChild(axisSetting);
+            }
+
+            settings.AppendChild(controller);
+
+            return document;
         }
     }
 }

@@ -17,7 +17,7 @@ namespace SlowAndReverb
 
         public override void Update(float deltaTime)
         {
-            Console.WriteLine(Input.XAxis.GetValue());
+            //Console.WriteLine(Input.XAxis.GetValue());
 
             Vector2 mousePosition = Layers.Foreground.MousePosition;
 
