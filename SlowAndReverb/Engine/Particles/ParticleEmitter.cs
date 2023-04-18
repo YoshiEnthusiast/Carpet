@@ -19,16 +19,24 @@ namespace SlowAndReverb
         public float Interval { get; set; } = 10f;
         public float IntervalVariation { get; set; }
 
-        public void Emit(Vector2 position)
+        public void Emit()
+        {
+            int count = EmitCount + Random.NextInt(-EmitCountVariation, EmitCountVariation);
+
+            for (int i = 0; i < count; i++)
+                EmitOne();
+        }
+
+        public void EmitOne(Vector2 position)
         {
             ParticleData data = Behaviour.Create(position, Position);
 
             _system.Add(data);
         }
 
-        public void Emit()
+        public void EmitOne()
         {
-            Emit(GeneratePosition());
+            EmitOne(GeneratePosition());
         }
 
         protected abstract Vector2 GeneratePosition();
@@ -39,10 +47,7 @@ namespace SlowAndReverb
 
             if (_timer <= 0f)
             {
-                int count = EmitCount + Random.NextInt(-EmitCountVariation, EmitCountVariation);
-
-                for (int i = 0; i < count; i++)
-                    Emit();
+                Emit();
 
                 _timer = Interval + Random.NextFloat(-IntervalVariation, IntervalVariation);
             }

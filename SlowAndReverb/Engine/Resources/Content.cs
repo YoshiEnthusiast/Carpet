@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
 
@@ -8,7 +9,7 @@ namespace SlowAndReverb
 {
     public static class Content
     {
-        public const string EncodedFileExtsntion = ".rsc";
+        public const string EncodedFileExtension = ".rsc";
         public const string DefaultShaderName = "default";
 
         private const string AtlasFileName = "atlas.png"; // will be rsc
@@ -28,13 +29,29 @@ namespace SlowAndReverb
         private static readonly Dictionary<string, VirtualTexture> s_virtualTextures = new Dictionary<string, VirtualTexture>();
 
         private static readonly Dictionary<int, int> s_tileFrames = new Dictionary<int, int>();
+        private static readonly Dictionary<string, ControllerMapping> s_controllerMappings = new Dictionary<string, ControllerMapping>();
 
         public static Texture AtlasTexture { get; private set; }
+        public static XmlElement DefaultInputSettings { get; private set; }
         public static string Folder { get; private set; }
 
         internal static void Initialize(string folder)
         {
             Folder = folder;
+
+            XmlDocument mappingsDocument = LoadXML("controllerMappings.xml");
+            XmlElement mappings = mappingsDocument["Mappings"];
+
+            foreach (XmlElement mapping in mappings)
+            {
+                string name = mapping.GetAttribute("Name");
+                var controllerMapping = new ControllerMapping(mapping);
+
+                s_controllerMappings[name] = controllerMapping;
+            }
+
+            DefaultInputSettings = LoadXML("defaultInputSettings.xml")
+                .DocumentElement;
         }
 
         internal static void LoadGraphics(TextureLoadMode mode)
@@ -115,8 +132,8 @@ namespace SlowAndReverb
         {
             s_waveFileCache = new WaveFileCache("SFX", true);
 
-            XmlDocument document = Utilities.LoadXML(Path.Combine(Folder, "tiles.xml"));
-            XmlElement tiles = document["Tiles"];
+            XmlDocument tilesDocument = LoadXML("tiles.xml");
+            XmlElement tiles = tilesDocument["Tiles"];
 
             foreach (XmlElement tile in tiles)
             {
@@ -201,10 +218,12 @@ namespace SlowAndReverb
 
         public static int GetTileFrame(int mask)
         {
-            if (s_tileFrames.TryGetValue(mask, out int frame))
-                return frame;
+            return s_tileFrames.GetValueOrDefault(mask);
+        }
 
-            return default;
+        public static ControllerMapping GetControllerMapping(string name)
+        {
+            return s_controllerMappings.GetValueOrDefault(name);
         }
 
         private static void LoadVirtualTextures(Texture atlasTexture, XmlDocument data)
@@ -232,6 +251,13 @@ namespace SlowAndReverb
                 return texture;
 
             return null;
+        }
+
+        private static XmlDocument LoadXML(string fileName)
+        {
+            string path = Path.Combine(Folder, fileName);
+
+            return Utilities.LoadXML(path);
         }
     }
 }

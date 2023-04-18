@@ -183,7 +183,7 @@ namespace SlowAndReverb
             //    Console.WriteLine("saved");
             //}
 
-            Input.Update();
+            Input.ResetState();
         }
 
         private Layer _layer;

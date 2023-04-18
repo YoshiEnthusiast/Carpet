@@ -14,10 +14,9 @@ namespace SlowAndReverb
         public override void Initialize()
         {
             var groups = new List<Group>();
-            var groupedBlocks = new HashSet<Block>();
+            var groupedBlocks = new HashSet<AutoTile>();
 
-            // what do i do
-            foreach (Block block in Scene.World.GetEntitiesOfType<Block>())
+            foreach (AutoTile block in Scene.GetEntitiesOfType<AutoTile>())
             {
                 if (groupedBlocks.Contains(block))
                     continue;
@@ -34,8 +33,8 @@ namespace SlowAndReverb
                 group.AddBlock(block);
                 groups.Add(group);
 
-                Block leftNeighbour = GetLeftNeightbour(block);
-                Block rightNeighbour = GetRightNeighbour(block);
+                AutoTile leftNeighbour = GetLeftNeightbour(block);
+                AutoTile rightNeighbour = GetRightNeighbour(block);
 
                 while (leftNeighbour is not null)
                 {
@@ -101,46 +100,46 @@ namespace SlowAndReverb
                 float x = position.X + width / 2f;
                 float y = position.Y + height / 2f;
 
-                IEnumerable<Block> blocks = group.Blocks;
+                IEnumerable<AutoTile> blocks = group.Blocks;
 
                 var blockGroup = new BlockGroup(x, y, blocks)
                 {
                     Size = new Vector2(width, height)
                 };
 
-                foreach (Block block in blocks)
+                foreach (AutoTile block in blocks)
                     block.Group = blockGroup;
 
                 Scene.Add(blockGroup);
             }
         }
 
-        private Block GetLeftNeightbour(Block block)
+        private AutoTile GetLeftNeightbour(AutoTile block)
         {
             return block.GetNeighbour(-1, 0);
         }
 
-        private Block GetRightNeighbour(Block block)
+        private AutoTile GetRightNeighbour(AutoTile block)
         {
             return block.GetNeighbour(1, 0);
         }
 
         private sealed class Group
         {
-            private readonly List<Block> _blocks = new List<Block>();
+            private readonly List<AutoTile> _blocks = new List<AutoTile>();
 
             public Vector2 Position { get; set; }
             public float Width { get; set; }
             public float Height { get; set; }
 
-            public IEnumerable<Block> Blocks => _blocks;
+            public IEnumerable<AutoTile> Blocks => _blocks;
 
-            public void AddBlock(Block block)
+            public void AddBlock(AutoTile block)
             {
                 _blocks.Add(block);
             }
 
-            public void AddBlocks(IEnumerable<Block> blocks)
+            public void AddBlocks(IEnumerable<AutoTile> blocks)
             {
                 _blocks.AddRange(blocks);
             }

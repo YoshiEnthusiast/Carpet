@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 
 namespace SlowAndReverb
 {
-    public abstract class SolidObject : Entity
+    public abstract class Block : AutoTile
     {
-        public SolidObject(float x, float y) : base(x, y)
+        public Block(string tileSet, float x, float y) : base(tileSet, x, y)
         {
-
+            Add(new SolidObject());
         }
-
-        public bool IgnoreCollisions { get; set; }
     }
 }

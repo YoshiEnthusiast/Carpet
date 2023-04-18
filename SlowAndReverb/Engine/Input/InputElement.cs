@@ -4,9 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SlowAndReverb.Engine.Components
+namespace SlowAndReverb
 {
-    internal class SolidObject
+    public abstract class InputElement
     {
+        public virtual void Update()
+        {
+
+        }
     }
 }

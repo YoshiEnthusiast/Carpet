@@ -26,7 +26,7 @@ namespace SlowAndReverb
 
         internal static void Initialize()
         {
-            Resolution.Change += OnResolutionChnaged;
+            Resolution.Change += OnResolutionChanged;
             ApplyResolution();
 
             BlankTexture = Content.GetVirtualTexture("blank");
@@ -37,6 +37,8 @@ namespace SlowAndReverb
 
             BlankTextureCoordinate = coordinate;
         }
+
+        #region Draw Methods
 
         public static void Draw(Texture texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
         {
@@ -189,6 +191,10 @@ namespace SlowAndReverb
             }
         }
 
+        #endregion
+
+        #region Layers
+
         public static void BeginLayer(Layer layer)
         {
             if (CurrentLayer is not null)
@@ -264,10 +270,14 @@ namespace SlowAndReverb
             SpriteBatch.End();
         }
 
+        #endregion
+
         public static void ResetScissor()
         {
             Scissor = new Rectangle(0f, 0f, Resolution.CurrentWidth, Resolution.CurrentHeight);
         }
+
+        #region Internal Draw Methods
 
         internal static void DrawWithoutRoundingPosition(Texture texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
         {
@@ -284,7 +294,11 @@ namespace SlowAndReverb
             DrawWithoutRoundingPosition(virtualTexture.ActualTexture, material, virtualTexture.GetBounds(new Rectangle(Vector2.Zero, new Vector2(virtualTexture.Width, virtualTexture.Height))), position, scale, center, color, 0f, SpriteEffect.None, SpriteEffect.None, depth);
         }
 
-        private static void OnResolutionChnaged(object sender, EventArgs args)
+        #endregion
+
+        #region Resolution
+
+        private static void OnResolutionChanged(object sender, EventArgs args)
         {
             ApplyResolution();
         }
@@ -301,6 +315,8 @@ namespace SlowAndReverb
             s_finalTarget = RenderTarget.FromTexture(texture);
             s_screenTarget = RenderTarget.FromScreen(width, height);
         }
+
+        #endregion
 
         private static CircleMaterial GetCircleMaterial(float lineWidth, float circumference)
         {

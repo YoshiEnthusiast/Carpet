@@ -4,14 +4,6 @@ namespace SlowAndReverb
 {
     public abstract class Component
     {
-        public Entity Entity { get; private set; }
-
-        public bool Awake { get; set; } = true;
-        public bool Visible { get; set; } = true;
-
-        public World World => Entity?.World;
-        public Scene Scene => Entity?.Scene;
-
         public Vector2 Position
         {
             get
@@ -19,12 +11,21 @@ namespace SlowAndReverb
                 if (OverridenPosition is not null)
                     return OverridenPosition.Value;
 
-                return Entity.Position + PositionOffset;
+                return EntityPosition + PositionOffset;
             }
         }
 
+        public Entity Entity { get; private set; }
+
         public Vector2? OverridenPosition { get; set; }
         public Vector2 PositionOffset { get; set; }
+
+        public bool Awake { get; set; } = true;
+        public bool Visible { get; set; } = true;
+
+        public Scene Scene => Entity?.Scene;
+        public Vector2 EntityPosition => Entity.Position;
+        public Rectangle EntityRectangle => Entity.Rectangle;
 
         public void DoUpdate(float deltaTime)
         {

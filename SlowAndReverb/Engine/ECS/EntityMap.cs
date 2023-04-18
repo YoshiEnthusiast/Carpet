@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SlowAndReverb
 {
@@ -10,12 +7,12 @@ namespace SlowAndReverb
     {
         private readonly Dictionary<Vector2, HashSet<Entity>> _buckets = new Dictionary<Vector2, HashSet<Entity>>();
 
-        private readonly World _world;
+        private readonly Scene _scene;
         private readonly float _bucketSize;
 
-        public EntityMap(World world, float bucketSize)
+        public EntityMap(Scene scene, float bucketSize)
         {
-            _world = world;
+            _scene = scene;
             _bucketSize = bucketSize;
         }
 
@@ -31,16 +28,30 @@ namespace SlowAndReverb
             return GetNearby(entity.Rectangle);
         }
 
-        public IEnumerable<Entity> GetNearby(Rectangle rectangle)
+        public IEnumerable<T> GetNearby<T>(Rectangle rectangle) where T : Entity
         {
-            var result = new HashSet<Entity>();
+            var result = new HashSet<T>();
 
             foreach (Vector2 hash in GetAffectedBucketsHash(rectangle))
-                if (_buckets.TryGetValue(hash, out HashSet<Entity> entities))
-                    foreach (Entity entity in entities)
-                        result.Add(entity);
+            {
+                if (!_buckets.TryGetValue(hash, out HashSet<Entity> entities))
+                    continue;
+
+                foreach (Entity entity in entities)
+                {
+                    if (entity is not T entityOfType)
+                        continue;
+
+                    result.Add(entityOfType);
+                }
+            }
 
             return result;
+        }
+
+        public IEnumerable<Entity> GetNearby(Rectangle rectangle)
+        {
+            return GetNearby<Entity>(rectangle);
         }
 
         public void DrawBuckets(float depth)
@@ -74,14 +85,14 @@ namespace SlowAndReverb
         {
             AddToBuckets(entity);
 
-            _world.OnEntityAdded(entity);
+            _scene.OnEntityAdded(entity);
         }
 
         protected override void OnItemRemoved(Entity entity)
         {
             RemoveFromBuckets(entity);
 
-            _world.OnEntityRemoved(entity);
+            _scene.OnEntityRemoved(entity);
         }
 
         private void AddToBuckets(Entity entity)

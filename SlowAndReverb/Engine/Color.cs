@@ -13,6 +13,7 @@ namespace SlowAndReverb
         public static readonly Color DarkGreen = new Color(45, 110, 8);
         public static readonly Color Pink = new Color(255, 0, 127);
         public static readonly Color Yellow = new Color(255, 255, 0);
+        public static readonly Color CoolOrange = new Color(233, 129, 46);
         public static readonly Color Grey = new Color(177, 177, 177);
 
         public static readonly Color Transparent = new Color(0, 0, 0, 0);

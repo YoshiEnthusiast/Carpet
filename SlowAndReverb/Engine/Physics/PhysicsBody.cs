@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace SlowAndReverb
 {
-    public abstract class PhysicsObject : Entity
+    public class PhysicsBody : Component
     {
         private float _accumulatorX;
         private float _accumulatorY;
 
-        public PhysicsObject(float x, float y) : base(x, y)
+        public PhysicsBody()
         {
-                
+            AttachedFunction = IsAttachedTo;
         }
 
         public float VelocityX
@@ -42,8 +44,11 @@ namespace SlowAndReverb
 
         public Vector2 Velocity { get; set; }
         public bool UpdatePhysics { get; set; } = true;
+
+        public AttachedFunction AttachedFunction { get; set; }
         public SolidObject Ground { get; private set; }
 
+        public AttachedFunction DefaultAttachedFunction => IsAttachedTo;
         public bool Grounded => Ground is not null;
 
         protected override void Update(float deltaTime)
@@ -54,7 +59,10 @@ namespace SlowAndReverb
             TranslateX(VelocityX * deltaTime);
             TranslateY(VelocityY * deltaTime);
 
-            Ground = Scene.CheckRectangle<SolidObject>(new Rectangle(BottomLeft, BottomLeft + new Vector2(Width, 1f)));
+            Vector2 bottomLeft = Entity.BottomLeft;
+            var rectangle = new Rectangle(bottomLeft, bottomLeft + new Vector2(Entity.Width, 1f));
+
+            Ground = Scene.CheckRectangleComponent<SolidObject>(rectangle);
         }
 
         public void TranslateX(float by)
@@ -101,38 +109,33 @@ namespace SlowAndReverb
             }
         }
 
-        public virtual bool IsAttachedTo(SolidObject solid)
-        {
-            if (solid is null)
-                return false;
-
-            return solid == Ground;
-        }
-
-        // Add something like "CollisionData" as a second argument
-        protected virtual void OnCollide(SolidObject with)
-        {
-
-        }
-
         private bool Translate(Vector2 by)
         {
             Vector2 futurePosition = Position + by;
-            var futureRectangle = new Rectangle(futurePosition - HalfSize, futurePosition + HalfSize);
+            Vector2 halfSize = Entity.HalfSize;
 
-            IEnumerable<SolidObject> collidesWith = Scene.CheckRectangleAll<SolidObject>(futureRectangle);
+            var futureRectangle = new Rectangle(futurePosition - halfSize, futurePosition + halfSize);
 
-            if (collidesWith.Any(solid => !solid.IgnoreCollisions))
+            IEnumerable<SolidObject> collidesWith = Scene.CheckRectangleAllComponent<SolidObject>(futureRectangle);
+
+            if (collidesWith.Any())
             {
-                foreach (SolidObject entity in collidesWith)
-                    OnCollide(entity);
+                // onCollide callback or something
 
                 return false;
             }
 
-            Position = futurePosition;
+            Entity.Position = futurePosition;
 
             return true;
+        }
+
+        private bool IsAttachedTo(PhysicsBody physicsBody, SolidObject solid)
+        {
+            if (solid is null)
+                return false;
+
+            return physicsBody.Ground == solid;
         }
     }
 }

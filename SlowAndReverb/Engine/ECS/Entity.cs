@@ -78,7 +78,6 @@ namespace SlowAndReverb
         public Vector2 Center { get; set; }
 
         public IEnumerable<Component> Components => _components;
-        public World World => Scene?.World;
 
         public float HalfWidth => Width / 2f;
         public float HalfHeight => Height / 2f;

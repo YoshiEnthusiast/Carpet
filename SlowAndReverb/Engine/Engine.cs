@@ -62,10 +62,10 @@ namespace SlowAndReverb
 
             OpenGL.Initialize(_window.Context);
             SFX.Initialize(null);
-            Input.Initialize(_window);
 
             Material.InitializeUniforms();
             Content.Initialize("Content");
+            Input.Initialize(_window);
             Content.LoadGraphics(TextureLoadMode.SaveAtlas);
             Graphics.Initialize();
 
@@ -95,6 +95,8 @@ namespace SlowAndReverb
 
         private void OnUpdate(FrameEventArgs args)
         {
+            Input.Update();
+
             double time = args.Time;
 
             UpdatesPerSecond = 1f / (float)args.Time;
@@ -103,7 +105,7 @@ namespace SlowAndReverb
 
             Update(DeltaTime);
 
-            Input.Update();
+            Input.ResetState();
         }
 
         private void OnDraw(FrameEventArgs args)

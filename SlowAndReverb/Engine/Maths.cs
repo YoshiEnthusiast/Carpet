@@ -122,5 +122,26 @@ namespace SlowAndReverb
             
             return value + (destination - value) * amount;
         }
+
+        public static bool WithinCircle(Vector2 position, Vector2 center, float radius)
+        {
+            float distance = Vector2.Distance(center, position);
+
+            if (distance <= radius)
+                return true;
+
+            return false;
+        }
+
+        public static bool WithinCircle(Rectangle rectangle, Vector2 center, float radius)
+        {
+            float entityRight = rectangle.Right;
+            float entityBottom = rectangle.Bottom;
+
+            float closestX = center.X > entityRight ? entityRight : rectangle.Left;
+            float closestY = center.Y > entityBottom ? entityBottom : rectangle.Top;
+
+            return WithinCircle(new Vector2(closestX, closestY), center, radius);
+        }
     }
 }

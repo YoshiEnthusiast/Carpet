@@ -17,6 +17,8 @@ namespace SlowAndReverb
 
         public override void Update(float deltaTime)
         {
+            Console.WriteLine(Input.XAxis.GetValue());
+
             Vector2 mousePosition = Layers.Foreground.MousePosition;
 
             if (Input.IsMouseDown(MouseButton.Left))
@@ -26,15 +28,17 @@ namespace SlowAndReverb
 
                 var v = new Vector2(x, y);
 
-                if (Scene.CheckPoint<Block>(v) is null)
+                if (Scene.CheckPosition<AutoTile>(v) is null)
                 {
-                    Scene.Add(new Block("tileset", x, y)
+                    Scene.Add(new DefaultFakeBlock(x, y)
                     {
-                        Fake = true
+
                     });
 
-                    foreach (Block b in Scene.CheckCircleAll<Block>(v, 16))
+                    foreach (AutoTile b in Scene.CheckCircleAll<AutoTile>(v, 16))
+                    {
                         b.NeedsRefresh = true;
+                    }
                 }
             }
             else if (Input.IsMousePressed(MouseButton.Right))
@@ -42,7 +46,7 @@ namespace SlowAndReverb
                 foreach (BlockGroup group in Scene.Entities.OfType<BlockGroup>())
                     Scene.Remove(group);
 
-                foreach (Block block in Scene.Entities.OfType<Block>())
+                foreach (AutoTile block in Scene.Entities.OfType<AutoTile>())
                     block.NeedsRefresh = true;
 
                 Scene.GetSystem<BlockGroupsSystem>().Initialize();

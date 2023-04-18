@@ -15,17 +15,17 @@ namespace SlowAndReverb
             _entity = entity;
         }
 
-        private World World => _entity.World;
+        private Scene Scene => _entity.Scene;
 
         protected override void OnItemAdded(Component component)
         {
-            World.OnComponentAdded(component);
+            Scene.OnComponentAdded(component);
             component.Added(_entity);
         }
 
         protected override void OnItemRemoved(Component component)
         {
-            World.OnComponentRemoved(component);
+            Scene.OnComponentRemoved(component);
             component.Removed();
         }
     }

@@ -16,6 +16,8 @@ namespace SlowAndReverb
         private int _frameIndex;
         private float _timePassed;
 
+        private float _delayMultiplier = 1f;
+
         public Sprite(VirtualTexture texture, int frameWidth, int frameHeight)
         {
             Texture = texture;
@@ -75,6 +77,26 @@ namespace SlowAndReverb
             }
         }
 
+        public float DelayMultiplier
+        {
+            get
+            {
+                return _delayMultiplier;
+            }
+
+            set
+            {
+                if (value <= 0f)
+                {
+                    _delayMultiplier = 1f;
+
+                    return;
+                }
+
+                _delayMultiplier = value;
+            } 
+        }
+
         public VirtualTexture Texture { get; private init; }
         public int FrameWidth { get; private init; }
         public int FrameHeight { get; private init; }
@@ -109,7 +131,7 @@ namespace SlowAndReverb
                 Animation animation = _currentAnimation.Value;
 
                 AnimationSegment segment = animation.SegmentAt(_frameIndex);
-                float delay = segment.Delay;
+                float delay = segment.Delay * DelayMultiplier;
 
                 if (_timePassed < delay)
                     break;
@@ -209,7 +231,12 @@ namespace SlowAndReverb
 
         protected override void Draw()
         {
-            Draw(Entity.Position);
+            Draw(Position);
+        }
+
+        public void DrawOnDefaultPosition()
+        {
+            Draw();
         }
 
         public void Draw(Vector2 position)

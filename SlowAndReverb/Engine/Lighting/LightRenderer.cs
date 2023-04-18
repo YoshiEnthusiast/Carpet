@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http.Headers;
 
 namespace SlowAndReverb
 {
@@ -41,36 +40,42 @@ namespace SlowAndReverb
             _maxLights = _shadowCellWidth * shadowBuffer.Height / (int)MaxRadius * _masks.Length;
         }
 
+        public InBoundsBehaviour BoundsBehaviour { get; set; } = InBoundsBehaviour.PutOut;
+
         public override void OnBeforeDraw()
         {
             _debugRays.Clear();
             _debugSurfaces.Clear();
 
-            Light[] lights = Scene.Components.OfType<Light>().ToArray();
-            int lightsCount = Math.Min(lights.Length, _maxLights);
+            IEnumerable<Light> lights = Scene.GetComponentsOfType<Light>();
+            int lightsCount = Math.Min(lights.Count(), _maxLights);
 
             var data = new LightData[lightsCount];
+            var lightToRender = 0;
 
-            for (int i = 0; i < lightsCount; i++)
+            foreach (Light light in lights)
             {
-                Light light = lights[i];
+                IEnumerable<Line> surfaces = GetCastingSurfaces(light, out bool inBounds);
+
+                if (inBounds && BoundsBehaviour == InBoundsBehaviour.PutOut)
+                    continue;
 
                 Vector2 lightPosition = light.Position.Round();
                 Rectangle lightBounds = light.Bounds;
                 var bounds = new Rectangle(lightBounds.TopLeft - Vector2.One, lightBounds.BottomRight + Vector2.One);
 
-                IEnumerable<Line> boundsSurfaces = GetRectangleSurfaces(bounds);
+                IEnumerable<Line> boundsSurfaces = bounds.GetSurfaces();
 
                 int masksCount = _masks.Length;
-                int maskIndex = i % masksCount;
+                int maskIndex = lightToRender % masksCount;
                 Color mask = _masks[maskIndex];
-                int cellIndex = i / masksCount;
+                int cellIndex = lightToRender / masksCount;
                 Vector2 cellPosition = new Vector2(cellIndex % _shadowCellWidth, cellIndex / _shadowCellWidth) * MaxRadius;
                 Vector2 offset = cellPosition - lightBounds.TopLeft;
 
-                data[i] = new LightData(cellPosition, maskIndex);
+                data[lightToRender] = new LightData(light, cellPosition, maskIndex);
 
-                foreach (Line surface in GetCastingSurfaces(light))
+                foreach (Line surface in surfaces)
                 {
                     Vector2 start = surface.Start;
                     Vector2 end = surface.End;
@@ -127,6 +132,8 @@ namespace SlowAndReverb
 
                     _debugSurfaces.Add(surface);
                 }
+
+                lightToRender++;
             }
 
             var vertices = new VertexColorTextureCoordinate[_verticesCount];
@@ -148,10 +155,12 @@ namespace SlowAndReverb
 
             batch.Begin(RenderTargets.LightMap, BlendMode.Additive, Scene.Color, null, null);
 
-            for (int i = 0; i < lightsCount; i++)
+            for (int i = 0; i < lightToRender; i++)
             {
-                Light light = lights[i];
                 LightData lightData = data[i];
+
+                Light light = lightData.Light;
+
                 float circumference = light.Radius * 2f;
                 Vector2 cellPosition = lightData.CellPosition;
 
@@ -161,7 +170,7 @@ namespace SlowAndReverb
                     Mask = lightData.MaskIndex
                 };
 
-                Graphics.FillRectangle(light.Bounds, material, light.Color, 0f); 
+                Graphics.FillRectangle(light.Bounds, material, light.Color, 0f);
             }
 
             batch.End();
@@ -172,22 +181,28 @@ namespace SlowAndReverb
             if (!Engine.DebugLighting)
                 return;
 
-            foreach (Light light in Scene.Components.OfType<Light>())
-            {
-                Graphics.DrawRectangle(light.Bounds, Color.Red, 11f);
+            Color red = Color.Red;
+            float debugDepth = Depths.Debug;
 
-                Graphics.DrawCircle(light.Position, new Color(233, 129, 46), (int)light.Radius, 10f);
+            foreach (Light light in Scene.GetComponentsOfType<Light>())
+            {
+                Graphics.DrawRectangle(light.Bounds, red, debugDepth);
+
+                Graphics.DrawCircle(light.Position, Color.CoolOrange, (int)light.Radius, debugDepth);
             }
 
             foreach (Line ray in _debugRays)
-                Graphics.DrawLine(ray.Start, ray.End, Color.DarkGreen, 10f);
+                Graphics.DrawLine(ray.Start, ray.End, Color.DarkGreen, debugDepth);
 
             foreach (Line surface in _debugSurfaces)
             {
-                Graphics.DrawCircle(surface.Start, Color.Red, 3, 10f);
-                Graphics.DrawCircle(surface.End, Color.Red, 3, 10f);
+                Vector2 start = surface.Start;
+                Vector2 end = surface.End;
 
-                Graphics.DrawLine(surface.Start, surface.End, Color.Red, 10f);
+                Graphics.DrawCircle(start, red, 3, debugDepth);
+                Graphics.DrawCircle(end, red, 3, debugDepth);
+
+                Graphics.DrawLine(start, end, red, debugDepth);
             }
         }
 
@@ -210,36 +225,43 @@ namespace SlowAndReverb
             _elementsCount++;
         }
 
-        private IEnumerable<Line> GetCastingSurfaces(Light light)
+        private IEnumerable<Line> GetCastingSurfaces(Light light, out bool inBounds)
         {
+            var result = new List<Line>();
+
             Vector2 position = light.Position;
             Rectangle bounds = light.Bounds;
 
-            foreach (Entity entity in Scene.CheckRectangleAll<Entity>(bounds))
-            {
-                // temporary
-                if (entity.Get<LightOccluder>() is null)
-                    continue;
+            inBounds = false;
 
-                Rectangle occluder = entity.Rectangle;
+            foreach (LightOccluder lightOccluder in Scene.CheckRectangleAllComponent<LightOccluder>(bounds))
+            {
+                Rectangle occluder = lightOccluder.EntityRectangle;
 
                 if (occluder.Contains(position))
-                    continue;
+                {
+                    inBounds = true;
 
-                if (occluder.TryGetIntersectionRectangle(bounds, out Rectangle result))
-                    occluder = result;
+                    if (BoundsBehaviour == InBoundsBehaviour.Exclude)
+                        continue;
+                }
 
-                Line[] surfaces = GetRectangleSurfaces(occluder).
-                    OrderBy(surface => Vector2.Distance(position, surface.GetMidPoint()))
+                if (occluder.TryGetIntersectionRectangle(bounds, out Rectangle rectangle))
+                    occluder = rectangle;
+
+                Line[] surfaces = occluder.GetSurfaces()
+                    .OrderBy(surface => Vector2.Distance(position, surface.GetMidPoint()))
                     .ToArray();
 
                 Line closest = surfaces[0];
 
                 if (!PointIsTowards(position, closest))
-                    yield return surfaces[1];
+                    result.Add(surfaces[1]);
 
-                yield return closest;
+                result.Add(closest);
             }
+
+            return result;
         }
 
         private Vector2 ProjectPoint(Vector2 point, float angle, float length, IEnumerable<Line> bounds)
@@ -251,20 +273,7 @@ namespace SlowAndReverb
                 if (Maths.TryGetIntersectionPoint(ray, bound, out Vector2 result))
                     return result;
 
-            return ray.End; 
-        }
-
-        private IEnumerable<Line> GetRectangleSurfaces(Rectangle occluder)
-        {
-            Vector2 topLeft = occluder.TopLeft;
-            Vector2 topRight = occluder.TopRight;
-            Vector2 bottomLeft = occluder.BottomLeft;
-            Vector2 bottomRight = occluder.BottomRight;
-
-            yield return new Line(topLeft, topRight);
-            yield return new Line(topRight, bottomRight);
-            yield return new Line(bottomRight, bottomLeft);
-            yield return new Line(bottomLeft, topLeft);
+            return ray.End;
         }
 
         private bool PointIsTowards(Vector2 point, Line surface)
@@ -289,6 +298,13 @@ namespace SlowAndReverb
             return false;
         }
 
-        private readonly record struct LightData(Vector2 CellPosition, int MaskIndex);
+        private readonly record struct LightData(Light Light, Vector2 CellPosition, int MaskIndex);
+
+        public enum InBoundsBehaviour
+        {
+            Ignore,
+            Exclude,
+            PutOut
+        }
     }
 }

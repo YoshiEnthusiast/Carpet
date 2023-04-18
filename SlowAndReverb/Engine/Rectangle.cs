@@ -122,9 +122,22 @@ namespace SlowAndReverb
             return Size.X * Size.Y;
         }
 
+        public IEnumerable<Line> GetSurfaces()
+        {
+            Vector2 topLeft = TopLeft;
+            Vector2 topRight = TopRight;
+            Vector2 bottomLeft = BottomLeft;
+            Vector2 bottomRight = BottomRight;
+
+            yield return new Line(topLeft, topRight);
+            yield return new Line(topRight, bottomRight);
+            yield return new Line(bottomRight, bottomLeft);
+            yield return new Line(bottomLeft, topLeft);
+        }
+
         public override string ToString()
         {
-            return $"[{TopLeft} {BottomRight}]";
+            return $"(Rectangle) [{TopLeft} {BottomRight}]";
         }
 
         public override bool Equals(object obj)

@@ -160,7 +160,7 @@ namespace SlowAndReverb
 
         public override string ToString()
         {
-            return $"[{X} {Y}]";
+            return $"(Vector2) [{X} {Y}]";
         }
 
         public static Vector2 operator +(Vector2 vector, Vector2 other)

@@ -11,7 +11,7 @@ namespace SlowAndReverb
         private float _alpha = 1f;
         private bool _fading;
 
-        public BlockGroup(float x, float y, IEnumerable<Block> blocks) : base(x, y)
+        public BlockGroup(float x, float y, IEnumerable<AutoTile> blocks) : base(x, y)
         {
             Blocks = blocks;
 
@@ -19,7 +19,7 @@ namespace SlowAndReverb
             _occluder = Add(new LightOccluder());
         }
 
-        public IEnumerable<Block> Blocks { get; private init; }
+        public IEnumerable<AutoTile> Blocks { get; private init; }
 
         public void FadeAway()
         {
@@ -38,12 +38,12 @@ namespace SlowAndReverb
             {
                 _alpha -= 0.05f;
 
-                foreach (Block block in Blocks)
+                foreach (AutoTile block in Blocks)
                     block.Get<Sprite>().Color = Color.White * _alpha;
 
                 if (_alpha <= 0f)
                 {
-                    foreach (Block block in Blocks)
+                    foreach (AutoTile block in Blocks)
                         Scene.Remove(block);
 
                     Scene.Remove(this);

@@ -20,7 +20,7 @@ namespace SlowAndReverb
         {
             using (FileStream fileStream = File.OpenRead(path))
             {
-                if (Path.GetExtension(path) == Content.EncodedFileExtsntion)
+                if (Path.GetExtension(path) == Content.EncodedFileExtension)
                     using (MemoryStream stream = ContentEncoder.Decode(fileStream))
                         return CreateItem(stream);
 
@@ -38,7 +38,7 @@ namespace SlowAndReverb
 
         protected override bool IsValidExtension(string extension)
         {
-            return base.IsValidExtension(extension) || extension == Content.EncodedFileExtsntion;
+            return base.IsValidExtension(extension) || extension == Content.EncodedFileExtension;
         }
     }
 }

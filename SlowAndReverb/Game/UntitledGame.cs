@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 
 namespace SlowAndReverb
@@ -67,7 +66,7 @@ namespace SlowAndReverb
             //Scene.Add(new Platform(120f, 100f));
 
             for (int i = 0; i < 25; i++)
-                CurrentScene.Add(new Block("tileset", 68f + i * 8f, 100)); // 148
+                CurrentScene.Add(new DefaultBlock(68f + i * 8f, 100)); // 148
 
             //Scene.Add(new Block("tileset", 68f, 140f));
             //Scene.Add(new Block("tileset", 68f + 8f * 25f, 140f));
@@ -75,7 +74,9 @@ namespace SlowAndReverb
             CurrentScene.Add(new Player(100f, 0f));
 
             CurrentScene.Add(new FlyingLantern(80f, 80f));
+
             CurrentScene.Add(new Coin(150f, 60f));
+            CurrentScene.Add(new Coin(230f, 80f));
 
             CurrentScene.Color = new Color(100, 100, 100);
             Engine.DebugLighting = false;
@@ -89,6 +90,14 @@ namespace SlowAndReverb
                 return;
 
             Console.WriteLine("Content loaded");
+
+            //Temporary
+            var settings = new InputSettings(Content.DefaultInputSettings);
+            var profile = new InputProfile(settings);
+
+            Input.Profile = profile;
+            profile.Initialize();
+
             _stateMachine.ForceState(GlobalState.Game);
         }
     }

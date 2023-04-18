@@ -5,7 +5,7 @@
         public Entity Follow { get; set; }
 
         public Sprite Sprite { get; set; }
-        public float Depth { get; set; }
+        public float Depth { get; set; } = Depths.Particles;
 
         public Vector2 Velocity { get; set; } = Vector2.One;
         public Vector2 VelocityVariation { get; set; } = Vector2.Zero;

@@ -6,12 +6,11 @@ using System.Threading.Tasks;
 
 namespace SlowAndReverb
 {
-    public enum SpecialKey
+    public class DefaultBlock : Block
     {
-        Enter = 257,
+        public DefaultBlock(float x, float y) : base("tileset", x, y)
+        {
 
-        Backspace = 259, 
-
-        Delete = 261
+        }
     }
 }

@@ -12,6 +12,8 @@ namespace SlowAndReverb
         private readonly Font _font = new Font("testFont");
         private readonly CircleParticleEmitter _emitter;
 
+        private readonly VirtualTexture _grapleHookTexture = Content.GetVirtualTexture("grapleHook");
+
         public TestEntity(float x, float y) : base(x, y)
         {
             var sprite = new Sprite("needler", 19, 16)
@@ -72,9 +74,18 @@ namespace SlowAndReverb
             }
         }
 
+        private readonly RepeatTextureMaterial _material = new RepeatTextureMaterial()
+        {
+            Scale = new Vector2(24f, 1f)
+        };
+        float angle = 0f;
+
         protected override void Draw()
         {
+            //Graphics.Draw(_grapleHookTexture, _material, Layers.Foreground.MousePosition, new Vector2(24f, 1f), new Vector2(0f, 2f), Color.White, angle, Depths.Debug);
 
+            //Graphics.Draw(_grapleHookTexture, Layers.Foreground.MousePosition, new Vector2(50f, 1f), Vector2.Zero, Color.White, angle, Depths.Debug);
+            angle -= 0.005f;
         }
 
         private class OffCenterParticleBehaviour : ParticleBehaviour
