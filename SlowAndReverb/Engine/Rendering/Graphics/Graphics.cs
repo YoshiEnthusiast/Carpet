@@ -100,12 +100,17 @@ namespace SlowAndReverb
             Draw(virtualTexture, material, position, scale, origin, color, angle, SpriteEffect.None, SpriteEffect.None, depth);
         }
 
-        public static void DrawLine(Vector2 from, Vector2 to, Color color, float depth, int width = 1, bool centred = false)
+        public static void DrawLine(Vector2 from, Vector2 to, Color color, float depth, int width = 1, bool centered = false)
         {
             float angle = Maths.Atan2(from, to);
             float length = from.Subtract(to).GetMagnitude();
 
-            float originY = centred ? 0.5f : 0f;
+            DrawLine(from, angle, length, color, depth, width, centered);
+        }
+
+        public static void DrawLine(Vector2 from, float angle, float length, Color color, float depth, int width = 1, bool centered = false)
+        {
+            float originY = centered ? 0.5f : 0f;
 
             Draw(BlankTexture, from, new Vector2(length, width), new Vector2(0f, originY), color, angle, depth);
         }

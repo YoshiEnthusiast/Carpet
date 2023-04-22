@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SlowAndReverb
 {
-    public class StateMachine<T> where T : struct
+    public class StateMachine<T> : Component where T : struct
     {
         private readonly Dictionary<T, IState> _states = new Dictionary<T, IState>();
 
@@ -58,12 +58,12 @@ namespace SlowAndReverb
             CurrentState?.OnStart();
         }
 
-        public void Update(float deltaTime)
+        protected override void Update(float deltaTime)
         {
             CurrentState?.Update(deltaTime);
         }
 
-        public void Draw()
+        protected override void Draw()
         {
             CurrentState?.Draw();
         }

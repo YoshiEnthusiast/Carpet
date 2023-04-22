@@ -143,5 +143,19 @@ namespace SlowAndReverb
 
             return WithinCircle(new Vector2(closestX, closestY), center, radius);
         }
+
+        public static float Approach(float current, float value, float max)
+        {
+            float result = current + value;
+
+            return Math.Min(result, max);
+        }
+
+        public static float ApproachAbs(float current, float value, float max)
+        {
+            float result = current + value;
+
+            return Clamp(result, -max, max);
+        } 
     }
 }

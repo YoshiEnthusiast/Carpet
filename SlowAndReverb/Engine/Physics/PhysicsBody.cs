@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK.Graphics.ES20;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace SlowAndReverb
 {
-    public class PhysicsBody : Component
+    public class PhysicsBody : Entity
     {
         private float _accumulatorX;
         private float _accumulatorY;
 
-        public PhysicsBody()
+        public PhysicsBody(float x, float y) : base(x, y)
         {
-            AttachedFunction = IsAttachedTo;
+
         }
 
         public float VelocityX
@@ -45,10 +46,7 @@ namespace SlowAndReverb
         public Vector2 Velocity { get; set; }
         public bool UpdatePhysics { get; set; } = true;
 
-        public AttachedFunction AttachedFunction { get; set; }
         public SolidObject Ground { get; private set; }
-
-        public AttachedFunction DefaultAttachedFunction => IsAttachedTo;
         public bool Grounded => Ground is not null;
 
         protected override void Update(float deltaTime)
@@ -59,8 +57,8 @@ namespace SlowAndReverb
             TranslateX(VelocityX * deltaTime);
             TranslateY(VelocityY * deltaTime);
 
-            Vector2 bottomLeft = Entity.BottomLeft;
-            var rectangle = new Rectangle(bottomLeft, bottomLeft + new Vector2(Entity.Width, 1f));
+            Vector2 bottomLeft = BottomLeft;
+            var rectangle = new Rectangle(bottomLeft, bottomLeft + new Vector2(Width, 1f));
 
             Ground = Scene.CheckRectangleComponent<SolidObject>(rectangle);
         }
@@ -112,7 +110,7 @@ namespace SlowAndReverb
         private bool Translate(Vector2 by)
         {
             Vector2 futurePosition = Position + by;
-            Vector2 halfSize = Entity.HalfSize;
+            Vector2 halfSize = HalfSize;
 
             var futureRectangle = new Rectangle(futurePosition - halfSize, futurePosition + halfSize);
 
@@ -125,17 +123,17 @@ namespace SlowAndReverb
                 return false;
             }
 
-            Entity.Position = futurePosition;
+            Position = futurePosition;
 
             return true;
         }
 
-        private bool IsAttachedTo(PhysicsBody physicsBody, SolidObject solid)
+        public virtual bool IsAttachedTo(SolidObject solid)
         {
             if (solid is null)
                 return false;
 
-            return physicsBody.Ground == solid;
+            return Ground == solid;
         }
     }
 }

@@ -19,12 +19,12 @@ namespace SlowAndReverb
 
         protected override void Update(float deltaTime)
         {
-            _stateMachine.Update(deltaTime);
+            _stateMachine.DoUpdate(deltaTime);
         }
 
         protected override void Draw()
         {
-            _stateMachine.Draw();
+            _stateMachine.DoDraw();
         }
 
         protected override void OnInitialize()

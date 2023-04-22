@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Runtime.InteropServices;
 
 namespace SlowAndReverb
 {
@@ -165,6 +166,18 @@ namespace SlowAndReverb
             Scene = null;
 
             OnRemoved(from);
+        }
+
+        public Vector2 Rotate(Vector2 position, float angle)
+        {
+            return position.Rotate(Position, angle);
+        }
+
+        public Vector2 Rotate(float length, float angle)
+        {
+            Vector2 position = Position + new Vector2(length, 0f);
+
+            return Rotate(position, angle);
         }
 
         protected virtual void OnAdded()

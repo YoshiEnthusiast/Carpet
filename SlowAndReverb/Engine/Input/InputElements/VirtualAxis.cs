@@ -4,6 +4,9 @@ namespace SlowAndReverb
 {
     public class VirtualAxis : InputElement
     {
+        private const float PositiveDirection = 1f;
+        private const float NegativeDirection = -1f;
+
         private readonly VirtualButton _positiveButton = new VirtualButton();
         private readonly VirtualButton _negativeButton = new VirtualButton();
 
@@ -29,13 +32,26 @@ namespace SlowAndReverb
                     return axisValue;
             }
 
-            if (!_positiveButton.IsDown() && !_negativeButton.IsDown())
-                return 0f;
+            bool positiveIsDown = _positiveButton.IsDown();
+            bool negativeIsDown = _negativeButton.IsDown();
 
-            if (_lastPressedButton == _positiveButton)
-                return 1f;
+            if (positiveIsDown && negativeIsDown)
+            {
+                if (_lastPressedButton == _positiveButton)
+                    return PositiveDirection;
 
-            return -1f;
+                return NegativeDirection;
+            }
+            else if (positiveIsDown)
+            {
+                return PositiveDirection;
+            }
+            else if (negativeIsDown)
+            {
+                return NegativeDirection;
+            }
+
+            return 0f;
         }
 
         public float GetSign()

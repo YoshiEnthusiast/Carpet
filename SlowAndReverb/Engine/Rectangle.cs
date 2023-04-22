@@ -40,6 +40,13 @@ namespace SlowAndReverb
         public float Right => Left + Width;
         public float Bottom => Top + Height;
 
+        public static Rectangle FromCenter(Vector2 center, Vector2 size)
+        {
+            Vector2 halfSize = size / 2f;
+
+            return new Rectangle(center - halfSize, center + halfSize);
+        }
+
         public Rectangle Translate(Vector2 by)
         {
             return new Rectangle(Position + by, Size);

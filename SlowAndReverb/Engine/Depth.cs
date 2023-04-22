@@ -14,6 +14,7 @@ namespace SlowAndReverb
         public const float Player = 50f;
         public const float Items = 70f;
         public const float Blocks = 100f;
+        public const float WorldUI = 500f;
         public const float Debug = 1000f;
     }
 }
