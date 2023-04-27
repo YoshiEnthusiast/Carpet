@@ -426,6 +426,34 @@ namespace SlowAndReverb
             return GetComponents<T>(entities);
         }
 
+        public T CheckLineComponent<T>(Vector2 start, Vector2 end) where T : Component
+        {
+            IEnumerable<Entity> entities = CheckLineAll<Entity>(start, end);
+
+            return GetComponent<T>(entities);
+        }
+
+        public IEnumerable<T> CheckLineAllComponent<T>(Vector2 start, Vector2 end) where T : Component
+        {
+            IEnumerable<Entity> entities = CheckLineAll<Entity>(start, end);
+
+            return GetComponents<T>(entities);
+        }
+
+        public T CheckLineComponent<T>(Line line) where T : Component
+        {
+            IEnumerable<Entity> entities = CheckLineAll<Entity>(line);
+
+            return GetComponent<T>(entities);
+        }
+
+        public IEnumerable<T> CheckLineAllComponent<T>(Line line) where T : Component
+        {
+            IEnumerable<Entity> entities = CheckLineAll<Entity>(line);
+
+            return GetComponents<T>(entities);
+        }
+
         private T GetComponent<T>(IEnumerable<Entity> entities) where T : Component
         {
             foreach (Entity entity in entities)

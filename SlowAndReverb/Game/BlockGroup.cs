@@ -17,6 +17,7 @@ namespace SlowAndReverb
 
             _coroutineRunner = Add(new CoroutineRunner());
             _occluder = Add(new LightOccluder());
+            Add(new Anchor());
         }
 
         public IEnumerable<AutoTile> Blocks { get; private init; }

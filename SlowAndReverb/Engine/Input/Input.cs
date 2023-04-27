@@ -55,6 +55,7 @@ namespace SlowAndReverb
 
         public static VirtualButton Jump => Profile.Jump;
         public static VirtualButton Grapple => Profile.Grapple;
+        public static VirtualButton CancelGrappling => Profile.CancelGrappling;
         public static VirtualButton Up => Profile.Up;
         public static VirtualButton Down => Profile.Down;
         public static VirtualAxis XAxis => Profile.XAxis;

@@ -78,6 +78,8 @@ namespace SlowAndReverb
             CurrentScene.Add(new Coin(150f, 60f));
             CurrentScene.Add(new Coin(230f, 80f));
 
+            CurrentScene.Add(new TestAnchor(200f, 20f));
+
             CurrentScene.Color = new Color(100, 100, 100);
             Engine.DebugLighting = false;
 

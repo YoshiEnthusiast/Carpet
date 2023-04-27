@@ -1,9 +1,6 @@
-﻿using OpenTK.Graphics.ES20;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SlowAndReverb
 {
@@ -54,8 +51,7 @@ namespace SlowAndReverb
             if (!UpdatePhysics)
                 return;
 
-            TranslateX(VelocityX * deltaTime);
-            TranslateY(VelocityY * deltaTime);
+            Translate(Velocity * deltaTime);
 
             Vector2 bottomLeft = BottomLeft;
             var rectangle = new Rectangle(bottomLeft, bottomLeft + new Vector2(Width, 1f));
@@ -63,12 +59,20 @@ namespace SlowAndReverb
             Ground = Scene.CheckRectangleComponent<SolidObject>(rectangle);
         }
 
-        public void TranslateX(float by)
+        public void Translate(Vector2 by, out SolidObject collidedWithX, out SolidObject collidedWithY)
+        {
+            TranslateX(by.X, out collidedWithX);
+            TranslateY(by.Y, out collidedWithY);
+        }
+
+        public void TranslateX(float by, out SolidObject collidedWith)
         {
             _accumulatorX += by;
 
             int distance = (int)Math.Round(_accumulatorX);
             int sign = Math.Sign(distance);
+
+            collidedWith = default;
 
             _accumulatorX -= distance;
 
@@ -76,16 +80,17 @@ namespace SlowAndReverb
             {
                 var translation = new Vector2(sign, 0f);
 
-                if (!Translate(translation))
+                if (!TranslateInstantly(translation, out collidedWith))
                 {
-                    VelocityX = 0f;
+                    if (UpdatePhysics)
+                        VelocityX = 0f;
 
                     break;
                 }
             }
         }
 
-        public void TranslateY(float by)
+        public void TranslateY(float by, out SolidObject collidedWith)
         {
             _accumulatorY += by;
 
@@ -94,20 +99,38 @@ namespace SlowAndReverb
 
             _accumulatorY -= distance;
 
+            collidedWith = default;
+
             for (int i = 0; i < Math.Abs(distance); i++)
             {
                 var translation = new Vector2(0f, sign);
 
-                if (!Translate(translation))
+                if (!TranslateInstantly(translation, out collidedWith))
                 {
-                    VelocityY = 0f;
+                    if (UpdatePhysics)
+                        VelocityY = 0f;
 
                     break;
                 }
             }
         }
 
-        private bool Translate(Vector2 by)
+        public void Translate(Vector2 by)
+        {
+            Translate(by, out _, out _);
+        }
+
+        public void TranslateX(float by)
+        {
+            TranslateX(by, out _);
+        }
+
+        public void TranslateY(float by)
+        {
+            TranslateY(by, out _);
+        }
+
+        public bool TranslateInstantly(Vector2 by, out SolidObject collidedWith)
         {
             Vector2 futurePosition = Position + by;
             Vector2 halfSize = HalfSize;
@@ -118,12 +141,13 @@ namespace SlowAndReverb
 
             if (collidesWith.Any())
             {
-                // onCollide callback or something
+                collidedWith = collidesWith.First();
 
                 return false;
             }
 
             Position = futurePosition;
+            collidedWith = default;
 
             return true;
         }

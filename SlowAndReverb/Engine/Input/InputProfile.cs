@@ -16,6 +16,7 @@ namespace SlowAndReverb
 
         public VirtualButton Jump { get; private set; }
         public VirtualButton Grapple { get; private set; }
+        public VirtualButton CancelGrappling { get; private set; }
 
         public VirtualButton Up { get; private set; }
         public VirtualButton Down { get; private set; }
@@ -34,6 +35,7 @@ namespace SlowAndReverb
 
             Jump = CreateButton("Jump");
             Grapple = CreateButton("Grapple");
+            CancelGrappling = CreateButton("CancelGrappling");
 
             Up = CreateButton("Up");
             Down = CreateButton("Down");
