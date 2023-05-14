@@ -5,12 +5,11 @@ namespace SlowAndReverb
 {
     public class Coin : Entity
     {
-        private readonly Sprite _sprite;
-
-        private readonly RectangleParticleEmitter _particleEmitter;
-        private readonly CircleParticleEmitter _collectedParticleEmitter;
-
         private readonly Light _light;
+
+        private RectangleParticleEmitter _particleEmitter;
+        private CircleParticleEmitter _collectedParticleEmitter;
+        private Sprite _sprite;
 
         private bool _collected;
 
@@ -22,29 +21,24 @@ namespace SlowAndReverb
             {
                 Radius = 15f
             });
+        }
 
-            _sprite = Add(new Sprite("coin", Size.RoundedX, Size.RoundedY)
-            {
-                Depth = Depths.Items
-            });
+        protected string SpriteName { get; init; } = "coin";
+        protected Color Color { get; init; } = Color.Yellow;
 
-            _sprite.AddAnimation("spin", new Animation(10f, true, new int[]
-            {
-                0,
-                1,
-                2,
-                3,
-                2,
-                1
-            }));
+        protected override void Update(float deltaTime)
+        {
+            if (Scene.CheckRectangle<Player>(Rectangle) is not null)
+                Collect();
+        }
 
-            _sprite.SetAnimation("spin");
-
+        protected override void OnAdded()
+        {
             var behaviour = new ParticleBehaviour()
             {
                 Velocity = new Vector2(0f, -0.15f),
                 VelocityVariation = new Vector2(0f, 0.01f),
-                StartingColor = Color.Yellow,
+                StartingColor = Color,
                 DestinationColor = Color.White,
                 LifeDuration = 50f
             };
@@ -60,8 +54,8 @@ namespace SlowAndReverb
             {
                 Velocity = new Vector2(0.3f, 0f),
                 VelocityVariation = new Vector2(0.1f, 0f),
-                StartingColor = Color.Yellow,
-                DestinationColor = Color.Lerp(Color.Yellow, Color.White, 0.8f),
+                StartingColor = Color,
+                DestinationColor = Color.Lerp(Color, Color.White, 0.8f),
                 Follow = this,
                 LifeDuration = 30f
             };
@@ -73,24 +67,38 @@ namespace SlowAndReverb
                 ShapeBehaviour = ParticleShapeBehaviour.EmitAroundBorder,
                 Awake = false
             });
+
+            _sprite = Add(new Sprite(SpriteName, Size.FlooredX, Size.FlooredY)
+            {
+                Depth = Depths.Items
+            });
+
+            _sprite.AddAnimation("spin", new Animation(10f, true, new int[]
+            {
+                0,
+                1,
+                2,
+                3,
+                2,
+                1
+            }));
+
+            _sprite.SetAnimation("spin");
         }
 
-        protected override void Update(float deltaTime)
+        protected void Collect()
         {
             if (_collected)
                 return;
 
-            if (Scene.CheckRectangle<Player>(Rectangle) is not null)
-            {
-                _collectedParticleEmitter.Emit();
-                _particleEmitter.Awake = false;
+            _collectedParticleEmitter.Emit();
+            _particleEmitter.Awake = false;
 
-                _sprite.DelayMultiplier = 0.1f;
+            _sprite.DelayMultiplier = 0.1f;
 
-                Scene.StartCoroutine(UpdateFlyAway());
+            Scene.StartCoroutine(UpdateFlyAway());
 
-                _collected = true;
-            }
+            _collected = true;
         }
 
         private IEnumerator UpdateFlyAway()

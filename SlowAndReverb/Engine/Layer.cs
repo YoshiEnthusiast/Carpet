@@ -27,15 +27,24 @@ namespace SlowAndReverb
 
         }
 
+        public Vector2 MousePosition
+        {
+            get
+            {
+                Vector2 screenPosition = Input.MousePosition * Size / Resolution.CurrentSize;
+
+                return screenPosition + Camera.Position - Camera.Origin;
+            }
+        }
+
         public RenderTarget RenderTarget { get; private init; }
         public Camera Camera { get; private init; }
 
         public float Depth { get; private init; }
         public Vector2 Size { get; private init; }
 
-        public Vector2 MousePosition => Input.MousePosition * Size / Resolution.CurrentSize;
-        public int Width => Size.RoundedX;
-        public int Height => Size.RoundedY;
+        public int Width => Size.FlooredX;
+        public int Height => Size.FlooredY;
 
         public Material Material { get; set; }
         public Color ClearColor { get; set; }

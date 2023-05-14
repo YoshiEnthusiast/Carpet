@@ -1,6 +1,6 @@
 ﻿namespace SlowAndReverb
 {
-    public class Anchor : SolidObject
+    public class Anchor : Component
     {
 
     }

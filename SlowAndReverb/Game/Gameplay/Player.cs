@@ -14,10 +14,13 @@ namespace SlowAndReverb
         private const float MaxHorizontalVelocity = 3f;
         private const float Friction = 0.2f;
         private const float AirFriction = 0.1f;
-        private const float Weight = 0.2f;
-        private const float InitialThrust = 1.5f;
-        private const float Thrust = 0.6f;
+        private const float GravityAcceleration = 0.2f;
+        private const float WallClingingVelocityY = 0.8f;
+        private const float InitialJumpThrust = -1f;
+        private const float JumpThrust = -0.6f;
         private const float JumpTime = 5f;
+        private const float JumpWindow = 0.07f; // Multiply Engine.TimeElapsed by _deltaTimeMultiplier...
+        private const float WallJumpTime = 5f;
 
         private const float GrappleLength = 140f;
         private const float MaxGrappleAngle = Maths.HalfPI;
@@ -33,6 +36,14 @@ namespace SlowAndReverb
         private const float AimDisplayAlpha = 0.6f;
         private const float AimCrosshairDistance = 27f;
 
+        private const sbyte PositiveDirection = 1;
+        private const sbyte NegativeDirection = -1;
+
+        private readonly Vector2 _initialWallJumpThrust = new Vector2(0.7f, -0.9f);
+        private readonly Vector2 _wallJumpThrust = new Vector2(0.4f, -0.6f);
+
+        private readonly Vector2 _wallJumpHitbox = new Vector2(2f, 8f);
+
         #endregion
 
         private readonly StateMachine<State> _stateMachine;
@@ -43,9 +54,12 @@ namespace SlowAndReverb
         private readonly Sprite _hookGrapleSprite = new Sprite("hookGraple");
         private readonly RepeatTextureMaterial _hookRopeMaterial = new RepeatTextureMaterial();
 
+        private double _pressedJumpAt = double.NegativeInfinity;
         private float _jumpTimer;
+        private bool _jumping;
 
         private Anchor _anchor;
+        private Vector2 _perviousAnchorPosition;
         private Vector2 _grappleDestination;
 
         private Vector2 _grappleStartPosition;
@@ -59,6 +73,7 @@ namespace SlowAndReverb
         public Player(float x, float y) : base(x, y)  
         {
             Size = new Vector2(16f, 24f);
+            Direction = 1;
 
             _stateMachine = Add(new StateMachine<State>());
 
@@ -91,10 +106,15 @@ namespace SlowAndReverb
         }
 
         public sbyte Direction { get; set; } = 1;
+        public bool FacingLeft => Direction < 0;
+        public bool FacingRight => Direction > 0;
 
         protected override void Update(float deltaTime)
         {
             base.Update(deltaTime);
+
+            if (Input.IsDown(Key.O))
+                Layers.Foreground.Camera.Zoom += 0.1f;
         }
 
         protected override void Draw()
@@ -109,7 +129,7 @@ namespace SlowAndReverb
 
             if (xAxis != 0f)
             {
-                float acceleration = (Grounded ? Acceleration : AirAcceleration) * deltaTime;
+                float acceleration = GetPhysicsValue(Acceleration, AirAcceleration) * deltaTime;
 
                 Direction = (sbyte)Input.XAxis.GetSign();
                 VelocityX = Maths.ApproachAbs(velocityX, acceleration * xAxis, MaxHorizontalVelocity);
@@ -118,25 +138,79 @@ namespace SlowAndReverb
             }
             else
             {
-                float friction = (Grounded ? Friction : AirFriction) * deltaTime;
+                float friction = GetPhysicsValue(Friction, AirFriction) * deltaTime;
 
                 if (velocityX > 0f)
-                    VelocityX = Math.Max(velocityX - friction, 0f);
+                    VelocityX = Maths.Max(velocityX - friction, 0f);
                 else
-                    VelocityX = Math.Min(velocityX + friction, 0f);
+                    VelocityX = Maths.Min(velocityX + friction, 0f);
 
                 //if (velocityX == 0f)
                 //    _sprite.SetAnimation("idle");
             }
 
+            bool jumpPressed = Input.Jump.IsPressed();
+
+            if (jumpPressed)
+                _pressedJumpAt = Engine.TimeElapsed;
+
             if (Grounded)
             {
-                if (Input.Jump.IsPressed())
-                    Jump(deltaTime);
+                VelocityY = 0f;
+
+                if (!_jumping && (jumpPressed || Engine.TimeElapsed - _pressedJumpAt < JumpWindow))
+                {
+                    _pressedJumpAt = double.NegativeInfinity;
+                    Jump();
+                }
             }
             else
             {
-                VelocityY += Weight;
+                float gravityAcceleration = GravityAcceleration * deltaTime;
+
+                float width = _wallJumpHitbox.X;
+                float height = _wallJumpHitbox.Y;
+
+                float y = Y - height / 2f;
+
+                var left = new Rectangle(Left - width, y, width, height);
+                var right = new Rectangle(Right, y, width, height);
+
+                SolidObject leftSolid = Scene.CheckRectangleComponent<SolidObject>(left);
+                SolidObject rightSolid = Scene.CheckRectangleComponent<SolidObject>(right);
+
+                bool leftWall = leftSolid is not null && leftSolid.CollisionRight;
+                bool rightWall = rightSolid is not null && rightSolid.CollisionLeft;
+
+                if (leftWall || rightWall)
+                {
+                    if (VelocityY >= 0f && (leftWall && Touches(leftSolid.Entity) || rightWall && Touches(rightSolid.Entity)))
+                        VelocityY = WallClingingVelocityY * deltaTime;
+                    else
+                        VelocityY += gravityAcceleration;
+
+                    if (jumpPressed)
+                    {
+                        sbyte jumpDirection = Direction;
+
+                        if (leftWall && leftSolid.AllowWallJump)
+                        {
+                            jumpDirection = PositiveDirection;
+                            WallJump(leftSolid, jumpDirection);
+                        }
+                        else if (rightSolid.AllowWallJump)
+                        {
+                            jumpDirection = NegativeDirection;
+                            WallJump(rightSolid, jumpDirection);
+                        }
+
+                        Direction = jumpDirection;
+                    }
+                }
+                else
+                {
+                    VelocityY += gravityAcceleration;
+                }
             }
         }
 
@@ -174,6 +248,13 @@ namespace SlowAndReverb
 
             if (Input.Grapple.IsDown())
             {
+                if (Input.CancelGrappling.IsPressed())
+                {
+                    _stateMachine.ForceState(State.Regular);
+
+                    return;
+                }
+
                 float deltaAngle = GrappleAngleSpeed * deltaTime * _grappleDirection;
 
                 _grappleAngle = Maths.ApproachAbs(_grappleAngle, deltaAngle, _grappleAngleDestination);
@@ -182,7 +263,7 @@ namespace SlowAndReverb
             {
                 _anchor = null;
 
-                if (Math.Abs(_grappleAngle - _initialGrappleAngle) < GrappleAngleDeadzone)
+                if (Maths.Abs(_grappleAngle - _initialGrappleAngle) < GrappleAngleDeadzone)
                     _grappleAngle = _initialGrappleAngle;
 
                 _grappleStartPosition = Rotate(GrappleStartDistance, _grappleAngle);
@@ -192,27 +273,45 @@ namespace SlowAndReverb
 
                 _grappleDestination = farthestPoint;
 
-                SolidObject solid = Scene.CheckLineAllComponent<SolidObject>(grappleLine)
-                    .OrderBy(anchor => Vector2.Distance(_grappleStartPosition, anchor.Position))
-                    .FirstOrDefault();
+                IEnumerable<Entity> entities = Scene.CheckLineAll<Entity>(grappleLine)
+                    .OrderBy(entity => Vector2.Distance(_grappleStartPosition, entity.Position));
 
-                if (solid is not null)
+                foreach (Entity entity in entities)
                 {
-                    IEnumerable<Line> surfaces = solid.EntityRectangle.GetSurfaces()
-                        .OrderBy(surface => Vector2.Distance(_grappleStartPosition, surface.GetMidPoint()));
+                    Grapplable grapplable = entity.Get<Grapplable>();
 
-                    foreach (Line line in surfaces)
+                    if (grapplable is not null)
+                        grapplable.Grappled(this);
+
+                    Anchor anchor = entity.Get<Anchor>();
+
+                    bool solidExists = entity.Has<SolidObject>();
+                    bool anchorExists = anchor is not null;
+
+                    if (solidExists || anchorExists)
                     {
-                        if (Maths.TryGetIntersectionPoint(grappleLine, line, out Vector2 intersectionPoint))
-                        {
-                            _grappleDestination = intersectionPoint;
+                        IEnumerable<Line> surfaces = GetGrappleSurfaces(entity)
+                            .OrderBy(surface => Vector2.Distance(_grappleStartPosition, surface.GetMidPoint()));
 
-                            break;
+                        foreach (Line line in surfaces)
+                        {
+                            // Might need to check if this line and new Line(_grappleStartPosition, _grappleDestination) are parallel
+
+                            if (Maths.TryGetIntersectionPoint(grappleLine, line, out Vector2 intersectionPoint))
+                            {
+                                _grappleDestination = intersectionPoint;
+
+                                break;
+                            }
+                        }
+
+                        if (anchorExists)
+                        {
+                            _anchor = anchor;
+
+                            _perviousAnchorPosition = anchor.Position;
                         }
                     }
-                    
-                    if (solid is Anchor anchor)
-                        _anchor = anchor;
                 }
 
                 _stateMachine.ForceState(State.Shooting);
@@ -236,7 +335,7 @@ namespace SlowAndReverb
             float deltaX = _grappleDestination.X - _grappleEndPosition.X;
             float deltaY = _grappleDestination.Y - _grappleEndPosition.Y;
 
-            if (Math.Abs(deltaX) < 1f && Math.Abs(deltaY) < 1f)
+            if (Maths.Abs(deltaX) < 1f && Maths.Abs(deltaY) < 1f)
             {
                 if (_anchor is not null)
                 {
@@ -255,20 +354,11 @@ namespace SlowAndReverb
 
         private void UpdateGrappling(float deltaTime)
         {
-            float distance = Vector2.Distance(_grappleStartPosition, _grappleDestination);
-
-            Vector2 newGrappleStartPosition = Vector2.Lerp(_grappleStartPosition, _grappleDestination, GrapplingLerpSpeed * deltaTime / distance);
-            Vector2 displacement = newGrappleStartPosition - _grappleStartPosition;
-
-            _grappleStartPosition = newGrappleStartPosition;
-
-            UpdateGrappleSprites();
-
             if (Input.Jump.IsPressed())
             {
                 ExitGrappling();
 
-                Jump(deltaTime);
+                Jump();
             }
             else if (Input.CancelGrappling.IsPressed())
             {
@@ -276,14 +366,30 @@ namespace SlowAndReverb
             }
             else
             {
-                Translate(displacement, out SolidObject collidedWithX, out SolidObject collidedWithY);
+                Vector2 anchorPosition = _anchor.Position;
 
-                if (collidedWithX == _anchor || collidedWithY == _anchor)
-                {
+                _grappleDestination += anchorPosition - _perviousAnchorPosition;
+                _grappleEndPosition = _grappleDestination;
+                _perviousAnchorPosition = anchorPosition;
+
+                float distance = Vector2.Distance(_grappleStartPosition, _grappleDestination);
+
+                Vector2 previousPosition = Position;
+
+                Vector2 newGrappleStartPosition = Vector2.Lerp(_grappleStartPosition, _grappleDestination, GrapplingLerpSpeed * deltaTime / distance);
+                Vector2 moveBy = newGrappleStartPosition - _grappleStartPosition;
+
+                Translate(moveBy);
+
+                Vector2 displacement = Position - previousPosition;
+                _grappleStartPosition += displacement;
+
+                _grappleAngle = Maths.Atan2(_grappleStartPosition, _grappleDestination);
+
+                if (Touches(_anchor.EntityRectangle) || displacement == Vector2.Zero)
                     ExitGrappling();
 
-                    return;
-                }
+                UpdateGrappleSprites();
             }            
         }
         
@@ -315,11 +421,23 @@ namespace SlowAndReverb
             _hookGrapleSprite.Draw(_grappleEndPosition);
         }
 
-        private void Jump(float deltaTime)
+        private void Jump()
         {
-            VelocityY -= InitialThrust * deltaTime;
+            PerformJump(new Vector2(0f, InitialJumpThrust), new Vector2(0f, JumpThrust), JumpTime);
+        }
 
-            _coroutineRunner.StartCoroutine(CreateJumpCoroutine());
+        private void WallJump(SolidObject wall, sbyte direction)
+        {
+            PerformJump(new Vector2(_initialWallJumpThrust.X * direction, _initialWallJumpThrust.Y), new Vector2(_wallJumpThrust.X * direction, _wallJumpThrust.Y), WallJumpTime);
+            wall.WallJumped(this, direction);
+        }
+
+        private void PerformJump(Vector2 initialThrust, Vector2 thrust, float jumpTime)
+        {
+            Velocity += initialThrust;
+            _jumping = true;
+
+            _coroutineRunner.StartCoroutine(CreateJumpCoroutine(thrust, jumpTime));
         }
 
         private void UpdateGrappleSprites()
@@ -341,19 +459,61 @@ namespace SlowAndReverb
             _stateMachine.ForceState(State.Regular);
         }
 
-        private IEnumerator CreateJumpCoroutine()
+        private IEnumerable<Line> GetGrappleSurfaces(Entity entity) 
         {
-            _jumpTimer = JumpTime;
+            SolidObject solid = entity.Get<SolidObject>();
+
+            if (solid is not null && !entity.Has<Anchor>())
+            {
+                Rectangle rectangle = entity.Rectangle;
+
+                float x = _grappleStartPosition.X;
+                float y = _grappleStartPosition.Y;
+
+                if (solid.CollisionLeft && x <= rectangle.Left)
+                    yield return rectangle.LeftSurface;
+
+                if (solid.CollisionTop && y <= rectangle.Top)
+                    yield return rectangle.TopSurface;
+
+                if (solid.CollisionRight && x >= rectangle.Right)
+                    yield return rectangle.RightSurface;
+
+                if (solid.CollisionBottom && y >= rectangle.Bottom)
+                    yield return rectangle.BottomSurface;
+
+                yield break;
+            }
+
+            foreach (Line surface in entity.Rectangle.GetSurfaces())
+                yield return surface;
+        }
+
+        private float GetPhysicsValue(float grounded, float air)
+        {
+            if (Grounded)
+                return grounded;
+
+            return air;
+        }
+
+        private IEnumerator CreateJumpCoroutine(Vector2 thrust, float jumpTime)
+        {
+            _jumpTimer = jumpTime;
 
             while (true)
             {
                 if (!Input.Jump.IsDown() || _jumpTimer <= 0f)
+                {
+                    _jumping = false;
+
                     yield break;
+                }
 
-                float time = Engine.DeltaTime;
+                float deltaTime = Engine.DeltaTime;
 
-                VelocityY -= Thrust * time;
-                _jumpTimer -= time;
+                Velocity += thrust * deltaTime;
+                _jumpTimer -= deltaTime;
 
                 yield return null;
             }

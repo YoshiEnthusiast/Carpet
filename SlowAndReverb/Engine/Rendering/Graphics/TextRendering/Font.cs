@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 
 namespace SlowAndReverb
 {
@@ -33,7 +35,7 @@ namespace SlowAndReverb
                 return;
 
             Material.OutlineColor = OutlineColor;
-            Material.OutlineWidth = Math.Min(OutlineWidth, _family.TexturePadding);
+            Material.OutlineWidth = Maths.Min(OutlineWidth, _family.TexturePadding);
 
             float xOffset = 0f;
             float yOffset = 0f;
@@ -95,7 +97,7 @@ namespace SlowAndReverb
                     if (!Multiline)
                         return new Vector2(currentWidth, height);
 
-                    width = Math.Max(width, currentWidth);
+                    width = Maths.Max(width, currentWidth);
                     currentWidth = 0f;
 
                     height += NewLineOffset;
@@ -104,7 +106,21 @@ namespace SlowAndReverb
                 currentWidth += advance;
             }
 
-            return new Vector2(Math.Max(width, currentWidth), height);
+            return new Vector2(Maths.Max(width, currentWidth), height);
+        }
+
+        public float MeasureWidth(string text)
+        {
+            Vector2 size = Measure(text);
+
+            return size.X;
+        }
+
+        public float MeasureHeight(string text)
+        {
+            Vector2 size = Measure(text);
+
+            return size.Y;
         }
 
         private float GetCharacterAdvance(Character character)

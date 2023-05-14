@@ -63,7 +63,7 @@ namespace SlowAndReverb
         {
             Position = Layers.Foreground.MousePosition;
 
-            _emitter.Awake = Input.IsMouseDown(MouseButton.Left);
+            //_emitter.Awake = Input.IsMouseDown(MouseButton.Left);
 
             if (Input.IsMousePressed(MouseButton.Right))
             {

@@ -97,7 +97,7 @@ namespace SlowAndReverb
         public bool Build(int maxSteps)
         {
             int area = GetTotalArea();
-            int side = (int)Math.Ceiling(Math.Sqrt(area));
+            int side = (int)Maths.Ceiling(Maths.Sqrt(area));
 
             return Build(side, maxSteps);
         }

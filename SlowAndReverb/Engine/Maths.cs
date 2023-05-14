@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Numerics;
-using System.Runtime.InteropServices;
 
 namespace SlowAndReverb
 {
@@ -64,6 +63,41 @@ namespace SlowAndReverb
         public static float Sqrt(float value)
         {
             return (float)Math.Sqrt(value);
+        }
+
+        public static float Max(float value1, float value2)
+        {
+            return Math.Max(value1, value2);
+        }
+
+        public static float Min(float value1, float value2)
+        {
+            return Math.Min(value1, value2);
+        }
+
+        public static int Max(int value1, int value2)
+        {
+            return Math.Max(value1, value2);
+        }
+
+        public static int Min(int value1, int value2)
+        {
+            return Math.Min(value1, value2);
+        }
+
+        public static float Abs(float value)
+        {
+            return Math.Abs(value);
+        }
+
+        public static int Sign(float value)
+        {
+            return Math.Sign(value);
+        }
+
+        public static float Pow(float value, float exponent)
+        {
+            return (float)Math.Pow(value, exponent);
         }
 
         public static T Clamp<T>(T value, T min, T max) where T : INumber<T>
@@ -148,7 +182,7 @@ namespace SlowAndReverb
         {
             float result = current + value;
 
-            return Math.Min(result, max);
+            return Min(result, max);
         }
 
         public static float ApproachAbs(float current, float value, float max)

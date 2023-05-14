@@ -1,13 +1,14 @@
-﻿using System;
+﻿using OpenTK.Graphics.ES20;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace SlowAndReverb
 {
     public class PhysicsBody : Entity
     {
-        private float _accumulatorX;
-        private float _accumulatorY;
+        private readonly Accumulator _accumulator = new Accumulator();
 
         public PhysicsBody(float x, float y) : base(x, y)
         {
@@ -51,36 +52,27 @@ namespace SlowAndReverb
             if (!UpdatePhysics)
                 return;
 
-            Translate(Velocity * deltaTime);
+            Translate(Velocity);
 
-            Vector2 bottomLeft = BottomLeft;
-            var rectangle = new Rectangle(bottomLeft, bottomLeft + new Vector2(Width, 1f));
-
-            Ground = Scene.CheckRectangleComponent<SolidObject>(rectangle);
+            Ground = FindGround();
         }
 
-        public void Translate(Vector2 by, out SolidObject collidedWithX, out SolidObject collidedWithY)
+        public void Translate(Vector2 by)
         {
-            TranslateX(by.X, out collidedWithX);
-            TranslateY(by.Y, out collidedWithY);
+            TranslateX(by.X);
+            TranslateY(by.Y);
         }
 
-        public void TranslateX(float by, out SolidObject collidedWith)
+        public void TranslateX(float by)
         {
-            _accumulatorX += by;
+            _accumulator.ChargeX(by);
 
-            int distance = (int)Math.Round(_accumulatorX);
-            int sign = Math.Sign(distance);
+            int distance = _accumulator.ReleaseX();
+            int sign = Maths.Sign(distance);
 
-            collidedWith = default;
-
-            _accumulatorX -= distance;
-
-            for (int i = 0; i < Math.Abs(distance); i++)
+            for (int i = 0; i < Maths.Abs(distance); i++)
             {
-                var translation = new Vector2(sign, 0f);
-
-                if (!TranslateInstantly(translation, out collidedWith))
+                if (!TranslateByOneX(sign))
                 {
                     if (UpdatePhysics)
                         VelocityX = 0f;
@@ -90,22 +82,16 @@ namespace SlowAndReverb
             }
         }
 
-        public void TranslateY(float by, out SolidObject collidedWith)
+        public void TranslateY(float by)
         {
-            _accumulatorY += by;
+            _accumulator.ChargeY(by);
 
-            int distance = (int)Math.Round(_accumulatorY);
-            int sign = Math.Sign(distance);
+            int distance = _accumulator.ReleaseY();
+            int sign = Maths.Sign(distance);
 
-            _accumulatorY -= distance;
-
-            collidedWith = default;
-
-            for (int i = 0; i < Math.Abs(distance); i++)
+            for (int i = 0; i < Maths.Abs(distance); i++)
             {
-                var translation = new Vector2(0f, sign);
-
-                if (!TranslateInstantly(translation, out collidedWith))
+                if (!TranslateByOneY(sign))
                 {
                     if (UpdatePhysics)
                         VelocityY = 0f;
@@ -115,39 +101,34 @@ namespace SlowAndReverb
             }
         }
 
-        public void Translate(Vector2 by)
+        public bool TranslateByOneX(int sign)
         {
-            Translate(by, out _, out _);
+            var translation = new Vector2(sign, 0f);
+
+            Rectangle futureRectangle = Rectangle.Translate(translation);
+            IEnumerable<SolidObject> touches = Scene.CheckRectangleAllComponent<SolidObject>(futureRectangle);
+
+            foreach (SolidObject solid in touches)
+                if (solid.CheckHorizontalStaticCollision(sign, this))
+                    return false;
+
+            Position += translation;
+
+            return true;
         }
 
-        public void TranslateX(float by)
+        public bool TranslateByOneY(int sign)
         {
-            TranslateX(by, out _);
-        }
+            var translation = new Vector2(0f, sign);
 
-        public void TranslateY(float by)
-        {
-            TranslateY(by, out _);
-        }
+            Rectangle futureRectangle = Rectangle.Translate(translation);
+            IEnumerable<SolidObject> touches = Scene.CheckRectangleAllComponent<SolidObject>(futureRectangle);
 
-        public bool TranslateInstantly(Vector2 by, out SolidObject collidedWith)
-        {
-            Vector2 futurePosition = Position + by;
-            Vector2 halfSize = HalfSize;
+            foreach (SolidObject solid in touches)
+                if (solid.CheckVerticalStaticCollision(sign, this))
+                    return false;
 
-            var futureRectangle = new Rectangle(futurePosition - halfSize, futurePosition + halfSize);
-
-            IEnumerable<SolidObject> collidesWith = Scene.CheckRectangleAllComponent<SolidObject>(futureRectangle);
-
-            if (collidesWith.Any())
-            {
-                collidedWith = collidesWith.First();
-
-                return false;
-            }
-
-            Position = futurePosition;
-            collidedWith = default;
+            Position += translation;
 
             return true;
         }
@@ -158,6 +139,24 @@ namespace SlowAndReverb
                 return false;
 
             return Ground == solid;
+        }
+
+        private SolidObject FindGround()
+        {
+            Vector2 bottomLeft = BottomLeft;
+            var rectangle = new Rectangle(bottomLeft, bottomLeft + new Vector2(Width, 1f));
+
+            IEnumerable<SolidObject> solids = Scene.CheckRectangleAllComponent<SolidObject>(rectangle);
+
+            foreach (SolidObject solid in solids)
+            {
+                if (solid.CollisionTop && Bottom <= solid.EntityRectangle.Top)
+                {
+                    return solid;
+                }
+            }
+
+            return null;
         }
     }
 }

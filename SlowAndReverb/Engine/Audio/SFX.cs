@@ -28,7 +28,7 @@ namespace SlowAndReverb
             s_freeSources.Clear();
 
             ALContextAttributes attributes = CurrentContext.GetAttributes();
-            int sourcesCount = Math.Min(attributes.MonoSources.Value, s_maxSources);
+            int sourcesCount = Maths.Min(attributes.MonoSources.Value, s_maxSources);
 
             for (int i = 0; i < sourcesCount; i++)
                 s_freeSources.Add(new SoundSource());

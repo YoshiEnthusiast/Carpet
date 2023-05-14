@@ -42,7 +42,7 @@ namespace SlowAndReverb
 
         public static void Draw(Texture texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
         {
-            DrawWithoutRoundingPosition(texture, material, bounds, position.Round(), scale, origin, color, angle, horizontalEffect, verticalEffect, depth);
+            DrawWithoutRoundingPosition(texture, material, bounds, position.Floor(), scale, origin, color, angle, horizontalEffect, verticalEffect, depth);
         }
 
         public static void Draw(Texture texture, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
@@ -216,7 +216,7 @@ namespace SlowAndReverb
             int scissorY = (int)layerScissor.Top;
             int scissorHeight = (int)layerScissor.Height;
 
-            if (scissorY != 0)
+            //if (scissorY != 0)
                 scissorY = layerHeight - scissorY - scissorHeight;
 
             SpriteBatch.Begin(layer.RenderTarget, BlendMode.AlphaBlend, layer.ClearColor, new Rectangle(layerScissor.Left, scissorY, layerScissor.Width, layerScissor.Height), layer.Camera.GetViewMatrix());
@@ -260,8 +260,6 @@ namespace SlowAndReverb
                 float y = (resolutionHeight - newHeight) / 2f;
 
                 SpriteBatch.Submit(layer.RenderTarget.Texture, layer.Material, new Rectangle(0f, 0f, width, height), new Vector2(x, y), Resolution.CurrentSize / new Vector2(width, height) * zoom, Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, layer.Depth);
-
-                layer.ResetScissor();
             }
 
             SpriteBatch.End();

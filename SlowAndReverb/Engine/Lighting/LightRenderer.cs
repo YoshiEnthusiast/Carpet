@@ -48,7 +48,7 @@ namespace SlowAndReverb
             _debugSurfaces.Clear();
 
             IEnumerable<Light> lights = Scene.GetComponentsOfType<Light>();
-            int lightsCount = Math.Min(lights.Count(), _maxLights);
+            int lightsCount = Maths.Min(lights.Count(), _maxLights);
 
             var data = new LightData[lightsCount];
             var lightToRender = 0;
@@ -60,7 +60,7 @@ namespace SlowAndReverb
                 if (inBounds && BoundsBehaviour == InBoundsBehaviour.PutOut)
                     continue;
 
-                Vector2 lightPosition = light.Position.Round();
+                Vector2 lightPosition = light.Position.Floor();
                 Rectangle lightBounds = light.Bounds;
                 var bounds = new Rectangle(lightBounds.TopLeft - Vector2.One, lightBounds.BottomRight + Vector2.One);
 
@@ -153,7 +153,8 @@ namespace SlowAndReverb
             _elementsCount = 0;
             _currentElement = 0;
 
-            batch.Begin(RenderTargets.LightMap, BlendMode.Additive, Scene.Color, null, null);
+            Matrix4 view = Layers.Foreground.Camera.GetViewMatrix();
+            batch.Begin(RenderTargets.LightMap, BlendMode.Additive, Scene.Color, null, view);
 
             for (int i = 0; i < lightToRender; i++)
             {
@@ -292,7 +293,7 @@ namespace SlowAndReverb
             if (x == startX || y == startY)
                 return false;
 
-            if (x >= Math.Min(startX, endX) && x <= Math.Max(startX, endX) || y >= Math.Min(startY, endY) && y <= Math.Max(startY, endY))
+            if (x >= Maths.Min(startX, endX) && x <= Maths.Max(startX, endX) || y >= Maths.Min(startY, endY) && y <= Maths.Max(startY, endY))
                 return true;
 
             return false;

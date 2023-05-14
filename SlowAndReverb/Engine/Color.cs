@@ -61,6 +61,11 @@ namespace SlowAndReverb
             return new Color(R, G, B, A);
         }
 
+        public Color LerpTransparent(float amount)
+        {
+            return Lerp(Transparent, amount);
+        }
+
         public byte R { get; init; }
         public byte G { get; init; }
         public byte B { get; init; }
@@ -86,6 +91,11 @@ namespace SlowAndReverb
             return color.Lerp(destination, amount);
         }
 
+        public static Color LerpTransparent(Color color, float amount)
+        {
+            return color.LerpTransparent(amount);   
+        }
+
         public static Color operator *(Color color, float value)
         {
             return new Color(Multiply(color.R, value), Multiply(color.G, value), Multiply(color.B, value), Multiply(color.A, value));
@@ -102,7 +112,7 @@ namespace SlowAndReverb
 
         private byte FromInt(int value)
         {
-            return (byte)Math.Clamp(value, byte.MinValue, byte.MaxValue);
+            return (byte)Maths.Clamp(value, byte.MinValue, byte.MaxValue);
         }
 
         private byte FromFloat(float value)

@@ -34,14 +34,24 @@ namespace SlowAndReverb
             _itemsToRemove.Clear();
         }
 
-        public void Add(T item)
+        public bool Add(T item)
         {
+            if (_itemsToAdd.Contains(item) || _items.Contains(item))
+                return false;
+
             _itemsToAdd.Add(item);
+
+            return true;
         }
 
-        public void Remove(T item)
+        public bool Remove(T item)
         {
+            if (_itemsToRemove.Contains(item) || !_items.Contains(item))
+                return false;
+
             _itemsToRemove.Add(item);
+
+            return true;
         }
 
         public virtual void Clear()

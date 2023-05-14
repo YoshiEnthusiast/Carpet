@@ -7,6 +7,9 @@ namespace SlowAndReverb
     {
         private readonly StateMachine<GlobalState> _stateMachine = new StateMachine<GlobalState>();
 
+        private readonly UIRoot _pauseRoot = new UIRoot();
+        private InGameMenu _pauseMenu;
+
         private Thread _contentLoadingThread;
 
         public UntitledGame(double updateFrequence, double drawFrequency, string name) : base(updateFrequence, drawFrequency, name)
@@ -16,21 +19,29 @@ namespace SlowAndReverb
         }
 
         public static Scene CurrentScene { get; set; }
+        public static bool Paused { get; set; }
 
         protected override void Update(float deltaTime)
         {
             _stateMachine.DoUpdate(deltaTime);
+
+            UI.Update(deltaTime);
         }
 
         protected override void Draw()
         {
             _stateMachine.DoDraw();
+
+            UI.Draw();
         }
 
         protected override void OnInitialize()
         {
             RenderTargets.Initialize();
             Layers.Initialize();
+            UI.Initialize();
+
+            UI.CursorMode = CursorMode.Shown;
         }
 
         protected override void LoadContent()
@@ -49,7 +60,18 @@ namespace SlowAndReverb
 
         private void UpdateGame(float deltaTime)
         {
-            CurrentScene.Update(deltaTime);
+            if (Input.IsPressed(Key.Escape))
+            {
+                Paused = !Paused;
+
+                if (Paused)
+                    _pauseRoot.Open(_pauseMenu);
+                else
+                    _pauseRoot.Close();
+            }
+
+            if (!Paused)
+                CurrentScene.Update(deltaTime);
         }
 
         private void DrawGame()
@@ -59,26 +81,32 @@ namespace SlowAndReverb
 
         private void StartGame()
         {
+            UI.AddRoot(_pauseRoot);
+            _pauseMenu = new PauseMenu();
+
             CurrentScene = new Scene();
 
             CurrentScene.Add(new TestEntity(0f, 0f));
             //Scene.Add(new TestEntity2(180f, 90f));
             //Scene.Add(new Platform(120f, 100f));
-
-            for (int i = 0; i < 25; i++)
+            
+            // 25
+            for (int i = 0; i < 80; i++)
                 CurrentScene.Add(new DefaultBlock(68f + i * 8f, 100)); // 148
 
             //Scene.Add(new Block("tileset", 68f, 140f));
             //Scene.Add(new Block("tileset", 68f + 8f * 25f, 140f));
 
             CurrentScene.Add(new Player(100f, 0f));
+            CurrentScene.Add(new TestAnchor(200f, 20f));
 
             CurrentScene.Add(new FlyingLantern(80f, 80f));
 
             CurrentScene.Add(new Coin(150f, 60f));
             CurrentScene.Add(new Coin(230f, 80f));
 
-            CurrentScene.Add(new TestAnchor(200f, 20f));
+            CurrentScene.Add(new TestPlatform(300f, 60f));
+
 
             CurrentScene.Color = new Color(100, 100, 100);
             Engine.DebugLighting = false;

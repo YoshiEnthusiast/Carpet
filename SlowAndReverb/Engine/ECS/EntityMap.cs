@@ -141,7 +141,7 @@ namespace SlowAndReverb
 
         private Vector2 GetHash(Vector2 position)
         {
-            return (position / _bucketSize).Round();
+            return (position / _bucketSize).Floor();
         }
     }
 }

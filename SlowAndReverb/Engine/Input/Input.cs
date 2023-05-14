@@ -60,6 +60,9 @@ namespace SlowAndReverb
         public static VirtualButton Down => Profile.Down;
         public static VirtualAxis XAxis => Profile.XAxis;
 
+        public static VirtualAxis MenuXAxis => Profile.MenuXAxis;
+        public static VirtualAxis MenuYAxis => Profile.MenuYAxis;
+
         #endregion
 
         private static IEnumerable<JoystickState> Controllers 
@@ -143,7 +146,7 @@ namespace SlowAndReverb
             Profile?.Update();
         }
 
-        public static void ResetState()
+        public static void Clear()
         {
             s_pressedKeys.Clear();
             s_repeatedPressedKeys.Clear();

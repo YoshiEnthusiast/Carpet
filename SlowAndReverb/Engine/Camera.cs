@@ -1,4 +1,5 @@
 ﻿using OpenTK.Mathematics;
+using System;
 
 namespace SlowAndReverb
 {
@@ -140,15 +141,15 @@ namespace SlowAndReverb
         {
             if (_updateMatrix)
             {
-                float originX = _origin.RoundedX;
-                float originY = _origin.RoundedY;
+                float originX = _origin.FlooredX;
+                float originY = _origin.FlooredY;
 
                 _viewMatrix = Matrix4.CreateScale(_scale.X, _scale.Y, 0f);
 
                 if (_angle != 0f)
                     _viewMatrix *= Matrix4.CreateTranslation(-originX, -originY, 0f) * Matrix4.CreateRotationZ(_angle) * Matrix4.CreateTranslation(originX, originY, 0f);
 
-                _viewMatrix *= Matrix4.CreateTranslation(_position.RoundedX - originX, _position.RoundedY - originY, 0f);
+                _viewMatrix *= Matrix4.CreateTranslation(-_position.FlooredX + originX, -_position.FlooredY + originY, 0f);
 
                 _updateMatrix = false;
             }

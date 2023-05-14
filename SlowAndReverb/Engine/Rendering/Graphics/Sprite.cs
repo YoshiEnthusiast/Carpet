@@ -25,8 +25,8 @@ namespace SlowAndReverb
             int textureWidth = Texture.Width;  
             int textureHeight = Texture.Height;
 
-            FrameWidth = Math.Min(frameWidth, textureWidth);
-            FrameHeight = Math.Min(frameHeight, textureHeight);
+            FrameWidth = Maths.Min(frameWidth, textureWidth);
+            FrameHeight = Maths.Min(frameHeight, textureHeight);
 
             _framesPerRow = textureWidth / FrameWidth;
 

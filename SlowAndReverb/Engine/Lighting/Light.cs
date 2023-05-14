@@ -34,7 +34,7 @@
         {
             get
             {
-                Vector2 roundedPosition = Position.Round();
+                Vector2 roundedPosition = Position.Floor();
                 Vector2 radiusVector = new Vector2(Radius);
 
                 return new Rectangle(roundedPosition - radiusVector, roundedPosition + radiusVector);

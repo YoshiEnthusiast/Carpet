@@ -83,7 +83,7 @@
 
         protected virtual void UpdatePosition(ref Particle particle, float lifeNormalized, float deltaTime)
         {
-            particle.Position += particle.Velocity;
+            particle.Position += particle.Velocity * deltaTime;
         }
 
         protected virtual void UpdateScale(ref Particle particle, float lifeNormalized, float deltaTime)

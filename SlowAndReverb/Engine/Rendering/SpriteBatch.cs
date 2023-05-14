@@ -112,7 +112,7 @@ namespace SlowAndReverb
 
             GL.ClearColor(clearColor.ToColor4());
 
-            Rectangle scissorRectangle = scissor.GetValueOrDefault(new Rectangle(0f, 0f, targetWidth, targetHeight)); 
+            Rectangle scissorRectangle = scissor.GetValueOrDefault(new Rectangle(0f, 0f, targetWidth, targetHeight));
             GL.Scissor((int)scissorRectangle.Left, (int)scissorRectangle.Top, (int)scissorRectangle.Width, (int)scissorRectangle.Height);
 
             Matrix4 projection = Matrix4.CreateOrthographicOffCenter(0f, targetWidth, targetHeight, 0f, -1f, 1f);
@@ -153,8 +153,8 @@ namespace SlowAndReverb
                 textureTop = value;
             }
 
-            float spriteScaleX = scale.RoundedX;
-            float spriteScaleY = scale.RoundedY;
+            float spriteScaleX = scale.FlooredX;
+            float spriteScaleY = scale.FlooredY;
 
             float x = position.X;
             float y = position.Y;

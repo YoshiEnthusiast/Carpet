@@ -160,7 +160,7 @@ namespace SlowAndReverb
 
             //_testMaterial.Time = _time;
 
-            ////_needler.Alpha = (float)Math.Abs(Maths.Sin(_angle));
+            ////_needler.Alpha = (float)Maths.Abs(Maths.Sin(_angle));
 
             _textMaterial.Time = _time;
 
@@ -183,7 +183,7 @@ namespace SlowAndReverb
             //    Console.WriteLine("saved");
             //}
 
-            Input.ResetState();
+            Input.Clear();
         }
 
         private Layer _layer;

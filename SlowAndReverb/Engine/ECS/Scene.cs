@@ -23,13 +23,23 @@ namespace SlowAndReverb
             AddSystem(new LightRenderer(this))
                 .AddSystem(new BlockGroupsSystem(this))
                 .AddSystem(new ParticleSystem(this, 1000))
+                .AddSystem(new CameraSystem(0.18f, this))
                 .AddSystem(new DebugSystem(this));
         }
 
         public Color Color { get; set; } = Color.White;
 
+        public Rectangle Rectangle { get; private set; }
+
         public IEnumerable<Entity> Entities => _entityMap;
         public IEnumerable<Component> Components => _components;
+
+        public Vector2 TopLeft => Rectangle.TopLeft;
+        public Vector2 BottomRight => Rectangle.BottomRight;
+        public float Left => Rectangle.Left;
+        public float Right => Rectangle.Right;
+        public float Top => Rectangle.Top;
+        public float Bottom => Rectangle.Bottom;
 
         #region General Methods
 
@@ -76,6 +86,47 @@ namespace SlowAndReverb
                 system.Initialize();
 
             _entityMap.Update();
+
+            float left = float.PositiveInfinity;
+            float top = float.PositiveInfinity;
+
+            float right = float.NegativeInfinity;
+            float bottom = float.NegativeInfinity;
+
+            foreach (BlockGroup group in GetEntitiesOfType<BlockGroup>())
+            {
+                left = Maths.Min(left, group.Left);
+                top = Maths.Min(top, group.Top);
+
+                right = Maths.Max(right, group.Right);
+                bottom = Maths.Max(bottom, group.Bottom);
+            }
+
+            Layer foreground = Layers.Foreground;
+
+            float foregroundWidth = foreground.Width;
+            float foregroundHeight = foreground.Height;
+
+            float xDifference = right - left;
+            float yDifference = bottom - top;   
+
+            if (xDifference < foregroundWidth)
+            {
+                float value = (foregroundWidth - xDifference) / 2f;
+
+                left -= value;
+                right += value;
+            }
+
+            if (yDifference < foregroundHeight)
+            {
+                float value = (foregroundHeight - yDifference) / 2f;
+
+                top -= value;
+                bottom += value;
+            }
+
+            Rectangle = new Rectangle(new Vector2(left, top), new Vector2(right, bottom));
         }
 
         public virtual void Terminate()
@@ -203,6 +254,19 @@ namespace SlowAndReverb
             return _entityMap.OfType<T>();
         }
 
+        public Entity GetEntityOfType(Type type) 
+        {
+            if (_entitiesByType.TryGetValue(type, out HashSet<Entity> entities))
+                return entities.FirstOrDefault();
+
+            return default;
+        }
+
+        public T GetEntityOfType<T>() where T : Entity
+        {
+            return GetEntityOfType(typeof(T)) as T;
+        }
+
         public IEnumerable<Component> GetComponentsOfType(Type type)
         {
             if (_componentsByType.TryGetValue(type, out HashSet<Component> components))
@@ -309,10 +373,10 @@ namespace SlowAndReverb
             float endX = end.X;
             float endY = end.Y;
 
-            float left = Math.Min(startX, endX);
-            float top = Math.Min(startY, endY);
-            float right = Math.Max(startX, endX);
-            float bottom = Math.Max(startY, endY);
+            float left = Maths.Min(startX, endX);
+            float top = Maths.Min(startY, endY);
+            float right = Maths.Max(startX, endX);
+            float bottom = Maths.Max(startY, endY);
 
             var rectangle = new Rectangle(new Vector2(left, top), new Vector2(right, bottom));
 
@@ -336,10 +400,10 @@ namespace SlowAndReverb
             float endX = end.X;
             float endY = end.Y;
 
-            float left = Math.Min(startX, endX);
-            float top = Math.Min(startY, endY);
-            float right = Math.Max(startX, endX);
-            float bottom = Math.Max(startY, endY);
+            float left = Maths.Min(startX, endX);
+            float top = Maths.Min(startY, endY);
+            float right = Maths.Max(startX, endX);
+            float bottom = Maths.Max(startY, endY);
 
             var rectangle = new Rectangle(new Vector2(left, top), new Vector2(right, bottom));
 

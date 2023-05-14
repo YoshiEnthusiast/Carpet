@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Runtime.InteropServices;
+﻿using System.Collections.Generic;
 
 namespace SlowAndReverb
 {
@@ -122,14 +119,27 @@ namespace SlowAndReverb
             Draw();
         }
 
-        public bool CollidesWith(Rectangle rectangle)
+        public bool Intersects(Rectangle rectangle)
         {
             return Rectangle.Intersects(rectangle);
         }
 
-        public bool CollidedsWith(Entity entity)
+        public bool Intersects(Entity entity)
         {
-            return CollidesWith(entity.Rectangle);
+            return Intersects(entity.Rectangle);
+        }
+
+        public bool Touches(Rectangle rectangle)
+        {
+            Vector2 one = Vector2.One;
+            var extendedRectangle = new Rectangle(Rectangle.TopLeft - one, Rectangle.BottomRight + one);
+
+            return extendedRectangle.Intersects(rectangle);
+        }
+
+        public bool Touches(Entity entity)
+        {
+            return Touches(entity.Rectangle);
         }
 
         public T Add<T>(T component) where T : Component
@@ -151,6 +161,15 @@ namespace SlowAndReverb
                     return result;
 
             return null;
+        }
+
+        public bool Has<T>() where T : Component
+        {
+            foreach (Component component in _components)
+                if (component is T result)
+                    return true;
+
+            return false;
         }
 
         public void Added(Scene to)

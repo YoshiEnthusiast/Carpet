@@ -57,7 +57,7 @@ namespace SlowAndReverb
                 {
                     int bytesLeft = Data.Length - _cursor;
                     int length = LimitBufferLength(bytesLeft);
-                    int position = Math.Min(_cursor, Data.Length - 1);
+                    int position = Maths.Min(_cursor, Data.Length - 1);
 
                     SetBufferData(_bufferHandles[i], Data, position, length);
 
@@ -168,7 +168,7 @@ namespace SlowAndReverb
 
         private int LimitBufferLength(int length)
         {
-            return Math.Min(length, ChunkSize);
+            return Maths.Min(length, ChunkSize);
         }
     }
 }

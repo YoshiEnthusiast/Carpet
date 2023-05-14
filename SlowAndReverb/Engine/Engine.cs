@@ -3,6 +3,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using StbImageSharp;
 using StbImageWriteSharp;
+using System;
 
 namespace SlowAndReverb
 {
@@ -71,7 +72,8 @@ namespace SlowAndReverb
 
             OnInitialize();
 
-            _window.VSync = VSyncMode.On;
+            _window.VSync = VSyncMode.Off;
+            _window.CursorState = CursorState.Hidden;
             _window.Load += LoadContent;
             _window.UpdateFrame += OnUpdate;
             _window.RenderFrame += OnDraw;
@@ -97,15 +99,15 @@ namespace SlowAndReverb
         {
             Input.Update();
 
-            double time = args.Time;
+            double time = 1f / _updateFrequency;
 
-            UpdatesPerSecond = 1f / (float)args.Time;
+            UpdatesPerSecond = 1f / (float)time;
             DeltaTime = (float)time * TimeMultiplier * _deltaTimeMultiplier;
             TimeElapsed += time;
 
             Update(DeltaTime);
 
-            Input.ResetState();
+            Input.Clear();
         }
 
         private void OnDraw(FrameEventArgs args)

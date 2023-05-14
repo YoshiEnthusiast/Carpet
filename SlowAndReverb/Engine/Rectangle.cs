@@ -1,9 +1,5 @@
-﻿using System.Drawing;
-using System;
-using System.Collections;
+﻿using OpenTK.Mathematics;
 using System.Collections.Generic;
-using OpenTK.Mathematics;
-using System.Runtime.InteropServices;
 
 namespace SlowAndReverb
 {
@@ -32,11 +28,18 @@ namespace SlowAndReverb
         public Vector2 BottomLeft => new Vector2(Left, Bottom);
         public Vector2 BottomRight => Position + Size;
 
-        public float Left => Position.X;
-        public float Top => Position.Y;
+        public Line TopSurface => new Line(TopLeft, TopRight);
+        public Line RightSurface => new Line(TopRight, BottomRight);
+        public Line BottomSurface => new Line(BottomRight, BottomLeft);
+        public Line LeftSurface => new Line(BottomLeft, TopLeft);
+
         public float Width => Size.X;
         public float Height => Size.Y;
+        public float HalfWidth => Width / 2f;
+        public float HalfHeight => Height / 2f;
 
+        public float Left => Position.X;
+        public float Top => Position.Y;
         public float Right => Left + Width;
         public float Bottom => Top + Height;
 
@@ -49,7 +52,19 @@ namespace SlowAndReverb
 
         public Rectangle Translate(Vector2 by)
         {
-            return new Rectangle(Position + by, Size);
+            Vector2 newPosition = Position + by;
+
+            return new Rectangle(newPosition, newPosition + Size);
+        }
+
+        public Rectangle TranslateX(float by)
+        {
+            return Translate(new Vector2(by, 0f));
+        }
+
+        public Rectangle TranslateY(float by)
+        {
+            return Translate(new Vector2(0f, by));
         }
 
         public Rectangle Scale(float by)
@@ -96,10 +111,10 @@ namespace SlowAndReverb
                 return false;
             } 
 
-            float left = Math.Max(Left, other.Left);
-            float top = Math.Max(Top, other.Top);
-            float right = Math.Min(Right, other.Right);
-            float bottom = Math.Min(Bottom, other.Bottom);
+            float left = Maths.Max(Left, other.Left);
+            float top = Maths.Max(Top, other.Top);
+            float right = Maths.Min(Right, other.Right);
+            float bottom = Maths.Min(Bottom, other.Bottom);
 
             result = new Rectangle(new Vector2(left, top), new Vector2(right, bottom));
 
@@ -116,7 +131,8 @@ namespace SlowAndReverb
             float x = point.X;
             float y = point.Y;  
 
-            return x >= Left && x <= Right && y >= Top && y <= Bottom;  
+            // THIS CAN **** EVERYTHING UP
+            return x >= Left && x <= Right + 1f && y >= Top && y <= Bottom + 1f;  
         }
 
         public Vector4 ToVector4()
@@ -131,15 +147,10 @@ namespace SlowAndReverb
 
         public IEnumerable<Line> GetSurfaces()
         {
-            Vector2 topLeft = TopLeft;
-            Vector2 topRight = TopRight;
-            Vector2 bottomLeft = BottomLeft;
-            Vector2 bottomRight = BottomRight;
-
-            yield return new Line(topLeft, topRight);
-            yield return new Line(topRight, bottomRight);
-            yield return new Line(bottomRight, bottomLeft);
-            yield return new Line(bottomLeft, topLeft);
+            yield return TopSurface;
+            yield return RightSurface;
+            yield return BottomSurface;
+            yield return LeftSurface;
         }
 
         public override string ToString()

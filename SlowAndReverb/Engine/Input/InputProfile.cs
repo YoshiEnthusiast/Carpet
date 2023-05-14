@@ -23,6 +23,9 @@ namespace SlowAndReverb
 
         public VirtualAxis XAxis { get; private set; }
 
+        public VirtualAxis MenuXAxis { get; private set; }
+        public VirtualAxis MenuYAxis { get; private set; }
+
         public void Update()
         {
             foreach (InputElement element in _elements)
@@ -41,6 +44,9 @@ namespace SlowAndReverb
             Down = CreateButton("Down");
 
             XAxis = CreateAxis("XAxis", "Right", "Left");
+
+            MenuXAxis = CreateAxis("MenuXAxis", "MenuRight", "MenuLeft");
+            MenuYAxis = CreateAxis("MenuYAxis", "MenuDown", "MenuUp");
         }
 
         private VirtualButton CreateButton(string name)

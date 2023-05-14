@@ -1,24 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SlowAndReverb
+﻿namespace SlowAndReverb
 {
     public static class Layers
     {
-        private static Layer s_foreground;
-
-        public static Layer Foreground => s_foreground;
+        public static Layer Foreground { get; private set; }
+        public static Layer UI { get; private set; }
 
         internal static void Initialize()
         {
-            s_foreground = new Layer(320, 180, 1f)
+            Foreground = new Layer(320, 180, 1f)
             {
                 Material = new ForegroundMaterial(),
                 ClearColor = new Color(40, 40, 40)
             };
+
+            Foreground.Camera.SetCenterOrigin();
+
+            UI = new Layer(320, 180, 2f);
         }
     }
 }

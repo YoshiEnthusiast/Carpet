@@ -28,7 +28,7 @@ namespace SlowAndReverb
             if (Finished)
                 return;
 
-            float time = Math.Min(deltaTime, _delay);
+            float time = Maths.Min(deltaTime, _delay);
 
             _delay -= time;
 

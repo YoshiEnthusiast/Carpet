@@ -149,7 +149,7 @@ namespace SlowAndReverb
         {
             IEnumerable<Uniform> samplerUniforms = ShaderProgram.GetUniformsOfType(ActiveUniformType.Sampler2D);
 
-            return Math.Min(Math.Min(samplerUniforms.Count(), _textures.Count), OpenGL.MaxTextureUnits - 1);
+            return Maths.Min(Maths.Min(samplerUniforms.Count(), _textures.Count), OpenGL.MaxTextureUnits - 1);
         }
     }
 }

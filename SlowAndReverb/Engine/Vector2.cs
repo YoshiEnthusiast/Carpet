@@ -24,8 +24,8 @@ namespace SlowAndReverb
         public float X { get; init; }    
         public float Y { get; init; }
 
-        public int RoundedX => (int)X;
-        public int RoundedY => (int)Y;
+        public int FlooredX => Maths.Floor(X);
+        public int FlooredY => Maths.Floor(Y);
 
         public static float Distance(Vector2 from, Vector2 to)
         {
@@ -42,6 +42,13 @@ namespace SlowAndReverb
         public static Vector2 Lerp(Vector2 vector, Vector2 destination, float amount)
         {
             return vector.Lerp(destination, amount);
+        }
+
+        public static Vector2 LerpSmooth(Vector2 vector, Vector2 destination, float multiplier)
+        {
+            float distance = Distance(vector, destination);
+
+            return Lerp(vector, destination, distance * multiplier);
         }
 
         public override bool Equals(object obj)
@@ -120,9 +127,9 @@ namespace SlowAndReverb
             return Rotate(Zero, angle);
         }
 
-        public Vector2 Round()
+        public Vector2 Floor()
         {
-            return new Vector2(RoundedX, RoundedY);
+            return new Vector2(FlooredX, FlooredY);
         }
 
         public Vector2 Ceiling()
@@ -142,7 +149,7 @@ namespace SlowAndReverb
 
         public float GetMagnitude()
         {
-            return (float)Math.Sqrt(Math.Pow(X, 2) + Math.Pow(Y, 2));
+            return Maths.Sqrt(Maths.Pow(X, 2) + Maths.Pow(Y, 2));
         }
 
         public Vector2 Lerp(Vector2 destination, float amount)

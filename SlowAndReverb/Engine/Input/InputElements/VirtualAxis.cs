@@ -28,7 +28,7 @@ namespace SlowAndReverb
             {
                 float axisValue = Input.GetControllerAxis(_axis.Value);
 
-                if (Math.Abs(axisValue) > Deadzone)
+                if (Maths.Abs(axisValue) > Deadzone)
                     return axisValue;
             }
 
@@ -56,7 +56,7 @@ namespace SlowAndReverb
 
         public float GetSign()
         {
-            return Math.Sign(GetValue());
+            return Maths.Sign(GetValue());
         }
 
         public VirtualAxis SetAxis(Axis axis)
