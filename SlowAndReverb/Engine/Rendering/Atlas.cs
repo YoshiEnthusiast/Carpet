@@ -67,7 +67,7 @@ namespace SlowAndReverb
             XmlElement offsets = Data.CreateElement("Offsets");
             Data.AppendChild(offsets); 
 
-            batch.Begin(RenderTarget.FromTexture(Texture), BlendMode.AlphaBlend, Color.Transparent, new Rectangle(Vector2.Zero, new Vector2(currentSize)), Matrix4.Identity);
+            batch.Begin(RenderTarget.FromTexture(Texture), BlendMode.AlphaBlend, Color.Transparent, Matrix4.Identity);
 
             foreach (PackedTexture packedItem in lastSuccessfulResult)
             {
@@ -86,7 +86,7 @@ namespace SlowAndReverb
 
                 offsets.AppendChild(offset);
 
-                batch.Submit(texture, new Vector2(position.X, position.Y), SpriteEffect.None, SpriteEffect.None, 1f);
+                batch.Submit(texture, null, new Vector2(position.X, position.Y), SpriteEffect.None, SpriteEffect.None, 1f);
             }
 
             batch.End();

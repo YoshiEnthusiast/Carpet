@@ -6,7 +6,6 @@ using System.Linq;
 
 namespace SlowAndReverb
 {
-    // Fix multiple textures thing!!!!
     public class SpriteBatch
     {
         private const int MaxItems = 1000;
@@ -36,6 +35,7 @@ namespace SlowAndReverb
         };
 
         private RenderTarget _renderTarget;
+        private Rectangle _fullScissor;
 
         private Matrix4 _transform;
 
@@ -50,9 +50,6 @@ namespace SlowAndReverb
 
         public SpriteBatch()
         {
-            GL.Enable(EnableCap.ScissorTest);
-            GL.Enable(EnableCap.Blend);
-
             var attributes = new VertexAttribute[]
             {
                 VertexAttribute.Vec2,
@@ -83,14 +80,15 @@ namespace SlowAndReverb
             _textureUnits = Enumerable.Range(0, OpenGL.MaxTextureSize).ToArray();
         }
 
-        public void Begin(RenderTarget target, BlendMode blendMode, Color clearColor, Rectangle? scissor, Matrix4? view)
+        public void Begin(RenderTarget target, BlendMode blendMode, Color clearColor, Matrix4? view)
         {
             if (_began)
                 throw new InvalidOperationException($"{nameof(Begin)} can only be called again after End is called.");
 
             GL.BlendFunc(blendMode.SourceFactor, blendMode.DestinationFactor);
 
-            Texture targetTexture = target.Texture;
+            _renderTarget = target;
+            Texture targetTexture = _renderTarget.Texture;
 
             if (targetTexture is not null)
             {
@@ -105,6 +103,9 @@ namespace SlowAndReverb
             int targetWidth = target.Width;
             int targetHeight = target.Height;
 
+            _fullScissor = new Rectangle(0f, 0f, targetWidth, targetHeight);
+            SetScissor(_fullScissor);
+
             GL.Viewport(0, 0, targetWidth, targetHeight);
 
             _renderBuffer.Bind();
@@ -112,16 +113,13 @@ namespace SlowAndReverb
 
             GL.ClearColor(clearColor.ToColor4());
 
-            Rectangle scissorRectangle = scissor.GetValueOrDefault(new Rectangle(0f, 0f, targetWidth, targetHeight));
-            GL.Scissor((int)scissorRectangle.Left, (int)scissorRectangle.Top, (int)scissorRectangle.Width, (int)scissorRectangle.Height);
-
             Matrix4 projection = Matrix4.CreateOrthographicOffCenter(0f, targetWidth, targetHeight, 0f, -1f, 1f);
             _transform = view.GetValueOrDefault(Matrix4.Identity) * projection;
 
             _began = true;
         }
 
-        public void Submit(Texture texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 localOrigin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
+        public void Submit(Texture texture, Material material, Rectangle? scissor, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 localOrigin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
         {
             int textureWidth = texture.Width;
             int textureHeight = texture.Height;
@@ -191,35 +189,35 @@ namespace SlowAndReverb
                 new VertexColorTextureCoordinate(bottomRight, new Vector2(textureRight, textureBottom), textureBounds, color)
             };
 
-            Submit(texture, material, vertices, _quadElements, depth);
+            Submit(texture, material, scissor, vertices, _quadElements, depth);
         }
 
-        public void Submit(Texture texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
+        public void Submit(Texture texture, Material material, Rectangle? scissor, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
         {
-            Submit(texture, material, bounds, position, scale, origin, color, angle, SpriteEffect.None, SpriteEffect.None, depth);
+            Submit(texture, material, scissor, bounds, position, scale, origin, color, angle, SpriteEffect.None, SpriteEffect.None, depth);
         }
 
-        public void Submit(Texture texture, Material material, Vector2 position, Color color, float angle, float depth)
+        public void Submit(Texture texture, Material material, Rectangle? scissor, Vector2 position, Color color, float angle, float depth)
         {
-            Submit(texture, material, new Rectangle(0f, 0f, texture.Width, texture.Height), position, Vector2.One, Vector2.Zero, color, angle, depth);
+            Submit(texture, material, scissor, new Rectangle(0f, 0f, texture.Width, texture.Height), position, Vector2.One, Vector2.Zero, color, angle, depth);
         }
 
-        public void Submit(Texture texture, Vector2 position, Color color, float depth)
+        public void Submit(Texture texture, Rectangle? scissor, Vector2 position, Color color, float depth)
         {
-            Submit(texture, null, position, color, 0f, depth);
+            Submit(texture, null, scissor, position, color, 0f, depth);
         }
 
-        public void Submit(Texture texture, Vector2 position, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
+        public void Submit(Texture texture, Rectangle? scissor, Vector2 position, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
         {
-            Submit(texture, null, new Rectangle(0f, 0f, texture.Width, texture.Height), position, Vector2.One, Vector2.Zero, Color.White, 0f, horizontalEffect, verticalEffect, depth);
+            Submit(texture, null, scissor,new Rectangle(0f, 0f, texture.Width, texture.Height), position, Vector2.One, Vector2.Zero, Color.White, 0f, horizontalEffect, verticalEffect, depth);
         }
 
-        public void Submit(Texture texture, Vector2 position, float depth)
+        public void Submit(Texture texture, Rectangle? scissor, Vector2 position, float depth)
         {
-            Submit(texture, position, SpriteEffect.None, SpriteEffect.None, depth);
+            Submit(texture, scissor, position, SpriteEffect.None, SpriteEffect.None, depth);
         }
 
-        public void Submit(Texture texture, Material material, VertexColorTextureCoordinate vertex1, VertexColorTextureCoordinate vertex2, VertexColorTextureCoordinate vertex3, VertexColorTextureCoordinate vertex4, float depth)
+        public void Submit(Texture texture, Material material, Rectangle? scissor, VertexColorTextureCoordinate vertex1, VertexColorTextureCoordinate vertex2, VertexColorTextureCoordinate vertex3, VertexColorTextureCoordinate vertex4, float depth)
         {
             var vertices = new VertexColorTextureCoordinate[]
             {
@@ -229,15 +227,25 @@ namespace SlowAndReverb
                 vertex4
             };
 
-            Submit(texture, material, vertices, _quadElements, depth);
+            Submit(texture, material, scissor, vertices, _quadElements, depth);
         }
 
-        public void Submit(Texture texture, Material material, VertexColorTextureCoordinate[] vertices, uint[] elements, float depth)
+        public void Submit(Texture texture, Material material, Rectangle? scissor, VertexColorTextureCoordinate[] vertices, uint[] elements, float depth)
         {
             CheckBegin(nameof(Submit));
 
             if (vertices.Length < 1 || elements.Length < 1)
                 return;
+
+            int targetWidth = _renderTarget.Width;
+            int targetHeight = _renderTarget.Height;    
+
+            Rectangle scissorRectangle = scissor.GetValueOrDefault(new Rectangle(0f, 0f, targetWidth, targetHeight));
+
+            int scissorWidth = (int)scissorRectangle.Width;
+            int scissorHeight = (int)scissorRectangle.Height;
+
+            int scissorY = targetHeight - (int)scissorRectangle.Top - scissorHeight;
 
             var item = new SpriteBatchItem()
             {
@@ -245,6 +253,7 @@ namespace SlowAndReverb
                 Vertices = vertices,
                 Indices = elements,
                 Material = material is null ? _basicMaterial : material,
+                Scissor = new Rectangle((int)scissorRectangle.Left, scissorY, scissorWidth, scissorHeight),
                 Depth = depth
             };
 
@@ -265,6 +274,8 @@ namespace SlowAndReverb
             Texture lastTexture = null;
             Material lastMaterial = null;
 
+            Rectangle lastScissor = _fullScissor;
+
             foreach (SpriteBatchItem item in orderedItems)
             {
                 Texture currentTexture = item.Texture;
@@ -273,6 +284,9 @@ namespace SlowAndReverb
                 ShaderProgram currentProgram = currentMaterial.ShaderProgram;
                 ShaderProgram lastProgram = lastMaterial?.ShaderProgram;
 
+                Rectangle currentScissor = item.Scissor;
+                bool scissorChanged = currentScissor != lastScissor;
+
                 IEnumerable<VertexColorTextureCoordinate> vertices = item.Vertices;
                 IEnumerable<uint> elements = item.Indices;
 
@@ -280,11 +294,16 @@ namespace SlowAndReverb
                 int elementsCount = elements.Count();
 
                 int maxTextureUnits = OpenGL.MaxTextureUnits;
-                int extraTextures = currentMaterial.TextureUniformsCount;
+                int extraTextures = currentMaterial.ExtraTexturesCount;
                 int maxTextures = maxTextureUnits - extraTextures;
 
-                if (lastMaterial is not null && currentMaterial != lastMaterial || currentTexture != lastTexture && _texturesCount >= maxTextures || _verticesCount + verticesCount > MaxVertices || _elementsCount + elementsCount > MaxElements || _itemsCount >= MaxItems)
+                if (lastMaterial is not null && (scissorChanged || currentMaterial != lastMaterial || currentTexture != lastTexture && _texturesCount >= maxTextures || 
+                    _verticesCount + verticesCount > MaxVertices || _elementsCount + elementsCount > MaxElements || _itemsCount >= MaxItems))
+                {
                     Flush(lastMaterial);
+
+                    lastTexture = null;
+                }
 
                 if (currentMaterial != lastMaterial)
                 {
@@ -292,8 +311,6 @@ namespace SlowAndReverb
                     {
                         currentProgram.Bind();
                         currentProgram.SetUniform("u_Transform", _transform);
-
-                        lastTexture = null;
                     }
 
                     currentMaterial.Apply();
@@ -309,6 +326,13 @@ namespace SlowAndReverb
 
                     lastTexture = currentTexture;
                     _texturesCount++;
+                }
+
+                if (scissorChanged)
+                {
+                    SetScissor(currentScissor);
+
+                    lastScissor = currentScissor;
                 }
 
                 foreach (VertexColorTextureCoordinate oldVertex in vertices)
@@ -344,7 +368,7 @@ namespace SlowAndReverb
         {
             ShaderProgram program = material.ShaderProgram;
 
-            program.SetUniform("u_Textures", _textureUnits.Length, _textureUnits); 
+            program.SetUniform("u_Textures", _textureUnits.Length, _textureUnits);
 
             _vertexArray.VertexBuffer.SetData(_verticesCount, _vertices);
             _vertexArray.ElementBuffer.SetData(_elementsCount, _elements);
@@ -363,6 +387,11 @@ namespace SlowAndReverb
         private Vector2 ApplyOrigin(Vector2 position, Vector2 localOrigin, Vector2 origin, float angle)
         {
             return position.Rotate(origin, angle) - localOrigin;
+        }
+
+        private void SetScissor(Rectangle rectangle)
+        {
+            GL.Scissor((int)rectangle.Left, (int)rectangle.Top, (int)rectangle.Width, (int)rectangle.Height);
         }
 
         private void CheckBegin(string methodName)

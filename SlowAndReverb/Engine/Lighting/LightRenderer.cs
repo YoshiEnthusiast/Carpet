@@ -145,8 +145,8 @@ namespace SlowAndReverb
             SpriteBatch batch = Graphics.SpriteBatch;
             RenderTarget shadowBuffer = RenderTargets.ShadowBuffer;
 
-            batch.Begin(shadowBuffer, BlendMode.Additive, Color.Transparent, null, null);
-            batch.Submit(Graphics.BlankTexture.ActualTexture, null, vertices, elements, 0f);
+            batch.Begin(shadowBuffer, BlendMode.Additive, Color.Transparent, null);
+            batch.Submit(Graphics.BlankTexture.ActualTexture, null, null, vertices, elements, 0f);
             batch.End();
 
             _verticesCount = 0;
@@ -154,7 +154,7 @@ namespace SlowAndReverb
             _currentElement = 0;
 
             Matrix4 view = Layers.Foreground.Camera.GetViewMatrix();
-            batch.Begin(RenderTargets.LightMap, BlendMode.Additive, Scene.Color, null, view);
+            batch.Begin(RenderTargets.LightMap, BlendMode.Additive, Scene.Color, view);
 
             for (int i = 0; i < lightToRender; i++)
             {

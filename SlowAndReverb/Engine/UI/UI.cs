@@ -18,7 +18,7 @@ namespace SlowAndReverb
             s_cursorSprite = new Sprite("cursor")
             {
                 Origin = Vector2.Zero,
-                Depth = 10f
+                Depth = 100f
             };
         }
 

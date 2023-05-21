@@ -22,6 +22,7 @@ namespace SlowAndReverb
         public static Material PostProcessingEffect { get; set; }
         public static Color ClearColor { get; set; }
         public static Rectangle Scissor { get; set; }
+        public static Rectangle ScreenScissor { get; set; }
         public static Vector2 BlankTextureCoordinate { get; private set; }
 
         internal static void Initialize()
@@ -171,7 +172,7 @@ namespace SlowAndReverb
             var vertex3 = new VertexColorTextureCoordinate(point3, bounds.Xy, bounds, color);
             var vertex4 = new VertexColorTextureCoordinate(point4, bounds.Xy, bounds, color);
 
-            SpriteBatch.Submit(BlankTexture.ActualTexture, null, vertex1, vertex2, vertex3, vertex4, depth);
+            SpriteBatch.Submit(BlankTexture.ActualTexture, null, Scissor, vertex1, vertex2, vertex3, vertex4, depth);
         }
 
         public static void DrawString(string text, Vector2 position, float depth)
@@ -210,16 +211,9 @@ namespace SlowAndReverb
             CurrentLayer = layer;
             s_drawnLayers.Add(layer);
 
-            Rectangle layerScissor = layer.Scissor;
+            ResetScissor();
 
-            int layerHeight = layer.Height;
-            int scissorY = (int)layerScissor.Top;
-            int scissorHeight = (int)layerScissor.Height;
-
-            //if (scissorY != 0)
-                scissorY = layerHeight - scissorY - scissorHeight;
-
-            SpriteBatch.Begin(layer.RenderTarget, BlendMode.AlphaBlend, layer.ClearColor, new Rectangle(layerScissor.Left, scissorY, layerScissor.Width, layerScissor.Height), layer.Camera.GetViewMatrix());
+            SpriteBatch.Begin(layer.RenderTarget, BlendMode.AlphaBlend, layer.ClearColor, layer.Camera.GetViewMatrix());
         }
 
         public static void EndCurrentLayer()
@@ -227,6 +221,7 @@ namespace SlowAndReverb
             if (CurrentLayer is null)
                 throw new InvalidOperationException("No current layer");
 
+            ResetScissor();
             CurrentLayer = null;
 
             SpriteBatch.End();
@@ -242,7 +237,7 @@ namespace SlowAndReverb
 
             Matrix4 identity = Matrix4.Identity;
 
-            SpriteBatch.Begin(s_finalTarget, BlendMode.AlphaBlend, ClearColor, Scissor, identity);
+            SpriteBatch.Begin(s_finalTarget, BlendMode.AlphaBlend, ClearColor, identity);
 
             foreach (Layer layer in s_drawnLayers)
             {
@@ -259,16 +254,16 @@ namespace SlowAndReverb
                 float x = (resolutionWidth - newWidth) / 2f;
                 float y = (resolutionHeight - newHeight) / 2f;
 
-                SpriteBatch.Submit(layer.RenderTarget.Texture, layer.Material, new Rectangle(0f, 0f, width, height), new Vector2(x, y), Resolution.CurrentSize / new Vector2(width, height) * zoom, Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, layer.Depth);
+                SpriteBatch.Submit(layer.RenderTarget.Texture, layer.Material, null, new Rectangle(0f, 0f, width, height), new Vector2(x, y), Resolution.CurrentSize / new Vector2(width, height) * zoom, Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, layer.Depth);
             }
 
             SpriteBatch.End();
             s_drawnLayers.Clear();
 
-            ResetScissor();
 
-            SpriteBatch.Begin(s_screenTarget, BlendMode.AlphaBlend, ClearColor, Scissor, identity);
-            SpriteBatch.Submit(s_finalTarget.Texture, PostProcessingEffect, new Rectangle(0f, 0f, s_finalTarget.Width, s_finalTarget.Height), Vector2.Zero, new Vector2(1f), Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, 1f);
+            SpriteBatch.Begin(s_screenTarget, BlendMode.AlphaBlend, ClearColor, identity);
+
+            SpriteBatch.Submit(s_finalTarget.Texture, PostProcessingEffect, null, ScreenScissor, Vector2.Zero, new Vector2(1f), Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, 1f);
 
             SpriteBatch.End();
         }
@@ -277,14 +272,22 @@ namespace SlowAndReverb
 
         public static void ResetScissor()
         {
-            Scissor = new Rectangle(0f, 0f, Resolution.CurrentWidth, Resolution.CurrentHeight);
+            if (CurrentLayer is null)
+                return;
+
+            Scissor = new Rectangle(0f, 0f, CurrentLayer.Width, CurrentLayer.Height);
+        }
+
+        public static void ResetScreenScissor()
+        {
+            ScreenScissor = new Rectangle(0f, 0f, Resolution.CurrentWidth, Resolution.CurrentHeight);
         }
 
         #region Internal Draw Methods
 
         internal static void DrawWithoutRoundingPosition(Texture texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
         {
-            SpriteBatch.Submit(texture, material, bounds, position, scale, origin, color, angle, horizontalEffect, verticalEffect, depth);
+            SpriteBatch.Submit(texture, material, Scissor, bounds, position, scale, origin, color, angle, horizontalEffect, verticalEffect, depth);
         }
 
         internal static void DrawWithoutRoundingPosition(VirtualTexture virtualTexture, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)

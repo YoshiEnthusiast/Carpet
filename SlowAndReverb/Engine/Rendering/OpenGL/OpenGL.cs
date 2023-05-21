@@ -17,6 +17,9 @@ namespace SlowAndReverb
             s_context = context;
             s_context.MakeCurrent();
 
+            GL.Enable(EnableCap.ScissorTest);
+            GL.Enable(EnableCap.Blend);
+
             GL.Enable(EnableCap.DebugOutput);
 
             GL.Khr.DebugMessageCallback(OnDebugMessage, IntPtr.Zero);

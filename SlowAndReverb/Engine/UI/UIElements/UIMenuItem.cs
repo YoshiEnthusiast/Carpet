@@ -1,4 +1,6 @@
-﻿namespace SlowAndReverb
+﻿using System;
+
+namespace SlowAndReverb
 {
     public class UIMenuItem : UIElement
     {
@@ -9,7 +11,7 @@
             _selectedArrow = new Sprite("uiArrow");
             _selectedArrow.Origin = new Vector2(_selectedArrow.Width, _selectedArrow.Height / 2f);
 
-            Size = new Vector2(80f, 6f);
+            Size = new Vector2(80f, 5f);
         }
 
         public bool Selected { get; set; }

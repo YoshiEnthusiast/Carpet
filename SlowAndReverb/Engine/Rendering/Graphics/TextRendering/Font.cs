@@ -64,7 +64,7 @@ namespace SlowAndReverb
                 float characterX = xOffset + bearing.X * Scale.X;
                 float characterY = yOffset + bearing.Y * Scale.Y;
 
-                Graphics.Draw(texture, Material, bounds, position + new Vector2(characterX, characterY), Scale, Vector2.Zero, Color, 0f, SpriteEffect.None, SpriteEffect.None, depth);
+                Graphics.Draw(texture, null, bounds, position + new Vector2(characterX, characterY), Scale, Vector2.Zero, Color, 0f, SpriteEffect.None, SpriteEffect.None, depth);
 
                 xOffset += advance;
             }

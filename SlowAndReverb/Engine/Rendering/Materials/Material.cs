@@ -41,7 +41,7 @@ namespace SlowAndReverb
 
         public ShaderProgram ShaderProgram { get; protected init; }
 
-        public int TextureUniformsCount => GetExtraTexturesCount();
+        public int ExtraTexturesCount => GetExtraTexturesCount();
 
         protected IList<Texture> Textures
         {
@@ -147,9 +147,7 @@ namespace SlowAndReverb
 
         private int GetExtraTexturesCount()
         {
-            IEnumerable<Uniform> samplerUniforms = ShaderProgram.GetUniformsOfType(ActiveUniformType.Sampler2D);
-
-            return Maths.Min(Maths.Min(samplerUniforms.Count(), _textures.Count), OpenGL.MaxTextureUnits - 1);
+            return Maths.Min(_textures.Count, OpenGL.MaxTextureUnits - 1);
         }
     }
 }

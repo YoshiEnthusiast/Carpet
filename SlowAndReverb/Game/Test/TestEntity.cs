@@ -14,6 +14,8 @@ namespace SlowAndReverb
 
         private readonly VirtualTexture _grapleHookTexture = Content.GetVirtualTexture("grapleHook");
 
+        private readonly Sprite s;
+
         public TestEntity(float x, float y) : base(x, y)
         {
             var sprite = new Sprite("needler", 19, 16)
@@ -57,6 +59,8 @@ namespace SlowAndReverb
                 EmitCount = 5,
                 EmitCountVariation = 2
             });
+
+            //s = Add(new Sprite("uiArrow"));
         }
 
         protected override void Update(float deltaTime)

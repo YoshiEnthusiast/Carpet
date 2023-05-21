@@ -1,5 +1,6 @@
 ﻿using OpenTK.Mathematics;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 
 namespace SlowAndReverb
 {
@@ -106,7 +107,7 @@ namespace SlowAndReverb
         {
             if (!Intersects(other))
             {
-                result = default(Rectangle);
+                result = default;
 
                 return false;
             } 
@@ -171,6 +172,16 @@ namespace SlowAndReverb
         public bool Equals(Rectangle other)
         {
             return Position == other.Position && Size == other.Size;
+        }
+
+        public static bool operator ==(Rectangle rectangle, Rectangle other)
+        {
+            return rectangle.Equals(other);
+        }
+
+        public static bool operator !=(Rectangle rectangle, Rectangle other)
+        {
+            return !rectangle.Equals(other);
         }
 
         public static Rectangle operator *(Rectangle rectangle, float by)

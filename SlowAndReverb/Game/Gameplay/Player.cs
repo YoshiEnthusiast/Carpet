@@ -119,7 +119,7 @@ namespace SlowAndReverb
 
         protected override void Draw()
         {
-
+            
         }
 
         private void UpdateMovement(float deltaTime)
