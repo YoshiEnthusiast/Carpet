@@ -23,7 +23,7 @@ namespace SlowAndReverb
         }
 
         public int Width { get; private init; }
-        public int Height {get; private init; }
+        public int Height { get; private init; }
 
         public static Texture CreateEmpty(int width, int height)
         {

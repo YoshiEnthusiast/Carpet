@@ -30,10 +30,10 @@ namespace SlowAndReverb
             if (geometrySourceExists)
                 GL.DeleteShader(geometryShader);
 
-            GL.GetProgram(Handle, GetProgramParameterName.ActiveUniforms, out int count);
-            _uniforms = new Uniform[count];
+            GL.GetProgram(Handle, GetProgramParameterName.ActiveUniforms, out int uniformsCount);
+            _uniforms = new Uniform[uniformsCount];
 
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < uniformsCount; i++)
             {
                 GL.GetActiveUniform(Handle, i, _maxUniformCharacters, out _, out _, out ActiveUniformType type, out string name);
 
@@ -46,6 +46,11 @@ namespace SlowAndReverb
 
                 _uniforms[i] = new Uniform(name, type, location);
             }
+
+            GL.GetProgram(Handle, GetProgramParameterName.ActiveUniformBlocks, out int uniformBlocksCount);
+
+            for (int i = 0; i < uniformBlocksCount; i++)
+                GL.UniformBlockBinding(Handle, i, i);
         }
 
         public ShaderProgram(string vertexSource, string fragmentSource) : this(vertexSource, fragmentSource, null)
