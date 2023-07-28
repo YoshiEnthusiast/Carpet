@@ -6,14 +6,14 @@ namespace SlowAndReverb
     {
         private readonly Rectangle _bounds;
 
-        public VirtualTexture(Texture actualTexture, Rectangle bounds)
+        public VirtualTexture(Texture2D actualTexture, Rectangle bounds)
         {
             ActualTexture = actualTexture;
 
             _bounds = bounds;
         }
 
-        public Texture ActualTexture { get; private init; }
+        public Texture2D ActualTexture { get; private init; }
 
         public Vector2 Size => _bounds.Size;
 

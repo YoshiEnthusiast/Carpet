@@ -11,7 +11,7 @@ namespace SlowAndReverb
         private const int MaxBaseAlignment = 16;
 
         private UniformBlockItem[] _items;
-
+        
         public UniformBuffer()
         {
             GL.CreateBuffers(1, out int handle);

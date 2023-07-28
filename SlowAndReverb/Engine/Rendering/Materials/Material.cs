@@ -80,11 +80,6 @@ namespace SlowAndReverb
 
         public void Apply()
         {
-            //if (_applied || ShaderProgram is null)
-            //    return;
-
-            //_applied = true;
-
             for (int i = 0; i < GetExtraTexturesCount(); i++)
             {
                 Texture texture = _textures[i];
@@ -111,21 +106,6 @@ namespace SlowAndReverb
                     location,
                     value
                 });
-            }
-        }
-
-        public void Unapply()
-        {
-            if (!_applied)
-                return;
-
-            _applied = false;
-
-            for (int i = 1; i < GetExtraTexturesCount(); i++)
-            {
-                Texture texture = _textures[i];
-
-                texture.Unbind();
             }
         }
 

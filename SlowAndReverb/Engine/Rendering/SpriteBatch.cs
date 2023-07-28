@@ -99,7 +99,7 @@ namespace SlowAndReverb
             GL.BlendFunc(blendMode.SourceFactor, blendMode.DestinationFactor);
 
             _renderTarget = target;
-            Texture targetTexture = _renderTarget.Texture;
+            Texture2D targetTexture = _renderTarget.Texture;
 
             if (targetTexture is not null)
             {
@@ -135,7 +135,7 @@ namespace SlowAndReverb
             _began = true;
         }
 
-        public void Submit(Texture texture, Material material, Rectangle? scissor, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 localOrigin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
+        public void Submit(Texture2D texture, Material material, Rectangle? scissor, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 localOrigin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
         {
             int textureWidth = texture.Width;
             int textureHeight = texture.Height;
@@ -208,32 +208,32 @@ namespace SlowAndReverb
             Submit(texture, material, scissor, vertices, _quadElements, depth);
         }
 
-        public void Submit(Texture texture, Material material, Rectangle? scissor, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
+        public void Submit(Texture2D texture, Material material, Rectangle? scissor, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
         {
             Submit(texture, material, scissor, bounds, position, scale, origin, color, angle, SpriteEffect.None, SpriteEffect.None, depth);
         }
 
-        public void Submit(Texture texture, Material material, Rectangle? scissor, Vector2 position, Color color, float angle, float depth)
+        public void Submit(Texture2D texture, Material material, Rectangle? scissor, Vector2 position, Color color, float angle, float depth)
         {
             Submit(texture, material, scissor, new Rectangle(0f, 0f, texture.Width, texture.Height), position, Vector2.One, Vector2.Zero, color, angle, depth);
         }
 
-        public void Submit(Texture texture, Rectangle? scissor, Vector2 position, Color color, float depth)
+        public void Submit(Texture2D texture, Rectangle? scissor, Vector2 position, Color color, float depth)
         {
             Submit(texture, null, scissor, position, color, 0f, depth);
         }
 
-        public void Submit(Texture texture, Rectangle? scissor, Vector2 position, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
+        public void Submit(Texture2D texture, Rectangle? scissor, Vector2 position, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
         {
             Submit(texture, null, scissor,new Rectangle(0f, 0f, texture.Width, texture.Height), position, Vector2.One, Vector2.Zero, Color.White, 0f, horizontalEffect, verticalEffect, depth);
         }
 
-        public void Submit(Texture texture, Rectangle? scissor, Vector2 position, float depth)
+        public void Submit(Texture2D texture, Rectangle? scissor, Vector2 position, float depth)
         {
             Submit(texture, scissor, position, SpriteEffect.None, SpriteEffect.None, depth);
         }
 
-        public void Submit(Texture texture, Material material, Rectangle? scissor, VertexColorTextureCoordinate vertex1, VertexColorTextureCoordinate vertex2, VertexColorTextureCoordinate vertex3, VertexColorTextureCoordinate vertex4, float depth)
+        public void Submit(Texture2D texture, Material material, Rectangle? scissor, VertexColorTextureCoordinate vertex1, VertexColorTextureCoordinate vertex2, VertexColorTextureCoordinate vertex3, VertexColorTextureCoordinate vertex4, float depth)
         {
             var vertices = new VertexColorTextureCoordinate[]
             {
@@ -246,7 +246,7 @@ namespace SlowAndReverb
             Submit(texture, material, scissor, vertices, _quadElements, depth);
         }
 
-        public void Submit(Texture texture, Material material, Rectangle? scissor, VertexColorTextureCoordinate[] vertices, uint[] elements, float depth)
+        public void Submit(Texture2D texture, Material material, Rectangle? scissor, VertexColorTextureCoordinate[] vertices, uint[] elements, float depth)
         {
             CheckBegin(nameof(Submit));
 
@@ -287,14 +287,14 @@ namespace SlowAndReverb
 
             _vertexArray.Bind();
 
-            Texture lastTexture = null;
+            Texture2D lastTexture = null;
             Material lastMaterial = null;
 
             Rectangle lastScissor = _fullScissor;
 
             foreach (SpriteBatchItem item in orderedItems)
             {
-                Texture currentTexture = item.Texture;
+                Texture2D currentTexture = item.Texture;
                 Material currentMaterial = item.Material;
 
                 ShaderProgram currentProgram = currentMaterial.ShaderProgram;

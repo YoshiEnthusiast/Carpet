@@ -2,13 +2,23 @@
 using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SlowAndReverb
 {
     public sealed class ShaderProgram : OpenGLObject
     {
+        private const int MaxUniformNameCharacters = 100;
+
+        private static readonly ActiveUniformType[] s_textureUniformTypes = new ActiveUniformType[]
+        {
+            ActiveUniformType.Image1D,
+            ActiveUniformType.Image2D,
+            ActiveUniformType.Image3D,
+            ActiveUniformType.ImageCube
+        };
+
         private readonly Uniform[] _uniforms;
-        private readonly int _maxUniformCharacters = 100;
 
         public ShaderProgram(string vertexSource, string fragmentSource, string geometrySource)
         {
@@ -33,9 +43,11 @@ namespace SlowAndReverb
             GL.GetProgram(Handle, GetProgramParameterName.ActiveUniforms, out int uniformsCount);
             _uniforms = new Uniform[uniformsCount];
 
+            int textureUniformsCount = 0;
+
             for (int i = 0; i < uniformsCount; i++)
             {
-                GL.GetActiveUniform(Handle, i, _maxUniformCharacters, out _, out _, out ActiveUniformType type, out string name);
+                GL.GetActiveUniform(Handle, i, MaxUniformNameCharacters, out _, out _, out ActiveUniformType type, out string name);
 
                 int bracketsIndex = name.IndexOf('[');
 
@@ -44,6 +56,9 @@ namespace SlowAndReverb
 
                 int location = GL.GetUniformLocation(Handle, name);
 
+                if (s_textureUniformTypes.Contains(type))
+                    textureUniformsCount++;
+
                 _uniforms[i] = new Uniform(name, type, location);
             }
 
@@ -51,12 +66,16 @@ namespace SlowAndReverb
 
             for (int i = 0; i < uniformBlocksCount; i++)
                 GL.UniformBlockBinding(Handle, i, i);
+
+            TextureUniformsCount = textureUniformsCount;  
         }
 
         public ShaderProgram(string vertexSource, string fragmentSource) : this(vertexSource, fragmentSource, null)
         {
 
         }
+
+        public int TextureUniformsCount { get; private init; }
 
         public bool TryGetUniformByName(string name, out Uniform result)
         {

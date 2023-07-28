@@ -17,7 +17,7 @@ namespace SlowAndReverb
             _maxSize = maxSize;
         }
 
-        public Texture Texture { get; set; }
+        public Texture2D Texture { get; set; }
         public XmlDocument Data { get; set; }
 
         public bool Build(int preferredSize, int maxSteps)
@@ -61,7 +61,7 @@ namespace SlowAndReverb
 
             SpriteBatch batch = Graphics.SpriteBatch;
 
-            Texture = Texture.CreateEmpty(currentSize, currentSize);
+            Texture = Texture2D.CreateEmpty(currentSize, currentSize);
             Data = new XmlDocument();
 
             XmlElement offsets = Data.CreateElement("Offsets");
@@ -72,7 +72,7 @@ namespace SlowAndReverb
             foreach (PackedTexture packedItem in lastSuccessfulResult)
             {
                 AtlasItem item = orderedItems[packedItem.Index];
-                Texture texture = item.Texture;
+                Texture2D texture = item.Texture;
 
                 Vector2 position = packedItem.Position;
 
@@ -102,7 +102,7 @@ namespace SlowAndReverb
             return Build(side, maxSteps);
         }
 
-        public void Add(Texture item, string fileName)
+        public void Add(Texture2D item, string fileName)
         {
             _items.Add(new AtlasItem(item, fileName));
         }
@@ -119,7 +119,7 @@ namespace SlowAndReverb
             for (int i = 0; i < orderedItems.Length; i++)
             {
                 AtlasItem item = orderedItems[i];
-                Texture texture = item.Texture;
+                Texture2D texture = item.Texture;
 
                 int itemWidth = texture.Width;
                 int itemHeight = texture.Height;
@@ -198,7 +198,7 @@ namespace SlowAndReverb
 
         private int GetItemArea(AtlasItem item)
         {
-            Texture texture = item.Texture;
+            Texture2D texture = item.Texture;
 
             return texture.Width * texture.Height;
         }
@@ -208,7 +208,7 @@ namespace SlowAndReverb
             return size <= _maxSize;
         }
 
-        private record class AtlasItem(Texture Texture, string FileName);
+        private record class AtlasItem(Texture2D Texture, string FileName);
 
         private readonly record struct PackedTexture(int Index, Vector2 Position);
     }

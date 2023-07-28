@@ -6,7 +6,7 @@ namespace SlowAndReverb
 {
     public sealed class SpriteBatchItem
     {
-        public required Texture Texture { get; init; }
+        public required Texture2D Texture { get; init; }
 
         public required IEnumerable<VertexColorTextureCoordinate> Vertices { get; init; }
         public required IEnumerable<uint> Indices { get; init; }

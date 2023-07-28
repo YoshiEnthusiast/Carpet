@@ -14,7 +14,7 @@ namespace SlowAndReverb
 {
     public sealed class OldDebugWindow : GameWindow
     {
-        private readonly Texture _spikeGrenade;
+        private readonly Texture2D _spikeGrenade;
         private readonly Sprite _yosh;
 
         private readonly Sprite _needler;
