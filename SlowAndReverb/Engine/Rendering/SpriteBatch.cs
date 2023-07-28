@@ -12,6 +12,8 @@ namespace SlowAndReverb
         private const int MaxVertices = MaxItems * 4;
         private const int MaxElements = MaxVertices * 6;
 
+        private const string TexturesUniformName = "u_Textures";
+
         private readonly List<SpriteBatchItem> _items = new List<SpriteBatchItem>();
 
         private readonly Material _basicMaterial = new BasicMaterial();
@@ -23,6 +25,7 @@ namespace SlowAndReverb
         private readonly VertexArray<VertexColorTextureIndex> _vertexArray;
         private readonly RenderBuffer _renderBuffer;
         private readonly FrameBuffer _frameBuffer;
+        private readonly UniformBuffer _uniformBuffer;
 
         private readonly uint[] _quadElements = new uint[]
         {
@@ -78,6 +81,17 @@ namespace SlowAndReverb
             _frameBuffer.SetRenderBuffer(_renderBuffer);
 
             _textureUnits = Enumerable.Range(0, OpenGL.MaxTextureSize).ToArray();
+
+            var uniformBlockItems = new UniformBlockItem[]
+            {
+                UniformBlockItem.ArrayElementOrMatrixCulomn(),
+                UniformBlockItem.ArrayElementOrMatrixCulomn(),
+                UniformBlockItem.ArrayElementOrMatrixCulomn(),
+                UniformBlockItem.ArrayElementOrMatrixCulomn()
+            };
+
+            _uniformBuffer = new UniformBuffer();
+            _uniformBuffer.Initialize(uniformBlockItems);
         }
 
         public void Begin(RenderTarget target, BlendMode blendMode, Color clearColor, Matrix4? view)
@@ -115,6 +129,11 @@ namespace SlowAndReverb
 
             Matrix4 projection = Matrix4.CreateOrthographicOffCenter(0f, targetWidth, targetHeight, 0f, -1f, 1f);
             _transform = view.GetValueOrDefault(Matrix4.Identity) * projection;
+            
+            _transform.Transpose(); // change this later
+
+            _uniformBuffer.Bind();
+            _uniformBuffer.SetValue(_transform, 0);
 
             _began = true;
         }
@@ -308,10 +327,7 @@ namespace SlowAndReverb
                 if (currentMaterial != lastMaterial)
                 {
                     if (currentProgram != lastProgram)
-                    {
                         currentProgram.Bind();
-                        currentProgram.SetUniform("u_Transform", _transform);
-                    }
 
                     currentMaterial.Apply();
 
@@ -368,7 +384,7 @@ namespace SlowAndReverb
         {
             ShaderProgram program = material.ShaderProgram;
 
-            program.SetUniform("u_Textures", _textureUnits.Length, _textureUnits);
+            program.SetUniform(TexturesUniformName, _textureUnits.Length, _textureUnits);
 
             _vertexArray.VertexBuffer.SetData(_verticesCount, _vertices);
             _vertexArray.ElementBuffer.SetData(_elementsCount, _elements);

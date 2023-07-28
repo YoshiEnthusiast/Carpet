@@ -15,7 +15,7 @@ namespace SlowAndReverb
 
         private readonly int _elementSize;
 
-        public VertexAttribute(VertexAttribPointerType type, int elementSize, int count)
+        private VertexAttribute(VertexAttribPointerType type, int elementSize, int count)
         {
             Type = type;   
             Count = count;

@@ -40,6 +40,7 @@ namespace SlowAndReverb
             RenderTargets.Initialize();
             Layers.Initialize();
             UI.Initialize();
+            Editor.Initialize();
 
             UI.CursorMode = CursorMode.Shown;
         }
@@ -109,7 +110,6 @@ namespace SlowAndReverb
 
 
             CurrentScene.Color = new Color(100, 100, 100);
-            Engine.DebugLighting = false;
 
             CurrentScene.Initialize();
         }

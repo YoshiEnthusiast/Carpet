@@ -263,7 +263,7 @@ namespace SlowAndReverb
 
             SpriteBatch.Begin(s_screenTarget, BlendMode.AlphaBlend, ClearColor, identity);
 
-            SpriteBatch.Submit(s_finalTarget.Texture, PostProcessingEffect, null, ScreenScissor, Vector2.Zero, new Vector2(1f), Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, 1f);
+            SpriteBatch.Submit(s_finalTarget.Texture, PostProcessingEffect, null, new Rectangle(0f, 0f, s_finalTarget.Width, s_finalTarget.Height), Vector2.Zero, new Vector2(1f), Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, 1f);
 
             SpriteBatch.End();
         }
