@@ -126,6 +126,11 @@ namespace SlowAndReverb
 
             Matrix4 projection = Matrix4.CreateOrthographicOffCenter(0f, targetWidth, targetHeight, 0f, -1f, 1f);
             _transform = view.GetValueOrDefault(Matrix4.Identity) * projection;
+            
+            _transform.Transpose();
+
+            _uniformBuffer.Bind();
+            _uniformBuffer.SetValue(_transform, 0);
 
             _began = true;
         }

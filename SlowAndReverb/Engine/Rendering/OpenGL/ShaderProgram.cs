@@ -61,6 +61,13 @@ namespace SlowAndReverb
 
                 _uniforms[i] = new Uniform(name, type, location);
             }
+
+            GL.GetProgram(Handle, GetProgramParameterName.ActiveUniformBlocks, out int uniformBlocksCount);
+
+            for (int i = 0; i < uniformBlocksCount; i++)
+                GL.UniformBlockBinding(Handle, i, i);
+
+            TextureUniformsCount = textureUniformsCount;  
         }
 
         public ShaderProgram(string vertexSource, string fragmentSource) : this(vertexSource, fragmentSource, null)
