@@ -16,7 +16,7 @@ namespace SlowAndReverb
 
             Camera = camera;
 
-            Texture texture = Texture.CreateEmpty(width, height);
+            Texture2D texture = Texture2D.CreateEmpty(width, height);
             RenderTarget = RenderTarget.FromTexture(texture);
 
             ResetScissor();

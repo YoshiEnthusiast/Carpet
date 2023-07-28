@@ -31,7 +31,7 @@ namespace SlowAndReverb
         private static readonly Dictionary<int, int> s_tileFrames = new Dictionary<int, int>();
         private static readonly Dictionary<string, ControllerMapping> s_controllerMappings = new Dictionary<string, ControllerMapping>();
 
-        public static Texture AtlasTexture { get; private set; }
+        public static Texture2D AtlasTexture { get; private set; }
         public static XmlElement DefaultInputSettings { get; private set; }
         public static string Folder { get; private set; }
 
@@ -71,10 +71,10 @@ namespace SlowAndReverb
             {
                 var atlas = new Atlas(OpenGL.MaxTextureSize);
 
-                IEnumerable<CachedItem<Texture>> items = s_textureCache.GetAllValues();
+                IEnumerable<CachedItem<Texture2D>> items = s_textureCache.GetAllValues();
                 int texturesDirectoryLength = texturesDirectory.Length;
 
-                foreach (CachedItem<Texture> item in items)
+                foreach (CachedItem<Texture2D> item in items)
                 {
                     string path = item.Path;
                     string localPath = path.Substring(texturesDirectoryLength + 1);
@@ -89,9 +89,9 @@ namespace SlowAndReverb
 
                 atlas.Build(5);
 
-                foreach (CachedItem<Texture> item in items)
+                foreach (CachedItem<Texture2D> item in items)
                 {
-                    Texture texture = item.Value;
+                    Texture2D texture = item.Value;
 
                     texture.Bind();
                     texture.Delete();
@@ -99,7 +99,7 @@ namespace SlowAndReverb
 
                 s_textureCache.Clear();
 
-                Texture atlasTexture = atlas.Texture;
+                Texture2D atlasTexture = atlas.Texture;
                 XmlDocument atlasData = atlas.Data;
 
                 AtlasTexture = atlasTexture;
@@ -114,7 +114,7 @@ namespace SlowAndReverb
             }
             else
             {
-                Texture atlasTexture = GetTexture(atlasFileName);
+                Texture2D atlasTexture = GetTexture(atlasFileName);
                 XmlDocument atlasData = Utilities.LoadXML(atlasDataFileName);
 
                 AtlasTexture = atlasTexture;
@@ -191,7 +191,7 @@ namespace SlowAndReverb
             return GetShaderProgram(DefaultShaderName, fragmentName);
         }
 
-        public static Texture GetTexture(string fileName)
+        public static Texture2D GetTexture(string fileName)
         {
             return s_textureCache.GetItem(fileName);    
         }
@@ -226,7 +226,7 @@ namespace SlowAndReverb
             return s_controllerMappings.GetValueOrDefault(name);
         }
 
-        private static void LoadVirtualTextures(Texture atlasTexture, XmlDocument data)
+        private static void LoadVirtualTextures(Texture2D atlasTexture, XmlDocument data)
         {
             XmlElement offsets = data["Offsets"];
 

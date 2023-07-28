@@ -8,8 +8,10 @@ namespace SlowAndReverb
 {
     public sealed class UniformBuffer : OpenGLObject
     {
-        private UniformBlockItem[] _items;
+        private const int MaxBaseAlignment = 16;
 
+        private UniformBlockItem[] _items;
+        
         public UniformBuffer()
         {
             GL.CreateBuffers(1, out int handle);
@@ -43,7 +45,7 @@ namespace SlowAndReverb
             int baseAlignment = item.BaseAlignment; 
             int alignedOffset = 0;
 
-            GL.BufferSubData(BufferTarget.UniformBuffer, alignedOffset, 64, ref value);
+            GL.BufferSubData(BufferTarget.UniformBuffer, alignedOffset, baseAlignment, ref value);
         }
 
         private int GetAlignedOffset(int index)
@@ -56,7 +58,10 @@ namespace SlowAndReverb
                 UniformBlockItem item = _items[i];
 
                 int baseAlignment = item.BaseAlignment;
-                alignedOffset += Maths.Ceiling(lastBaseAlignment / (float)baseAlignment) * baseAlignment;
+                int roundTo = Math.Min(baseAlignment, MaxBaseAlignment);
+                alignedOffset += lastBaseAlignment;
+
+                alignedOffset = Maths.Ceiling(alignedOffset / (float)roundTo) * roundTo;
 
                 lastBaseAlignment = baseAlignment;
             }

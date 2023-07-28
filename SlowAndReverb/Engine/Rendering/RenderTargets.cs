@@ -13,9 +13,9 @@ namespace SlowAndReverb
 
         internal static void Initialize()
         {
-            LightMap = RenderTarget.FromTexture(Texture.CreateEmpty(320, 180));
+            LightMap = RenderTarget.FromTexture(Texture2D.CreateEmpty(320, 180));
 
-            ShadowBuffer = RenderTarget.FromTexture(Texture.CreateEmpty(2240, 2240));
+            ShadowBuffer = RenderTarget.FromTexture(Texture2D.CreateEmpty(2240, 2240));
         }
     }
 }

@@ -53,7 +53,10 @@ namespace SlowAndReverb
                 Size = new Vector2i(initialResolution.Width, initialResolution.Height)
             };
 
-            _window = new GameWindow(settings, nativeSettings);
+            _window = new GameWindow(settings, nativeSettings)
+            {
+                VSync = VSyncMode.Adaptive
+            };
 
             StbImage.stbi_set_flip_vertically_on_load(1);
             StbImageWrite.stbi_flip_vertically_on_write(1);

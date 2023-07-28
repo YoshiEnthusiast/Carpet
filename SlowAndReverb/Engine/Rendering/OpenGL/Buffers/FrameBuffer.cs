@@ -15,7 +15,7 @@ namespace SlowAndReverb
             Handle = handle;
         }
 
-        public void SetTexture(Texture texture)
+        public void SetTexture(Texture2D texture)
         {
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, texture.Handle, 0);
         }

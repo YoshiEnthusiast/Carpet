@@ -32,7 +32,7 @@ namespace SlowAndReverb
 
             BlankTexture = Content.GetVirtualTexture("blank");
 
-            Texture atlasTexture = Content.AtlasTexture;
+            Texture2D atlasTexture = Content.AtlasTexture;
             Rectangle localBounds = BlankTexture.GetBounds();  // clean this up
             Vector2 coordinate = (new Vector2(localBounds.Left, atlasTexture.Height - localBounds.Height) + localBounds.Size / 2f) / new Vector2(atlasTexture.Width, atlasTexture.Height);
 
@@ -41,32 +41,32 @@ namespace SlowAndReverb
 
         #region Draw Methods
 
-        public static void Draw(Texture texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
+        public static void Draw(Texture2D texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
         {
             DrawWithoutRoundingPosition(texture, material, bounds, position.Floor(), scale, origin, color, angle, horizontalEffect, verticalEffect, depth);
         }
 
-        public static void Draw(Texture texture, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
+        public static void Draw(Texture2D texture, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
         {
             Draw(texture, null, bounds, position, scale, origin, color, angle, horizontalEffect, verticalEffect, depth);
         }
 
-        public static void Draw(Texture texture, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
+        public static void Draw(Texture2D texture, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
         {
             Draw(texture, bounds, position, scale, origin, color, angle, SpriteEffect.None, SpriteEffect.None, depth);
         }
 
-        public static void Draw(Texture texture, Material material, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
+        public static void Draw(Texture2D texture, Material material, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
         {
             Draw(texture, material, new Rectangle(Vector2.Zero, new Vector2(texture.Width, texture.Height)), position, scale, origin, color, angle, horizontalEffect, verticalEffect, depth);
         }
 
-        public static void Draw(Texture texture, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
+        public static void Draw(Texture2D texture, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
         {
             Draw(texture, new Rectangle(Vector2.Zero, new Vector2(texture.Width, texture.Height)), position, scale, origin, color, angle, depth);
         }
 
-        public static void Draw(Texture texture, Material material, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
+        public static void Draw(Texture2D texture, Material material, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
         {
             Draw(texture, material, position, scale, origin, color, angle, SpriteEffect.None, SpriteEffect.None, depth);
         }
@@ -164,7 +164,7 @@ namespace SlowAndReverb
 
         public static void DrawQuad(Vector2 point1, Vector2 point2, Vector2 point3, Vector2 point4, Color color, float depth)
         {
-            Texture atlasTexture = Content.AtlasTexture;
+            Texture2D atlasTexture = Content.AtlasTexture;
             Vector4 bounds = (BlankTexture.GetBounds() / new Vector2(atlasTexture.Width, atlasTexture.Height)).ToVector4();
 
             var vertex1 = new VertexColorTextureCoordinate(point1, bounds.Xy, bounds, color);
@@ -285,7 +285,7 @@ namespace SlowAndReverb
 
         #region Internal Draw Methods
 
-        internal static void DrawWithoutRoundingPosition(Texture texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
+        internal static void DrawWithoutRoundingPosition(Texture2D texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
         {
             SpriteBatch.Submit(texture, material, Scissor, bounds, position, scale, origin, color, angle, horizontalEffect, verticalEffect, depth);
         }
@@ -316,7 +316,7 @@ namespace SlowAndReverb
             int width = Resolution.CurrentWidth;
             int height = Resolution.CurrentHeight;
 
-            Texture texture = Texture.CreateEmpty(width, height);
+            Texture2D texture = Texture2D.CreateEmpty(width, height);
 
             s_finalTarget = RenderTarget.FromTexture(texture);
             s_screenTarget = RenderTarget.FromScreen(width, height);

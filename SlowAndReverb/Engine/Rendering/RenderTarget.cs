@@ -2,7 +2,7 @@
 {
     public sealed class RenderTarget
     {
-        private RenderTarget(Texture texture, int width, int height)
+        private RenderTarget(Texture2D texture, int width, int height)
         {
             Texture = texture;
 
@@ -10,7 +10,7 @@
             Height = height;
         }
 
-        public static RenderTarget FromTexture(Texture texture)
+        public static RenderTarget FromTexture(Texture2D texture)
         {
             return new RenderTarget(texture, texture.Width, texture.Height);
         }
@@ -20,7 +20,7 @@
             return new RenderTarget(null, width, height);
         }
 
-        public Texture Texture { get; private init; }
+        public Texture2D Texture { get; private init; }
 
         public int Width { get; private init; }
         public int Height { get; private init; }
