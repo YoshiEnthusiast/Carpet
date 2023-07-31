@@ -134,6 +134,13 @@ namespace SlowAndReverb
 
         }
 
+        public void SetPalette(Palette palette)
+        {
+            ForegroundMaterial material = Layers.Foreground.Material as ForegroundMaterial;
+
+            material.SetPalette(palette);
+        }
+
         #endregion
 
         #region Add / Remove

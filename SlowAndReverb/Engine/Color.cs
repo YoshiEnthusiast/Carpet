@@ -53,9 +53,9 @@ namespace SlowAndReverb
 
         public Color Lerp(Color destination, float amount)
         {
-            byte R = FromFloat(Maths.Lerp(NormalizedR, destination.NormalizedR, amount));
-            byte G = FromFloat(Maths.Lerp(NormalizedG, destination.NormalizedG, amount));
-            byte B = FromFloat(Maths.Lerp(NormalizedB, destination.NormalizedB, amount));
+            byte R = FromFloat(Maths.Lerp(RNormalized, destination.RNormalized, amount));
+            byte G = FromFloat(Maths.Lerp(GNormalized, destination.GNormalized, amount));
+            byte B = FromFloat(Maths.Lerp(BNormalized, destination.BNormalized, amount));
             byte A = FromFloat(Maths.Lerp(NormalizedA, destination.NormalizedA, amount));
 
             return new Color(R, G, B, A);
@@ -71,14 +71,14 @@ namespace SlowAndReverb
         public byte B { get; init; }
         public byte A { get; init; }
 
-        public float NormalizedR => ConvertToFloat(R);
-        public float NormalizedG => ConvertToFloat(G);
-        public float NormalizedB => ConvertToFloat(B);
+        public float RNormalized => ConvertToFloat(R);
+        public float GNormalized => ConvertToFloat(G);
+        public float BNormalized => ConvertToFloat(B);
         public float NormalizedA => ConvertToFloat(A);
 
         public Vector4 ToVector4()
         {
-            return new Vector4(NormalizedR, NormalizedG, NormalizedB, NormalizedA);
+            return new Vector4(RNormalized, GNormalized, BNormalized, NormalizedA);
         }
 
         public Color4 ToColor4()

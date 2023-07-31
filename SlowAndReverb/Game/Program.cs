@@ -23,10 +23,17 @@ namespace SlowAndReverb
             {
                 return "";
             }
-        }
+        }   
 
         private static void Main(string[] args)
         {
+            //LAB l1 = new LAB(1f, 0f, 5f);
+            //LAB l2 = new LAB(2f, 5f, 0f);
+
+            //Console.WriteLine(GetDistance(l1, l2));
+
+            //return;
+
             //var a = new Abstract<string>[5];
 
             //var u = new UniformBuffer();

@@ -28,6 +28,13 @@ namespace SlowAndReverb
 
         protected TextureTarget Target { get; private init; }
 
+        public static void UnbindUnit(TextureTarget target, TextureUnit unit)
+        {
+            GL.ActiveTexture(unit);
+
+            GL.BindTexture(target, 0);
+        }
+
         public override void Bind()
         {
             Bind(TextureUnit.Texture0);

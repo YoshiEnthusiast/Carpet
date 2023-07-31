@@ -90,6 +90,8 @@ namespace SlowAndReverb
 
             //Graphics.Draw(_grapleHookTexture, Layers.Foreground.MousePosition, new Vector2(50f, 1f), Vector2.Zero, Color.White, angle, Depths.Debug);
             angle -= 0.005f;
+
+            base.Draw();
         }
 
         private class OffCenterParticleBehaviour : ParticleBehaviour

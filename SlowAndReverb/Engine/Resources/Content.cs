@@ -18,6 +18,7 @@ namespace SlowAndReverb
         private static TextureCache s_textureCache;
         private static FontFamilyCache s_fontFamilyCache;
         private static WaveFileCache s_waveFileCache;
+        private static PaletteCache s_paletteCache;
 
         private static ShaderSourceCache s_vertexSourceCache;
         private static ShaderSourceCache s_fragmentSourceCache;
@@ -61,6 +62,7 @@ namespace SlowAndReverb
             s_geometrySourceCache = new ShaderSourceCache("Shaders/Geometry", ".geom", true);
 
             s_textureCache = new TextureCache("Textures", true);
+            s_paletteCache = new PaletteCache("Palettes", true);
 
             string texturesDirectory = s_textureCache.MainDirectory;
 
@@ -214,6 +216,11 @@ namespace SlowAndReverb
         public static WaveFile GetWaveFile(string fileName)
         {
             return s_waveFileCache.GetItem(fileName);
+        }
+
+        public static Palette GetPalette(string fileName)
+        {
+            return s_paletteCache.GetItem(fileName);
         }
 
         public static int GetTileFrame(int mask)

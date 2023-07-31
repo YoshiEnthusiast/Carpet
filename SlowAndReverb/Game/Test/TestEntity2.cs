@@ -10,13 +10,15 @@ namespace SlowAndReverb
     {
         public TestEntity2(float x, float y) : base(x, y)
         {
-            var sprite = new Sprite("burn")
-            {
-                Depth = 1f
-            };
+            //var sprite = new Sprite("burn")
+            //{
+            //    Depth = 1f
+            //};
 
-            Position = new Vector2(150f, 45f);
+            Position = new Vector2(400f, 45f);
             Size = new Vector2(32f);
+
+            Add(new Sprite("Yosh"));
             //Weight = 10f;
 
             //Add(sprite);

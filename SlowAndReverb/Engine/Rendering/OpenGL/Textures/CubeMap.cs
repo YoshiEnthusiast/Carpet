@@ -12,7 +12,6 @@ namespace SlowAndReverb
 
             for (int i = 0; i < Faces; i++)
                 GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, InternalFormat, size, size, 0, Format, Type, 0);
-;
         }
 
         public int Size { get; private init; }

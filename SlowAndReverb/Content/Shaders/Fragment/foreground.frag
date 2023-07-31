@@ -11,6 +11,8 @@ in float v_TexIndex;
 uniform sampler2D u_Textures[32];
 uniform float u_Darkness;
 
+layout (binding = 1) uniform sampler3D u_Palette;
+
 void main()
 {
     int index = int(v_TexIndex);
@@ -18,6 +20,9 @@ void main()
     vec4 light = texture(u_Textures[0], v_TexCoord);
 
     vec4 result = color * light;
+    
+    vec3 id = clamp(result.xyz, vec3(0.), vec3(.999));
+    result = texture(u_Palette, id);
 
     o_FragColor = vec4(result.xyz, color.a);
 }

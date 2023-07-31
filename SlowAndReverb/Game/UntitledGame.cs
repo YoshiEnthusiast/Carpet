@@ -88,6 +88,7 @@ namespace SlowAndReverb
             CurrentScene = new Scene();
 
             CurrentScene.Add(new TestEntity(0f, 0f));
+            CurrentScene.Add(new TestEntity2(0f, 0f));
             //Scene.Add(new TestEntity2(180f, 90f));
             //Scene.Add(new Platform(120f, 100f));
             
@@ -109,7 +110,10 @@ namespace SlowAndReverb
             CurrentScene.Add(new TestPlatform(300f, 60f));
 
 
-            CurrentScene.Color = new Color(100, 100, 100);
+            CurrentScene.Color = new Color(170, 170, 170);
+
+            Palette palette = Content.GetPalette("test2");
+            CurrentScene.SetPalette(palette);
 
             CurrentScene.Initialize();
         }

@@ -109,6 +109,16 @@ namespace SlowAndReverb
             }
         }
 
+        public void Unapply()
+        {
+            for (int i = 0; i < GetExtraTexturesCount(); i++)
+            {
+                Texture texture = _textures[i];
+
+                texture.Unbind();
+            }
+        }
+
         private static IEnumerable<UniformStorage> GetUniformStoragesForType(Type type)
         {
             foreach (PropertyInfo property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))

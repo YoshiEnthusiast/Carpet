@@ -46,6 +46,8 @@ namespace SlowAndReverb
         private int _elementsCount;
         private int _texturesCount;
 
+        private int _extraTextures;
+
         private uint _currentElement;
         private int _itemsCount;
 
@@ -310,8 +312,8 @@ namespace SlowAndReverb
                 int elementsCount = elements.Count();
 
                 int maxTextureUnits = OpenGL.MaxTextureUnits;
-                int extraTextures = currentMaterial.ExtraTexturesCount;
-                int maxTextures = maxTextureUnits - extraTextures;
+                _extraTextures = currentMaterial.ExtraTexturesCount;
+                int maxTextures = maxTextureUnits - _extraTextures;
 
                 if (lastMaterial is not null && (scissorChanged || currentMaterial != lastMaterial || currentTexture != lastTexture && _texturesCount >= maxTextures || 
                     _verticesCount + verticesCount > MaxVertices || _elementsCount + elementsCount > MaxElements || _itemsCount >= MaxItems))
@@ -326,6 +328,9 @@ namespace SlowAndReverb
                     if (currentProgram != lastProgram)
                         currentProgram.Bind();
 
+                    if (lastMaterial is not null)
+                        lastMaterial.Unapply();
+
                     currentMaterial.Apply();
 
                     lastMaterial = currentMaterial;
@@ -333,9 +338,10 @@ namespace SlowAndReverb
 
                 if (currentTexture != lastTexture)
                 {
-                    int unit = _texturesCount + extraTextures;
+                    int index = _texturesCount + _extraTextures;
 
-                    currentTexture.Bind(TextureUnit.Texture0 + unit);
+                    TextureUnit unit = GetTextureUnit(index);
+                    currentTexture.Bind(unit);
 
                     lastTexture = currentTexture;
                     _texturesCount++;
@@ -350,7 +356,7 @@ namespace SlowAndReverb
 
                 foreach (VertexColorTextureCoordinate oldVertex in vertices)
                 {
-                    var newVertex = new VertexColorTextureIndex(oldVertex.Position, oldVertex.TextureCoordinate, new Vector2(currentTexture.Width, currentTexture.Height), oldVertex.TextureBounds, oldVertex.Color.ToVector4(), _texturesCount - 1 + extraTextures);
+                    var newVertex = new VertexColorTextureIndex(oldVertex.Position, oldVertex.TextureCoordinate, new Vector2(currentTexture.Width, currentTexture.Height), oldVertex.TextureBounds, oldVertex.Color.ToVector4(), _texturesCount - 1 + _extraTextures);
 
                     _vertices[_verticesCount] = newVertex;
                     _verticesCount++;
@@ -370,10 +376,15 @@ namespace SlowAndReverb
             }
 
             if (_verticesCount > 0)
+            {
                 Flush(lastMaterial);
+
+                lastMaterial.Unapply();
+            }
 
             _items.Clear();
 
+            _extraTextures = 0;
             _began = false;
         }
 
@@ -388,6 +399,14 @@ namespace SlowAndReverb
 
             _vertexArray.Draw(PrimitiveType.Triangles);
 
+            int maxTextureUnits = OpenGL.MaxTextureUnits;
+
+            for (int i = _extraTextures; i < maxTextureUnits; i++)
+            {
+                TextureUnit unit = GetTextureUnit(i);
+                Texture.UnbindUnit(TextureTarget.Texture2D, unit);
+            }
+
             _verticesCount = 0;
             _elementsCount = 0;
             _texturesCount = 0;
@@ -400,6 +419,11 @@ namespace SlowAndReverb
         private Vector2 ApplyOrigin(Vector2 position, Vector2 localOrigin, Vector2 origin, float angle)
         {
             return position.Rotate(origin, angle) - localOrigin;
+        }
+
+        private TextureUnit GetTextureUnit(int index)
+        {
+            return TextureUnit.Texture0 + index;
         }
 
         private void SetScissor(Rectangle rectangle)
