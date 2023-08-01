@@ -42,7 +42,7 @@ namespace SlowAndReverb
         {
             var settings = new GameWindowSettings()
             {
-                UpdateFrequency = _updateFrequency,
+                UpdateFrequency = _updateFrequency
             };
 
             var nativeSettings = new NativeWindowSettings()

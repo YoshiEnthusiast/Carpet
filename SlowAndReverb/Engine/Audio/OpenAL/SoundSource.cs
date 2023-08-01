@@ -33,7 +33,9 @@ namespace SlowAndReverb
 
         public ALSourceState GetState()
         {
-            return AL.GetSourceState(Handle);
+            int index = AL.GetSource(Handle, ALGetSourcei.SourceState);
+
+            return (ALSourceState)index;
         }
 
         public void SetBuffer(int handle)
