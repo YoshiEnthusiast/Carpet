@@ -10,7 +10,7 @@ namespace SlowAndReverb
     {
         public RepeatTextureMaterial()
         {
-            ShaderProgram = Content.GetShaderProgram("texturedLine");
+            ShaderProgram = Content.GetPipelineShaderProgram("texturedLine");
         }
 
         [Uniform("u_Scale")] public Vector2 Scale { get; set; } = Vector2.One;

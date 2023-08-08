@@ -4,7 +4,7 @@
     {
         public CircleMaterial()
         {
-            ShaderProgram = Content.GetShaderProgram("circle");
+            ShaderProgram = Content.GetPipelineShaderProgram("circle");
         }
 
         [Uniform("u_Width")] public float LineWidth { get; set; } = 1f;

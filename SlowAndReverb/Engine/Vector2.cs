@@ -160,6 +160,19 @@ namespace SlowAndReverb
             return new Vector2(x, y);
         }
 
+        public Vector2 Clamp(Vector2 min, Vector2 max)
+        {
+            float x = Maths.Clamp(X, min.X, max.X);
+            float y = Maths.Clamp(Y, min.Y, max.Y);
+
+            return new Vector2(x, y);
+        }
+
+        public Vector2 Clamp(float min, float max)
+        {
+            return Clamp(new Vector2(min), new Vector2(max));
+        }
+
         public Vector2GL ToVector2GL()
         {
             return Unsafe.As<Vector2, Vector2GL>(ref this);

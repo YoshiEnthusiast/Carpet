@@ -1,4 +1,7 @@
-﻿using OpenTK.Mathematics;
+﻿global using Vector2GL = OpenTK.Mathematics.Vector2;
+global using SystemRandom = System.Random;
+global using ComputeItem = SlowAndReverb.Std430LayoutItem;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using StbImageSharp;

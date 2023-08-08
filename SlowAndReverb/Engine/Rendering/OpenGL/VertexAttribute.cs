@@ -11,6 +11,7 @@ namespace SlowAndReverb
     {
         public static readonly VertexAttribute Float = new VertexAttribute(VertexAttribPointerType.Float, sizeof(float), 1);
         public static readonly VertexAttribute Vec2 = new VertexAttribute(VertexAttribPointerType.Float, sizeof(float), 2);
+        public static readonly VertexAttribute Vec3 = new VertexAttribute(VertexAttribPointerType.Float, sizeof(float), 3);
         public static readonly VertexAttribute Vec4 = new VertexAttribute(VertexAttribPointerType.Float, sizeof(float), 4);
 
         private readonly int _elementSize;

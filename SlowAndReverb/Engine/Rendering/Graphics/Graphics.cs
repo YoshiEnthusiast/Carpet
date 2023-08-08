@@ -312,7 +312,7 @@ namespace SlowAndReverb
         private static void ApplyResolution()
         {
             // TODO: Delete the previous render target texture if it exists (WHEN THE TEXTURE CLASS WILL HAVE THIS OPTION)!!!!!!!
-
+            
             int width = Resolution.CurrentWidth;
             int height = Resolution.CurrentHeight;
 

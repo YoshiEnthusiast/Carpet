@@ -1,10 +1,11 @@
-﻿global using Vector2GL = OpenTK.Mathematics.Vector2;
-global using SystemRandom = System.Random;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace SlowAndReverb
 {
@@ -25,8 +26,15 @@ namespace SlowAndReverb
             }
         }   
 
+        private record struct Boid(Vector2 Position, Vector2 Velocity);
         private static void Main(string[] args)
         {
+            //var s = Std430LayoutItem.StructArray<Boid, Vector2>(20);
+            //var f = Std430LayoutItem.Struct<Boid, Vector2>();
+            //Console.WriteLine(s.BaseAlignment + " " + f.BaseAlignment);
+
+            //return;
+
             //LAB l1 = new LAB(1f, 0f, 5f);
             //LAB l2 = new LAB(2f, 5f, 0f);
 

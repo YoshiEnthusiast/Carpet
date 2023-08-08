@@ -25,7 +25,7 @@ namespace SlowAndReverb
 
         protected override void Draw()
         {
-            Graphics.FillRectangle(Rectangle, Color.CoolOrange, Depths.Blocks);
+            Graphics.FillRectangle(Rectangle, Color.CoolOrange, Depths.Blocks + 10f);
         }
     }
 }

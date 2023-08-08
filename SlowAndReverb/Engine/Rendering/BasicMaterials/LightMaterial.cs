@@ -11,7 +11,7 @@ namespace SlowAndReverb
     {
         public LightMaterial()
         {
-            ShaderProgram = Content.GetShaderProgram("light");
+            ShaderProgram = Content.GetPipelineShaderProgram("light");
 
             Textures.Add(RenderTargets.ShadowBuffer.Texture);
         }

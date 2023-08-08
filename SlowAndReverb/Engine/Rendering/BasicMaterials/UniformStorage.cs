@@ -2,5 +2,5 @@
 
 namespace SlowAndReverb
 {
-    public sealed record class UniformStorage(string Name, PropertyInfo Property);
+    public readonly record struct UniformStorage(string Name, PropertyInfo Property);
 }

@@ -191,5 +191,15 @@ namespace SlowAndReverb
 
             return Clamp(result, -max, max);
         } 
+
+        public static float RoundUp(float value, float to)
+        {
+            return Ceiling(value / to) * to;
+        }
+
+        public static int RoundUp(int value, int to)
+        {
+            return (int)RoundUp((float)value, to);
+        }
     }
 }

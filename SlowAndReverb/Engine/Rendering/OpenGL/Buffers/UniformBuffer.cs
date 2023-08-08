@@ -1,5 +1,4 @@
 ﻿using OpenTK.Graphics.OpenGL;
-using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +9,7 @@ namespace SlowAndReverb
     {
         private const int MaxBaseAlignment = 16;
 
-        private UniformBlockItem[] _items;
+        private Std140LayoutItem[] _items;
         
         public UniformBuffer()
         {
@@ -19,7 +18,7 @@ namespace SlowAndReverb
             Handle = handle;
         }
 
-        public void Initialize(IEnumerable<UniformBlockItem> items)
+        public void Initialize(IEnumerable<Std140LayoutItem> items)
         {
             _items = items.ToArray();
 
@@ -40,10 +39,10 @@ namespace SlowAndReverb
 
         public void SetValue<T>(T value, int index) where T : struct
         {
-            UniformBlockItem item = _items[index];
+            Std140LayoutItem item = _items[index];
 
-            int baseAlignment = item.BaseAlignment; 
-            int alignedOffset = 0;
+            int baseAlignment = item.BaseAlignment;
+            int alignedOffset = GetAlignedOffset(index);
 
             GL.BufferSubData(BufferTarget.UniformBuffer, alignedOffset, baseAlignment, ref value);
         }
@@ -55,7 +54,7 @@ namespace SlowAndReverb
 
             for (int i = 0; i < index + 1; i++)
             {
-                UniformBlockItem item = _items[i];
+                Std140LayoutItem item = _items[i];
 
                 int baseAlignment = item.BaseAlignment;
                 int roundTo = Math.Min(baseAlignment, MaxBaseAlignment);

@@ -4,7 +4,7 @@
     {
         public TestMaterial()
         {
-            ShaderProgram = Content.GetShaderProgram("test");
+            ShaderProgram = Content.GetPipelineShaderProgram("test");
         }
 
         [Uniform("u_Time")] public float Time { get; set; }

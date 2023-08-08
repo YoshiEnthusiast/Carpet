@@ -4,7 +4,7 @@
     {
         public TextMaterial()
         {
-            ShaderProgram = Content.GetShaderProgram("text");
+            ShaderProgram = Content.GetPipelineShaderProgram("text");
         }
 
         [Uniform("u_OutlineColor")] public Color OutlineColor { get; set; }

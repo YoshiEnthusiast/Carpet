@@ -23,10 +23,12 @@ namespace SlowAndReverb
         private static ShaderSourceCache s_vertexSourceCache;
         private static ShaderSourceCache s_fragmentSourceCache;
         private static ShaderSourceCache s_geometrySourceCache;
+        private static ShaderSourceCache s_computeSourceCache;
 
         private static VirtualTexture s_noTexture;
 
-        private static readonly Dictionary<string, ShaderProgram> s_shaders = new Dictionary<string, ShaderProgram>();
+        private static readonly Dictionary<string, PipelineShaderProgram> s_pipelineShaders = new Dictionary<string, PipelineShaderProgram>();
+        private static readonly Dictionary<string, ComputeShaderProgram> s_computeShaders = new Dictionary<string, ComputeShaderProgram>();
         private static readonly Dictionary<string, VirtualTexture> s_virtualTextures = new Dictionary<string, VirtualTexture>();
 
         private static readonly Dictionary<int, int> s_tileFrames = new Dictionary<int, int>();
@@ -60,6 +62,7 @@ namespace SlowAndReverb
             s_vertexSourceCache = new ShaderSourceCache("Shaders/Vertex", ".vert", true);
             s_fragmentSourceCache = new ShaderSourceCache("Shaders/Fragment", ".frag", true);
             s_geometrySourceCache = new ShaderSourceCache("Shaders/Geometry", ".geom", true);
+            s_computeSourceCache = new ShaderSourceCache("Shaders/Compute", ".comp", true);
 
             s_textureCache = new TextureCache("Textures", true);
             s_paletteCache = new PaletteCache("Palettes", true);
@@ -127,7 +130,7 @@ namespace SlowAndReverb
             s_fontFamilyCache = new FontFamilyCache("Fonts", true);
             s_noTexture = FindVirtualTexture("noTexture");
 
-            s_shaders.Clear();
+            s_pipelineShaders.Clear();
         }
 
         internal static void Load()
@@ -149,7 +152,7 @@ namespace SlowAndReverb
             // Save data????
         }
 
-        public static ShaderProgram GetShaderProgram(string vertexName, string fragmentName, string geometryName)
+        public static PipelineShaderProgram GetPipelineShaderProgram(string vertexName, string fragmentName, string geometryName)
         {
             string vertexPath = s_vertexSourceCache.GetPath(vertexName);
             string fragmentPath = s_fragmentSourceCache.GetPath(fragmentName);
@@ -169,28 +172,41 @@ namespace SlowAndReverb
 
             string programName = nameBuilder.ToString();
 
-            if (s_shaders.TryGetValue(programName, out ShaderProgram shaderProgram))
+            if (s_pipelineShaders.TryGetValue(programName, out PipelineShaderProgram shaderProgram))
                 return shaderProgram;
 
             string vertexSource = s_vertexSourceCache.GetItem(vertexPath);
             string fragmentSource = s_fragmentSourceCache.GetItem(fragmentPath);
             string geometrySource = geometryPath is null ? null : s_geometrySourceCache.GetItem(geometryPath);
 
-            var newProgram = new ShaderProgram(vertexSource, fragmentSource, geometrySource);
+            var newProgram = new PipelineShaderProgram(vertexSource, fragmentSource, geometrySource);
 
-            s_shaders.Add(programName, newProgram);
+            s_pipelineShaders.Add(programName, newProgram);
 
             return newProgram;
         }
 
-        public static ShaderProgram GetShaderProgram(string vertexName, string fragmentName)
+        public static PipelineShaderProgram GetPipelineShaderProgram(string vertexName, string fragmentName)
         {
-            return GetShaderProgram(vertexName, fragmentName, null);
+            return GetPipelineShaderProgram(vertexName, fragmentName, null);
         }
 
-        public static ShaderProgram GetShaderProgram(string fragmentName)
+        public static PipelineShaderProgram GetPipelineShaderProgram(string fragmentName)
         {
-            return GetShaderProgram(DefaultShaderName, fragmentName);
+            return GetPipelineShaderProgram(DefaultShaderName, fragmentName);
+        }
+
+        public static ComputeShaderProgram GetComputeShaderProgram(string name)
+        {
+            if (s_computeShaders.TryGetValue(name, out ComputeShaderProgram shaderProgram))
+                return shaderProgram;
+
+            string source = s_computeSourceCache.GetItem(name);
+            var program = new ComputeShaderProgram(source);
+
+            s_computeShaders.Add(name, program);
+
+            return program;
         }
 
         public static Texture2D GetTexture(string fileName)

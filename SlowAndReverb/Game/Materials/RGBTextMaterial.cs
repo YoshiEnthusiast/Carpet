@@ -4,7 +4,7 @@
     {
         public RGBTextMaterial()
         {
-            ShaderProgram = Content.GetShaderProgram("rgbText");
+            ShaderProgram = Content.GetPipelineShaderProgram("rgbText");
         }
 
         [Uniform("u_Time")] public float Time { get; set; }

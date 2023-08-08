@@ -99,7 +99,7 @@ namespace SlowAndReverb
             //Scene.Add(new Block("tileset", 68f, 140f));
             //Scene.Add(new Block("tileset", 68f + 8f * 25f, 140f));
 
-            CurrentScene.Add(new Player(100f, 0f));
+            CurrentScene.Add(new Player(300f, -20f));
             CurrentScene.Add(new TestAnchor(200f, 20f));
 
             CurrentScene.Add(new FlyingLantern(80f, 80f));
@@ -114,6 +114,12 @@ namespace SlowAndReverb
 
             Palette palette = Content.GetPalette("test2");
             CurrentScene.SetPalette(palette);
+
+            CurrentScene.Add(new Boids(0f, 0f)
+            {
+                Size = new Vector2(600f, 300f),
+                Position = new Vector2(400f, 20f)
+            });
 
             CurrentScene.Initialize();
         }

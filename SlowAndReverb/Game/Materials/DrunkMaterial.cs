@@ -4,7 +4,7 @@
     {
         public DrunkMaterial()
         {
-            ShaderProgram = Content.GetShaderProgram("drunk");
+            ShaderProgram = Content.GetPipelineShaderProgram("drunk");
         }
 
         [Uniform("u_Time")] public float Time { get; set; }

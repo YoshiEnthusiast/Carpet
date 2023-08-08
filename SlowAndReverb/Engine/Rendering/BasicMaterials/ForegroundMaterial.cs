@@ -6,7 +6,7 @@ namespace SlowAndReverb
     {
         public ForegroundMaterial()
         {
-            ShaderProgram = Content.GetShaderProgram("foreground");
+            ShaderProgram = Content.GetPipelineShaderProgram("foreground");
 
             Textures.Add(RenderTargets.LightMap.Texture);
         }

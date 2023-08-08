@@ -2,5 +2,5 @@
 
 namespace SlowAndReverb
 {
-    public readonly record struct VertexColorTextureIndex(Vector2 Position, Vector2 TextureCoordinate, Vector2 TextureResolution, Vector4 TextureBounds, Vector4 Color, float TextureIndex);
+    public readonly record struct VertexColorTextureIndex(Vector3 Position, Vector2 TextureCoordinate, Vector2 TextureResolution, Vector4 TextureBounds, Vector4 Color, float TextureIndex);
 }

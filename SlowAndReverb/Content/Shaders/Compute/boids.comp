@@ -1,0 +1,85 @@
+﻿#version 460 core
+
+#define MAX_BOIDS 1000
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+struct Boid
+{
+	vec2 position;
+	vec2 velocity;
+};
+
+layout (std430, binding = 0) buffer Data
+{
+	Boid boids[MAX_BOIDS];
+	vec2 acceleration[MAX_BOIDS];
+};
+
+uniform int u_BoidsCount;
+
+uniform float u_PerceptionRadius;
+uniform float u_MaxSpeed;
+
+uniform float u_AlignmentWeight;
+uniform float u_CohesionWeight;
+uniform float u_SeparationWeight;
+
+vec2 steer(vec2 desired, vec2 current)
+{
+	vec2 diff = desired - current;
+
+	return normalize(desired) * u_MaxSpeed - current;
+}
+
+void main()
+{
+	int index = int(gl_GlobalInvocationID.x);
+	Boid boid = boids[index];
+
+	vec2 alignment = vec2(0.);
+	vec2 averagePosition = vec2(0.);
+	vec2 cohesion = vec2(0.);
+	vec2 separation = vec2(0.);
+
+	float flockmates = 0.;
+
+	for (int i = 0; i < u_BoidsCount; i++)
+	{
+		if (index == i)
+			continue;
+
+		Boid other = boids[i];
+		float d = distance(boid.position, other.position);
+
+		if (d <= u_PerceptionRadius)
+		{
+			alignment += other.velocity;
+			averagePosition += other.position;
+
+			vec2 diff = boid.position - other.position;
+			diff /= d;
+			separation += diff;
+
+			flockmates += 1.;
+		}
+	}
+
+	if (flockmates > 0.)
+	{
+		alignment /= flockmates;
+		alignment = steer(alignment, boid.velocity);
+		alignment *= u_AlignmentWeight;
+
+		averagePosition /= flockmates;
+		cohesion = averagePosition - boid.velocity;
+		cohesion = steer(cohesion, boid.velocity);
+		cohesion *= u_CohesionWeight;
+
+		separation /= flockmates;
+		separation = steer(separation, boid.velocity);
+		separation *= u_SeparationWeight;
+	}
+
+	acceleration[index] = alignment + cohesion + separation;
+}

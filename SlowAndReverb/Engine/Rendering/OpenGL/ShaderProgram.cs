@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace SlowAndReverb
 {
-    public sealed class ShaderProgram : OpenGLObject
+    public abstract class ShaderProgram : OpenGLObject
     {
         private const int MaxUniformNameCharacters = 100;
 
@@ -18,64 +18,14 @@ namespace SlowAndReverb
             ActiveUniformType.ImageCube
         };
 
-        private readonly Uniform[] _uniforms;
+        private Uniform[] _uniforms;
 
-        public ShaderProgram(string vertexSource, string fragmentSource, string geometrySource)
+        public ShaderProgram()
         {
             Handle = GL.CreateProgram();
-            bool geometrySourceExists = geometrySource is not null;
-
-            int vertexShader = CreateShader(vertexSource, ShaderType.VertexShader);
-            int fragmentShader = CreateShader(fragmentSource, ShaderType.FragmentShader);
-            int geometryShader = 0;
-
-            if (geometrySourceExists)
-                geometryShader = CreateShader(geometrySource, ShaderType.GeometryShader);
-
-            GL.LinkProgram(Handle);
-
-            GL.DeleteShader(vertexShader);
-            GL.DeleteShader(fragmentShader);
-
-            if (geometrySourceExists)
-                GL.DeleteShader(geometryShader);
-
-            GL.GetProgram(Handle, GetProgramParameterName.ActiveUniforms, out int uniformsCount);
-            _uniforms = new Uniform[uniformsCount];
-
-            int textureUniformsCount = 0;
-
-            for (int i = 0; i < uniformsCount; i++)
-            {
-                GL.GetActiveUniform(Handle, i, MaxUniformNameCharacters, out _, out _, out ActiveUniformType type, out string name);
-
-                int bracketsIndex = name.IndexOf('[');
-
-                if (bracketsIndex >= 0)
-                    name = name.Substring(0, bracketsIndex);
-
-                int location = GL.GetUniformLocation(Handle, name);
-
-                if (s_textureUniformTypes.Contains(type))
-                    textureUniformsCount++;
-
-                _uniforms[i] = new Uniform(name, type, location);
-            }
-
-            GL.GetProgram(Handle, GetProgramParameterName.ActiveUniformBlocks, out int uniformBlocksCount);
-
-            for (int i = 0; i < uniformBlocksCount; i++)
-                GL.UniformBlockBinding(Handle, i, i);
-
-            TextureUniformsCount = textureUniformsCount;  
         }
 
-        public ShaderProgram(string vertexSource, string fragmentSource) : this(vertexSource, fragmentSource, null)
-        {
-
-        }
-
-        public int TextureUniformsCount { get; private init; }
+        public int TextureUniformsCount { get; private set; }
 
         public bool TryGetUniformByName(string name, out Uniform result)
         {
@@ -96,9 +46,9 @@ namespace SlowAndReverb
 
         public IEnumerable<Uniform> GetUniformsOfType(ActiveUniformType type)
         {
-            foreach (Uniform uniform in _uniforms)  
+            foreach (Uniform uniform in _uniforms)
                 if (uniform.Type == type)
-                    yield return uniform;   
+                    yield return uniform;
         }
 
         public void SetUniform(string name, int value)
@@ -301,7 +251,7 @@ namespace SlowAndReverb
             GL.UseProgram(handle);
         }
 
-        private int CreateShader(string source, ShaderType type)
+        protected int CreateShader(string source, ShaderType type)
         {
             int shader = GL.CreateShader(type);
 
@@ -318,6 +268,38 @@ namespace SlowAndReverb
             return shader;
         }
 
+        protected void ScanUniforms()
+        {
+            GL.GetProgram(Handle, GetProgramParameterName.ActiveUniforms, out int uniformsCount);
+            _uniforms = new Uniform[uniformsCount];
+
+            int textureUniformsCount = 0;
+
+            for (int i = 0; i < uniformsCount; i++)
+            {
+                GL.GetActiveUniform(Handle, i, MaxUniformNameCharacters, out _, out _, out ActiveUniformType type, out string name);
+
+                int bracketsIndex = name.IndexOf('[');
+
+                if (bracketsIndex >= 0)
+                    name = name.Substring(0, bracketsIndex);
+
+                int location = GL.GetUniformLocation(Handle, name);
+
+                if (s_textureUniformTypes.Contains(type))
+                    textureUniformsCount++;
+
+                _uniforms[i] = new Uniform(name, type, location);
+            }
+
+            GL.GetProgram(Handle, GetProgramParameterName.ActiveUniformBlocks, out int uniformBlocksCount);
+
+            for (int i = 0; i < uniformBlocksCount; i++)
+                GL.UniformBlockBinding(Handle, i, i);
+
+            TextureUniformsCount = textureUniformsCount;
+        }
+
         private int GetUniformLocation(string name)
         {
             if (TryGetUniformByName(name, out Uniform uniform))
@@ -327,3 +309,4 @@ namespace SlowAndReverb
         }
     }
 }
+

@@ -4,7 +4,7 @@
     {
         public BasicMaterial()
         {
-            ShaderProgram = Content.GetShaderProgram(Content.DefaultShaderName);
+            ShaderProgram = Content.GetPipelineShaderProgram(Content.DefaultShaderName);
         }
     }
 }

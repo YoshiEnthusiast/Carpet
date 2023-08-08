@@ -20,6 +20,10 @@ namespace SlowAndReverb
             GL.Enable(EnableCap.ScissorTest);
             GL.Enable(EnableCap.Blend);
 
+            GL.Enable(EnableCap.DepthTest);
+            GL.ClearDepth(0f);
+            GL.DepthFunc(DepthFunction.Gequal);
+
             GL.Enable(EnableCap.DebugOutput);
 
             GL.Khr.DebugMessageCallback(OnDebugMessage, IntPtr.Zero);
@@ -42,6 +46,9 @@ namespace SlowAndReverb
 
         private static void OnDebugMessage(DebugSource source, DebugType type, int id, DebugSeverity severity, int length, IntPtr messagepoPointer, IntPtr parameterPointer)
         {
+            if (severity != DebugSeverity.DebugSeverityHigh)
+                return;
+
             string message = Marshal.PtrToStringAnsi(messagepoPointer);
 
             Console.WriteLine($"[OpenGL] {message}");

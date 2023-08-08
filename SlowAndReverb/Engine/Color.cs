@@ -5,6 +5,9 @@ namespace SlowAndReverb
 {
     public struct Color
     {
+        public const byte MaxValue = byte.MaxValue;
+        public const byte MinValue = byte.MinValue; 
+
         public static readonly Color White = new Color(255, 255, 255);
         public static readonly Color Black = new Color(0, 0, 0);
         public static readonly Color Red = new Color(255, 0, 0);
