@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
@@ -12,13 +13,15 @@ namespace SlowAndReverb
         public const string EncodedFileExtension = ".rsc";
         public const string DefaultShaderName = "default";
 
-        private const string AtlasFileName = "atlas.png"; // will be rsc
-        private const string AtlasDataFileName = "atlas.xml";
+        private const string AtlasName = "atlas";
+        private const string AtlasFileName = AtlasName + ".png"; // will be rsc
+        private const string AtlasDataFileName = AtlasName + ".xml";
 
         private static TextureCache s_textureCache;
         private static FontFamilyCache s_fontFamilyCache;
         private static WaveFileCache s_waveFileCache;
         private static PaletteCache s_paletteCache;
+        private static AsepriteCache s_asepriteCache;
 
         private static ShaderSourceCache s_vertexSourceCache;
         private static ShaderSourceCache s_fragmentSourceCache;
@@ -66,6 +69,7 @@ namespace SlowAndReverb
 
             s_textureCache = new TextureCache("Textures", true);
             s_paletteCache = new PaletteCache("Palettes", true);
+            s_asepriteCache = new AsepriteCache("Textures", true);
 
             string texturesDirectory = s_textureCache.MainDirectory;
 
@@ -76,25 +80,46 @@ namespace SlowAndReverb
             {
                 var atlas = new Atlas(OpenGL.MaxTextureSize);
 
-                IEnumerable<CachedItem<Texture2D>> items = s_textureCache.GetAllValues();
+                IEnumerable<CachedItem<Texture2D>> textureCacheItems = s_textureCache.GetAllValues();
+                IEnumerable<CachedItem<Aseprite>> asepriteCacheItems = s_asepriteCache.GetAllValues();
                 int texturesDirectoryLength = texturesDirectory.Length;
 
-                foreach (CachedItem<Texture2D> item in items)
+                // TODO: Find a better way to do this
+                var asepriteTextures = new List<Texture2D>();
+
+                foreach (CachedItem<Texture2D> item in textureCacheItems)
                 {
                     string path = item.Path;
-                    string localPath = path.Substring(texturesDirectoryLength + 1);
+                    string localPath = GetLocalPathWithoutExtension(path, texturesDirectory);
 
-                    if (localPath == AtlasFileName)
+                    if (localPath == AtlasName)
                         continue;
 
-                    string name = Path.ChangeExtension(localPath, null);
+                    atlas.Add(item.Value, localPath);
+                }
 
-                    atlas.Add(item.Value, name);
+                foreach (CachedItem<Aseprite> item in asepriteCacheItems)
+                {
+                    string path = item.Path;
+                    string localPath = GetLocalPathWithoutExtension(path, texturesDirectory);
+
+                    if (localPath == AtlasName)
+                        continue;
+
+                    Aseprite aseprite = item.Value;
+
+                    int width = aseprite.Width;
+                    int height = aseprite.Height;
+                    byte[] data = aseprite.Frames[0].RenderedImage;
+
+                    Texture2D texture = Texture2D.FromBytes(width, height, data);
+
+                    atlas.Add(texture, localPath);
                 }
 
                 atlas.Build(5);
 
-                foreach (CachedItem<Texture2D> item in items)
+                foreach (CachedItem<Texture2D> item in textureCacheItems)
                 {
                     Texture2D texture = item.Value;
 
@@ -281,6 +306,13 @@ namespace SlowAndReverb
             string path = Path.Combine(Folder, fileName);
 
             return Utilities.LoadXML(path);
+        }
+
+        private static string GetLocalPathWithoutExtension(string path, string directory)
+        {
+            string localPath = path.Substring(directory.Length + 1);
+
+            return Path.ChangeExtension(localPath, null);
         }
     }
 }

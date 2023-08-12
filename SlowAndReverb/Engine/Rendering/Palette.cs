@@ -8,7 +8,6 @@ namespace SlowAndReverb
 {
     public sealed class Palette
     {
-        private const int ColorComponentsCount = 4;
         private const int DefaultTextureSize = 64;
 
         public Palette(Stream stream, int textureSize)
@@ -19,7 +18,9 @@ namespace SlowAndReverb
             var colors = new List<Color>();
             var colorsLAB = new List<LAB>();
 
-            for (int i = 0; i < data.Length; i += ColorComponentsCount)
+            int colorComponentsCount = Color.ComponentsCount;
+
+            for (int i = 0; i < data.Length; i += colorComponentsCount)
             {
                 byte r = data[i];
                 byte g = data[i + 1];
@@ -37,7 +38,7 @@ namespace SlowAndReverb
             }
 
             var texture = new Texture3D(textureSize, textureSize, textureSize);
-            var textureData = new byte[(int)Math.Pow(textureSize, 3f) * ColorComponentsCount];
+            var textureData = new byte[(int)Math.Pow(textureSize, 3f) * colorComponentsCount];
 
             for (int x = 0; x < textureSize; x++)
             {
@@ -75,7 +76,7 @@ namespace SlowAndReverb
                         byte paletteA = paletteColor.A;
 
                         int dataIndex = (z * textureSize * textureSize + y * textureSize + x)
-                            * ColorComponentsCount;
+                            * colorComponentsCount;
 
                         textureData[dataIndex] = paletteR;
                         textureData[dataIndex + 1] = paletteG;

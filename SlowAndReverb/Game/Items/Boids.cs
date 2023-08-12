@@ -36,7 +36,7 @@ namespace SlowAndReverb
             }
         }
 
-        public float MaxSpeed { get; set; } = 1.8f;
+        public float MaxSpeed { get; set; } = 2f;
         public float PerceptionRadius { get; set; } = 12f;
 
         public float AlignmentWeight { get; set; } = 0.15f; 

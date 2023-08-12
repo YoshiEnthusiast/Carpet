@@ -50,7 +50,7 @@ namespace SlowAndReverb
                 float value = Random.NextFloat(_lightIntensityRange);
 
                 _light.Radius = _maxLightRadius * value;
-                _light.Color = _lightColor * value;
+                _light.Color = _lightColor * 0f;
 
                 yield return Random.NextFloat(_shimmerIntervalRange);
             }

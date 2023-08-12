@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using OpenTK.Graphics.OpenGL;
+using OpenTK.Mathematics;
 using System;
 
 namespace SlowAndReverb
@@ -6,7 +7,9 @@ namespace SlowAndReverb
     public struct Color
     {
         public const byte MaxValue = byte.MaxValue;
-        public const byte MinValue = byte.MinValue; 
+        public const byte MinValue = byte.MinValue;
+
+        public const int ComponentsCount = 4;
 
         public static readonly Color White = new Color(255, 255, 255);
         public static readonly Color Black = new Color(0, 0, 0);
@@ -103,9 +106,30 @@ namespace SlowAndReverb
         {
             return new Color(Multiply(color.R, value), Multiply(color.G, value), Multiply(color.B, value), Multiply(color.A, value));
         }
+
+        public static Color operator +(Color color, Color other)
+        {
+            byte r = Add(color.R, other.R);
+            byte g = Add(color.G, other.G);
+            byte b = Add(color.B, other.B);
+            byte a = Add(color.A, other.A);
+
+            return new Color(r, g, b, a);
+        }
+
+        private static byte Add(int a, int b)
+        {
+            return (byte)Clamp(a + b);
+        }
+
         private static byte Multiply(byte value, float by)
         {
             return (byte)Maths.Clamp(value * by, 0f, 255f);
+        }
+
+        private static int Clamp(int value)
+        {
+            return Math.Clamp(value, MinValue, MaxValue);
         }
 
         private float ConvertToFloat(byte component)

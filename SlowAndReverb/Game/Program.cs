@@ -3,6 +3,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -27,6 +28,11 @@ namespace SlowAndReverb
         }   
 
         private record struct Boid(Vector2 Position, Vector2 Velocity);
+
+
+        public record class I(int A, int B);
+
+
         private static void Main(string[] args)
         {
             //var s = Std430LayoutItem.StructArray<Boid, Vector2>(20);
