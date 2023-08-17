@@ -8,23 +8,18 @@ namespace SlowAndReverb
 {
     public class Layer
     {
-        public Layer(int width, int height, float depth, Camera camera)
+        public Layer(int width, int height, float depth)
         {
             Size = new Vector2(width, height);
 
             Depth = depth;
 
-            Camera = camera;
+            Camera = new Camera(width, height);
 
             Texture2D texture = Texture2D.CreateEmpty(width, height);
             RenderTarget = RenderTarget.FromTexture(texture);
 
             ResetScissor();
-        }
-
-        public Layer(int width, int heigth, float depth) : this(width, heigth, depth, new Camera(width, heigth))
-        {
-
         }
 
         public Vector2 MousePosition
@@ -49,6 +44,17 @@ namespace SlowAndReverb
         public Material Material { get; set; }
         public Color ClearColor { get; set; }
         public Rectangle Scissor { get; set; }
+
+        public virtual void Draw(Resolution resolution, SpriteBatch batch)
+        {
+            Vector2 scale = resolution.Size / Size;
+
+            var bounds = new Rectangle(0f, 0f, Width, Height);
+
+            batch.Submit(RenderTarget.Texture, Material, null, bounds, 
+                Vector2.Zero, scale, Vector2.Zero, Color.White, 0f, 
+                SpriteEffect.None, SpriteEffect.None, Depth);
+        }
 
         public void ResetScissor()
         {

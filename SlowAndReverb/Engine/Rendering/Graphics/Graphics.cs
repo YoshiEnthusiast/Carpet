@@ -236,33 +236,10 @@ namespace SlowAndReverb
             Matrix4 identity = Matrix4.Identity;
 
             SpriteBatch.Begin(s_finalTarget, BlendMode.AlphaBlend, ClearColor, identity);
+            Resolution resolution = Resolution.Current;
 
-            // TODO: Let each layer draw itself
-            // Layer.VisibleSize, Layer.ActualSize
             foreach (Layer layer in s_drawnLayers)
-            {
-                Camera camera = layer.Camera;
-
-                float zoom = camera.Zoom;
-
-                float width = layer.Width;
-                float height = layer.Height;
-
-                Vector2 resolutionSize = Resolution.Current.Size;
-
-                Vector2 scale = resolutionSize / new Vector2(width, height);
-                Vector2 position = Vector2.Zero;
-
-                SpriteBatch.Submit(layer.RenderTarget.Texture, layer.Material, null, new Rectangle(0f, 0f, width, height), position, scale, Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, layer.Depth);
-
-                //int width = layer.Width;
-                //int height = layer.Height;
-
-                //float x = (resolutionWidth - newWidth) / 2f;
-                //float y = (resolutionHeight - newHeight) / 2f;
-
-                //SpriteBatch.Submit(layer.RenderTarget.Texture, layer.Material, null, new Rectangle(0f, 0f, width, height), new Vector2(x, y), Resolution.CurrentSize / new Vector2(width, height) * zoom, Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, layer.Depth);
-            }
+                layer.Draw(resolution, SpriteBatch);
 
             SpriteBatch.End();
             s_drawnLayers.Clear();

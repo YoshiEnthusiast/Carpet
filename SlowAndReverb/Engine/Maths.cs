@@ -60,6 +60,11 @@ namespace SlowAndReverb
             return (int)Math.Floor(value);
         }
 
+        public static float Fractional(float value)
+        {
+            return value - Floor(value);
+        }
+
         public static float Sqrt(float value)
         {
             return (float)Math.Sqrt(value);

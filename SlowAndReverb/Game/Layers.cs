@@ -10,7 +10,7 @@
         {
             Background = new Layer(320, 180, 0f);
 
-            Foreground = new Layer(320, 180, 1f)
+            Foreground = new SmoothCameraLayer(324, 184, 320, 180, 1f)
             {
                 Material = new ForegroundMaterial(),
                 ClearColor = new Color(40, 40, 40)

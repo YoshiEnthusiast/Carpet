@@ -32,7 +32,11 @@ namespace SlowAndReverb
                 }
 
                 Vector2 oldPosition = camera.Position;
-                Vector2 lerpedPosition = Vector2.Lerp(oldPosition, playerPosition, 0.07f);
+                Vector2 lerpedPosition = Vector2.Lerp(oldPosition, playerPosition, 0.1f);
+
+                Vector2 mousePosition = Layers.Foreground.MousePosition;
+                float angle = Maths.Atan2(playerPosition, mousePosition);
+                Vector2 offset = new Vector2(3f, 0f).Rotate(angle);
 
                 if (Input.IsPressed(Key.Up))
                 {
@@ -45,7 +49,7 @@ namespace SlowAndReverb
                     Console.WriteLine(camera.Zoom);
                 }
 
-                CameraPosition = playerPosition;
+                CameraPosition = lerpedPosition + offset;
                 camera.Position = CameraPosition;
             }
             else
