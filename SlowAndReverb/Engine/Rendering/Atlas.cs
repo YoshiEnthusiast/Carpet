@@ -10,11 +10,14 @@ namespace SlowAndReverb
     public sealed class Atlas
     {
         private readonly List<AtlasItem> _items = new List<AtlasItem>();
-        private readonly int _maxSize;
 
-        public Atlas(int maxSize)
+        private readonly int _maxSize;
+        private readonly int _padding;
+
+        public Atlas(int maxSize, int padding)
         {
             _maxSize = maxSize;
+            _padding = padding;
         }
 
         public Texture2D Texture { get; set; }
@@ -121,8 +124,8 @@ namespace SlowAndReverb
                 AtlasItem item = orderedItems[i];
                 Texture2D texture = item.Texture;
 
-                int itemWidth = texture.Width;
-                int itemHeight = texture.Height;
+                int itemWidth = texture.Width + _padding;
+                int itemHeight = texture.Height + _padding;
 
                 if (!TryFindEmptySpace(emptySpaces, itemWidth, itemHeight, out int index))
                     return false;

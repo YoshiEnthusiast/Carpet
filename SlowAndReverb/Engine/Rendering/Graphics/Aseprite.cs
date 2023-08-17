@@ -10,6 +10,7 @@ using System.Text;
 namespace SlowAndReverb
 {
     // TODO: Other color depths
+    // TODO: User data
 
     public sealed class Aseprite
     {
@@ -479,6 +480,7 @@ namespace SlowAndReverb
         {
             if (cel.Type == CelType.LinkedCel)
             {
+
                 int framePosition = cel.LinkedFramePosition.Value;
                 Frame linkedFrame = Frames[framePosition];
 
@@ -535,7 +537,7 @@ namespace SlowAndReverb
                 for (int y = 0; y < height; y++)
                 {
                     int bufferX = cel.X + x;
-                    int bufferY = Height - cel.Y - y;
+                    int bufferY = Height - cel.Y - y - 1;
 
                     int celBufferIndex = GetBufferIndex(x, y, width);
                     int bufferIndex = GetBufferIndex(bufferX, bufferY, Width);
@@ -563,11 +565,12 @@ namespace SlowAndReverb
                     int resultG = destinationG + (sourceG - destinationG) * ratio;
                     int resultB = destinationB + (sourceB - destinationB) * ratio;
 
+
                     buffer[bufferIndex] = (byte)resultR;
                     buffer[bufferIndex + 1] = (byte)resultG;
                     buffer[bufferIndex + 2] = (byte)resultB;
                     buffer[bufferIndex + 3] = (byte)resultA;
-                }
+                }   
             }
         }
 

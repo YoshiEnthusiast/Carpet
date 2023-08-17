@@ -118,6 +118,7 @@ namespace SlowAndReverb
 
         public float Width => FrameWidth * Scale.X;
         public float Height => FrameHeight * Scale.Y;
+        public Vector2 Size => new Vector2(Width, Height);
 
         protected override void Update(float deltaTime)
         {

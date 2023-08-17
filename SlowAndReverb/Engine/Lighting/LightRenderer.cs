@@ -5,6 +5,8 @@ using System.Linq;
 
 namespace SlowAndReverb
 {
+    // TODO: Remove allocations, wtf
+
     public class LightRenderer : System
     {
         public const float MaxRadius = 320f;
@@ -12,6 +14,8 @@ namespace SlowAndReverb
         private readonly VertexColorTextureCoordinate[] _vertices = new VertexColorTextureCoordinate[4000];
         private readonly uint[] _elements = new uint[6000];
         private readonly float _shadowLengthMultiplier = Maths.Sqrt(2f) * 2f;
+
+        private readonly Material _shadowMaterial = new ShadowMaterial();
 
         private readonly List<Line> _debugSurfaces = new List<Line>();
         private readonly List<Line> _debugRays = new List<Line>();
@@ -146,7 +150,7 @@ namespace SlowAndReverb
             RenderTarget shadowBuffer = RenderTargets.ShadowBuffer;
 
             batch.Begin(shadowBuffer, BlendMode.Additive, Color.Transparent, null);
-            batch.Submit(Graphics.BlankTexture.ActualTexture, null, null, vertices, elements, 0f);
+            batch.Submit(Graphics.BlankTexture.ActualTexture, _shadowMaterial, null, vertices, elements, 0f);
             batch.End();
 
             _verticesCount = 0;

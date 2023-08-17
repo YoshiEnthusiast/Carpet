@@ -12,6 +12,8 @@ namespace SlowAndReverb
             _lerpMultiplier = lerpMultiplier;
         }
 
+        public Vector2 CameraPosition { get; private set; }
+
         public override void Update(float deltaTime)
         {
             Player player = Scene.GetEntityOfType<Player>();    
@@ -30,9 +32,21 @@ namespace SlowAndReverb
                 }
 
                 Vector2 oldPosition = camera.Position;
-                Vector2 lerpedPosition = Vector2.Lerp(oldPosition, playerPosition, 1f - (float)Math.Pow(0.01f, deltaTime / 30f));
+                Vector2 lerpedPosition = Vector2.Lerp(oldPosition, playerPosition, 0.07f);
 
-                camera.Position = playerPosition;
+                if (Input.IsPressed(Key.Up))
+                {
+                    camera.Zoom += 0.05f;
+                    Console.WriteLine(camera.Zoom);
+                }
+                else if (Input.IsPressed(Key.Down))
+                {
+                    camera.Zoom -= 0.05f;
+                    Console.WriteLine(camera.Zoom);
+                }
+
+                CameraPosition = playerPosition;
+                camera.Position = CameraPosition;
             }
             else
             {

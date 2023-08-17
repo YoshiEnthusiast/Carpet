@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OpenTK.Graphics.ES11;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,9 @@ namespace SlowAndReverb
                 .AddSystem(new CameraSystem(0.18f, this))
                 .AddSystem(new DebugSystem(this));
         }
+
+        // TODO: Should be a separate system
+        public Background Background { get; set; }
 
         public Color Color { get; set; } = Color.White;
 
@@ -71,6 +75,13 @@ namespace SlowAndReverb
 
             foreach (System system in _systems)
                 system.OnLateDraw();
+
+            Graphics.EndCurrentLayer();
+
+            Graphics.BeginLayer(Layers.Background);
+
+            if (Background is not null)
+                Background.Draw(this);
 
             Graphics.EndCurrentLayer();
         }

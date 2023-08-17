@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics.ES11;
 using OpenTK.Mathematics;
+using OpenTK.Platform.Windows;
 using System;
 using System.Collections.Generic;
 
@@ -232,34 +233,39 @@ namespace SlowAndReverb
             if (CurrentLayer is not null)
                 throw new InvalidOperationException("Current layer must be ended before before drawing all layers");
 
-            int resolutionWidth = Resolution.CurrentWidth;
-            int resolutionHeight = Resolution.CurrentHeight;
-
             Matrix4 identity = Matrix4.Identity;
 
             SpriteBatch.Begin(s_finalTarget, BlendMode.AlphaBlend, ClearColor, identity);
 
+            // TODO: Let each layer draw itself
+            // Layer.VisibleSize, Layer.ActualSize
             foreach (Layer layer in s_drawnLayers)
             {
                 Camera camera = layer.Camera;
 
                 float zoom = camera.Zoom;
 
-                int width = layer.Width;
-                int height = layer.Height;
+                float width = layer.Width;
+                float height = layer.Height;
 
-                float newWidth = resolutionWidth * zoom;
-                float newHeight = resolutionHeight * zoom;
+                Vector2 resolutionSize = Resolution.Current.Size;
 
-                float x = (resolutionWidth - newWidth) / 2f;
-                float y = (resolutionHeight - newHeight) / 2f;
+                Vector2 scale = resolutionSize / new Vector2(width, height);
+                Vector2 position = Vector2.Zero;
 
-                SpriteBatch.Submit(layer.RenderTarget.Texture, layer.Material, null, new Rectangle(0f, 0f, width, height), new Vector2(x, y), Resolution.CurrentSize / new Vector2(width, height) * zoom, Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, layer.Depth);
+                SpriteBatch.Submit(layer.RenderTarget.Texture, layer.Material, null, new Rectangle(0f, 0f, width, height), position, scale, Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, layer.Depth);
+
+                //int width = layer.Width;
+                //int height = layer.Height;
+
+                //float x = (resolutionWidth - newWidth) / 2f;
+                //float y = (resolutionHeight - newHeight) / 2f;
+
+                //SpriteBatch.Submit(layer.RenderTarget.Texture, layer.Material, null, new Rectangle(0f, 0f, width, height), new Vector2(x, y), Resolution.CurrentSize / new Vector2(width, height) * zoom, Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, layer.Depth);
             }
 
             SpriteBatch.End();
             s_drawnLayers.Clear();
-
 
             SpriteBatch.Begin(s_screenTarget, BlendMode.AlphaBlend, ClearColor, identity);
 

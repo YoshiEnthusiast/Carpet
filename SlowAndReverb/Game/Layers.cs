@@ -3,10 +3,13 @@
     public static class Layers
     {
         public static Layer Foreground { get; private set; }
+        public static Layer Background { get; private set; }
         public static Layer UI { get; private set; }
 
         internal static void Initialize()
         {
+            Background = new Layer(320, 180, 0f);
+
             Foreground = new Layer(320, 180, 1f)
             {
                 Material = new ForegroundMaterial(),

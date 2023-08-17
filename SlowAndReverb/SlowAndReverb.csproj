@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <None Remove="Content\Shaders\Compute\boids.comp" />
+    <None Remove="content\shaders\fragment\shadow.frag" />
   </ItemGroup>
 
   <ItemGroup>

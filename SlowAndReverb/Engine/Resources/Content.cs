@@ -78,7 +78,7 @@ namespace SlowAndReverb
 
             if (mode >= TextureLoadMode.CreateAtlas)
             {
-                var atlas = new Atlas(OpenGL.MaxTextureSize);
+                var atlas = new Atlas(OpenGL.MaxTextureSize, 1);
 
                 IEnumerable<CachedItem<Texture2D>> textureCacheItems = s_textureCache.GetAllValues();
                 IEnumerable<CachedItem<Aseprite>> asepriteCacheItems = s_asepriteCache.GetAllValues();
@@ -114,6 +114,7 @@ namespace SlowAndReverb
 
                     Texture2D texture = Texture2D.FromBytes(width, height, data);
 
+                    asepriteTextures.Add(texture);
                     atlas.Add(texture, localPath);
                 }
 
@@ -123,6 +124,12 @@ namespace SlowAndReverb
                 {
                     Texture2D texture = item.Value;
 
+                    texture.Bind();
+                    texture.Delete();
+                }
+                
+                foreach (Texture2D texture in asepriteTextures)
+                {
                     texture.Bind();
                     texture.Delete();
                 }
