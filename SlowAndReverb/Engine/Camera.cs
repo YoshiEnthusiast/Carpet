@@ -149,7 +149,7 @@ namespace SlowAndReverb
                 if (_angle != 0f)
                     _viewMatrix *= Matrix4.CreateTranslation(-originX, -originY, 0f) * Matrix4.CreateRotationZ(_angle) * Matrix4.CreateTranslation(originX, originY, 0f);
 
-                _viewMatrix *= Matrix4.CreateTranslation(-_position.X + originX, -_position.Y + originY, 0f);
+                _viewMatrix *= Matrix4.CreateTranslation(-_position.FlooredX + originX, -_position.FlooredY + originY, 0f);
 
                 _updateMatrix = false;
             }

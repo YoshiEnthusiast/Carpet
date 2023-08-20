@@ -122,15 +122,6 @@ namespace SlowAndReverb
             });
 
             CurrentScene.Initialize();
-            CurrentScene.Background = new T();
-        }
-
-        private class T : Background
-        {
-            public T() : base("testBackgroundMain")
-            {
-
-            }
         }
 
         private void UpdateContentLoading(float deltaTime)

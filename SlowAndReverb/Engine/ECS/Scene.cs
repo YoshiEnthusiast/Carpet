@@ -28,9 +28,6 @@ namespace SlowAndReverb
                 .AddSystem(new DebugSystem(this));
         }
 
-        // TODO: Should be a separate system
-        public Background Background { get; set; }
-
         public Color Color { get; set; } = Color.White;
 
         public Rectangle Rectangle { get; private set; }
@@ -79,9 +76,6 @@ namespace SlowAndReverb
             Graphics.EndCurrentLayer();
 
             Graphics.BeginLayer(Layers.Background);
-
-            if (Background is not null)
-                Background.Draw(this);
 
             Graphics.EndCurrentLayer();
         }

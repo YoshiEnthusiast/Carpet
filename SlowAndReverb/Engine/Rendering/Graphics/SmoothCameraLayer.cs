@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SlowAndReverb
 {
@@ -22,15 +17,18 @@ namespace SlowAndReverb
         public override void Draw(Resolution resolution, SpriteBatch batch)
         {
             var visibleSize = new Vector2(VisibleWidth, VisibleHeight);
+
             Vector2 scale = resolution.Size / visibleSize;
+            float scaleX = scale.X;
+            float scaleY = scale.Y;
 
-            float deltaX = (Width - VisibleWidth) * scale.X / 2f;
-            float deltaY = (Height - VisibleHeight) * scale.Y / 2f;
+            float deltaX = (Width - VisibleWidth) * scaleX / 2f;
+            float deltaY = (Height - VisibleHeight) * scaleY / 2f;
 
-            float cameraOffsetX = Maths.Fractional(Camera.X);
-            float cameraOffsetY = Maths.Fractional(Camera.Y);
+            float cameraOffsetX = Maths.Fractional(Camera.X) * scaleX;
+            float cameraOffsetY = Maths.Fractional(Camera.Y) * scaleY;
 
-            Vector2 position = -new Vector2(deltaX - cameraOffsetX, deltaY - cameraOffsetY);
+            var position = -new Vector2(deltaX + cameraOffsetX, deltaY + cameraOffsetY);
 
             var bounds = new Rectangle(0f, 0f, Width, Height);
 

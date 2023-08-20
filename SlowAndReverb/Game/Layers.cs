@@ -8,7 +8,7 @@
 
         internal static void Initialize()
         {
-            Background = new Layer(320, 180, 0f);
+            Background = new SmoothCameraLayer(324, 184, 320, 180, 0f);
 
             Foreground = new SmoothCameraLayer(324, 184, 320, 180, 1f)
             {
