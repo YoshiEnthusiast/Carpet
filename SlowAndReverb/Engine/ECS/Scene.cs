@@ -25,7 +25,8 @@ namespace SlowAndReverb
                 .AddSystem(new BlockGroupsSystem(this))
                 .AddSystem(new ParticleSystem(this, 1000))
                 .AddSystem(new CameraSystem(0.18f, this))
-                .AddSystem(new DebugSystem(this));
+                .AddSystem(new DebugSystem(this))
+                .AddSystem(new BackgroundSystem(this));
         }
 
         public Color Color { get; set; } = Color.White;
@@ -72,10 +73,6 @@ namespace SlowAndReverb
 
             foreach (System system in _systems)
                 system.OnLateDraw();
-
-            Graphics.EndCurrentLayer();
-
-            Graphics.BeginLayer(Layers.Background);
 
             Graphics.EndCurrentLayer();
         }

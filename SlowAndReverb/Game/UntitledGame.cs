@@ -122,6 +122,7 @@ namespace SlowAndReverb
             });
 
             CurrentScene.Initialize();
+            CurrentScene.GetSystem<BackgroundSystem>().CurrentBackground = new TestBackground();
         }
 
         private void UpdateContentLoading(float deltaTime)

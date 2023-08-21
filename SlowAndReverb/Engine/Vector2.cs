@@ -147,6 +147,14 @@ namespace SlowAndReverb
             return new Vector2(X, Y) / GetMagnitude();
         }
 
+        public Vector2 Fractional()
+        {
+            float x = Maths.Fractional(X);
+            float y = Maths.Fractional(Y);
+
+            return new Vector2(x, y);
+        }
+
         public float GetMagnitude()
         {
             return Maths.Sqrt(Maths.Pow(X, 2) + Maths.Pow(Y, 2));

@@ -12,25 +12,17 @@ uniform sampler2D u_Textures[32];
 uniform vec2 u_Scale;
 uniform vec2 u_Scroll;
 
-float modulo(float a, float b)
-{
-    while (a > b)
-        a -= b;
-
-    return a;
-}
-
 void main()
 {
     float boundsWidth = v_TexBounds.z;
     float boundsHeight = v_TexBounds.w;
 
     vec2 topLeft = v_TexBounds.xy;
-    vec2 relCoord = v_TexCoord + u_Scroll - topLeft;
-    vec2 scaledCoord = relCoord * u_Scale;
+    vec2 relCoord = v_TexCoord - topLeft;
+    vec2 scaledCoord = relCoord * u_Scale + u_Scroll;
 
-    float w = modulo(scaledCoord.x, boundsWidth);
-    float h = modulo(scaledCoord.y, boundsHeight);
+    float w = mod(scaledCoord.x, boundsWidth);
+    float h = mod(scaledCoord.y, boundsHeight) - boundsHeight;
 
     vec2 coord = topLeft + vec2(w, h);
     
