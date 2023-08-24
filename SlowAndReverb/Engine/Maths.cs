@@ -115,6 +115,22 @@ namespace SlowAndReverb
             return value;
         }
 
+        // TODO: Use this in Color.cs
+        public static float NormalizeByte(byte value)
+        {
+            return (float)value / byte.MaxValue;
+        }
+
+        public static byte ByteFromNormalized(float value)
+        {
+            return (byte)(value * byte.MaxValue);
+        }
+
+        public static float Distance(byte a, byte b)
+        {
+            return Abs(a - b);
+        }
+
         public static bool TryGetIntersectionPoint(Vector2 lineOneStart, Vector2 lineOneEnd, Vector2 lineTwoStart, Vector2 lineTwoEnd, out Vector2 intersectionPoint)
         {
             float lineOneX = lineOneStart.X;
