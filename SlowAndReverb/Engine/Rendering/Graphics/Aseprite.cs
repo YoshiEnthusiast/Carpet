@@ -1,7 +1,9 @@
 ﻿using OpenTK.Graphics.ES11;
+using OpenTK.Graphics.OpenGL;
 using StbImageSharp;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -9,9 +11,6 @@ using System.Text;
 
 namespace SlowAndReverb
 {
-    // TODO: Other color depths
-    // TODO: User data
-
     public sealed class Aseprite
     {
         private const ushort FormatIdentifier = 0xA5E0;
@@ -32,6 +31,9 @@ namespace SlowAndReverb
         private const ushort MaskChunkID = 0x2016;
         private const ushort PathChunkID = 0x2017;
 
+        private const int ByteSizeInBits = sizeof(byte) * 8;
+        private const int ChunkHeaderSize = 6;
+
         private Aseprite(Stream stream)
         {
             using (BinaryReader reader = new BinaryReader(stream))
@@ -46,9 +48,6 @@ namespace SlowAndReverb
                 Height = reader.ReadUInt16();
 
                 Mode = (ColorMode)reader.ReadUInt16();
-
-                if (Mode != ColorMode.RGBA)
-                    throw new NotImplementedException("The only implemented color mode is ColorMode.RGBA");
 
                 uint flags = reader.ReadUInt32();
 
@@ -103,12 +102,10 @@ namespace SlowAndReverb
 
                     for (int j = 0; j < chunkCount; j++)
                     {
-                        uint chunkSize = reader.ReadUInt32();
-                        ushort chunkType = reader.ReadUInt16();
+                        ChunkHeader header = ReadChunkHeader(reader);
+                        int endPosition = header.EndPosition;
 
-                        int maxPosition = (int)stream.Position + (int)chunkSize - 6;
-
-                        switch (chunkType)
+                        switch (header.Type)
                         {
                             case LayerChunkID:
                                 Layer layer = ParseLayer(reader);
@@ -117,7 +114,7 @@ namespace SlowAndReverb
                                 break;
 
                             case CelChunkID:
-                                Cel cel = ParseCel(reader, maxPosition);
+                                Cel cel = ParseCel(reader, endPosition);
                                 cels.Add(cel);
                                 RenderCel(cel, image, layers);
 
@@ -145,7 +142,7 @@ namespace SlowAndReverb
                                 break;
                         }
 
-                        stream.Position = maxPosition;
+                        stream.Position = endPosition;
                     }
 
                     var frame = new Frame()
@@ -212,6 +209,8 @@ namespace SlowAndReverb
             if (layerType == LayerType.Tilemap)
                 tilesetIndex = (int)reader.ReadUInt32();
 
+            TryParseUserData(reader, out UserData userData);
+
             var layer = new Layer()
             {
                 Flag = layerFlag,
@@ -220,7 +219,8 @@ namespace SlowAndReverb
                 BlendMode = layerBlendMode,
                 Opacity = layerOpacity,
                 Name = layerName,
-                TilesetIndex = tilesetIndex
+                TilesetIndex = tilesetIndex,
+                UserData = userData
             };
 
             return layer;
@@ -286,6 +286,8 @@ namespace SlowAndReverb
             int length = maxPosition - position;
             byte[] data = reader.ReadBytes(length);
 
+            TryParseUserData(reader, out UserData userData);
+
             var cel = new Cel()
             {
                 Type = type,
@@ -298,7 +300,8 @@ namespace SlowAndReverb
                 ZIndex = zIndex,
                 Data = data,
                 LinkedFramePosition = linkedFramePosition,
-                TilemapData = tilemapData
+                TilemapData = tilemapData,
+                UserData = userData
             };
 
             return cel;
@@ -381,10 +384,13 @@ namespace SlowAndReverb
                 keys[i] = key;
             }
 
+            TryParseUserData(reader, out UserData userData);
+
             var slice = new Slice()
             {
                 Name = name,
-                Keys = keys
+                Keys = keys,
+                UserData = userData
             };
 
             return slice;
@@ -435,6 +441,57 @@ namespace SlowAndReverb
             return tags;
         }
 
+        // TODO: Maybe consider doing this the other way
+        public bool TryParseUserData(BinaryReader reader, out UserData userData)
+        {
+            Stream stream = reader.BaseStream;
+
+            if (stream.Position == stream.Length)
+                goto Exit;
+
+            ChunkHeader header = ReadChunkHeader(reader); 
+
+            if (header.Type != UserDataChunkID)
+            {
+                Move(reader, -ChunkHeaderSize);
+
+                goto Exit;
+            }
+
+            uint flags = reader.ReadUInt32();
+
+            string text = null;
+            Color? color = null;
+
+            if (CheckFlag(flags, 0x0001))
+                text = ReadString(reader);
+
+            if (CheckFlag(flags, 0x0002))
+            {
+                byte r = reader.ReadByte();
+                byte g = reader.ReadByte();
+                byte b = reader.ReadByte();
+                byte a = reader.ReadByte();
+
+                color = new Color(r, g, b, a);
+            }
+
+            stream.Position = header.EndPosition;
+
+            var data = new UserData()
+            {
+                Text = text,
+                Color = color
+            };
+
+            userData = data;
+            return true;
+
+Exit:
+            userData = null;
+            return false;
+        }
+
         private void ReadPalette(BinaryReader reader)
         {
             uint size = reader.ReadUInt32();
@@ -454,7 +511,7 @@ namespace SlowAndReverb
                 byte blue = reader.ReadByte();
                 byte alpha = reader.ReadByte();
 
-                if (CheckFlag(entryFlags, 0x01))
+                if (CheckFlag(entryFlags, 0x0001))
                     name = ReadString(reader);
 
                 var color = new Color(red, green, blue, alpha);
@@ -474,13 +531,22 @@ namespace SlowAndReverb
             return result;
         } 
 
+        private ChunkHeader ReadChunkHeader(BinaryReader reader)
+        {
+            uint chunkSize = reader.ReadUInt32();
+            uint chunkType = reader.ReadUInt16();
+
+            int endPosition = (int)reader.BaseStream.Position + (int)chunkSize - ChunkHeaderSize;
+
+            return new ChunkHeader(chunkType, chunkSize, endPosition);
+        }
+
 #endregion
 
         private void RenderCel(Cel cel, byte[] buffer, List<Layer> layers)
         {
             if (cel.Type == CelType.LinkedCel)
             {
-
                 int framePosition = cel.LinkedFramePosition.Value;
                 Frame linkedFrame = Frames[framePosition];
 
@@ -508,7 +574,13 @@ namespace SlowAndReverb
             if (layer.BlendMode != LayerBlendMode.Normal)
                 throw new NotImplementedException("None of the Aseprite blend modes are implemented except for LayerBlendMode.Normal");
 
+            int opacity = MulUn8(layer.Opacity, cel.Opacity);
+
+            if (opacity <= 0)
+                return;
+
             byte[] celBuffer = cel.Data;
+            int componentsCount = GetColorComponentsCount(Mode);
 
             if (type == CelType.CompressedImage)
             {
@@ -518,7 +590,7 @@ namespace SlowAndReverb
                 {
                     fixed (sbyte* inputBufferPointer = inputBuffer)
                     {
-                        int length = width * height * Color.ComponentsCount;
+                        int length = width * height * componentsCount;
                         sbyte[] outputBuffer = new sbyte[length];
 
                         fixed (sbyte* outputBufferPointer = outputBuffer)
@@ -526,7 +598,7 @@ namespace SlowAndReverb
                             StbImage.stbi_zlib_decode_buffer(outputBufferPointer, length, 
                                 inputBufferPointer, inputBuffer.Length);
 
-                            celBuffer = (byte[])(Array)(outputBuffer);
+                            celBuffer = (byte[])(Array)outputBuffer;
                         }
                     }
                 }
@@ -539,51 +611,85 @@ namespace SlowAndReverb
                     int bufferX = cel.X + x;
                     int bufferY = Height - cel.Y - y - 1;
 
-                    int celBufferIndex = GetBufferIndex(x, y, width);
-                    int bufferIndex = GetBufferIndex(bufferX, bufferY, Width);
+                    Color source = GetBufferColor(x, y, width, celBuffer, Mode);
 
-                    int sourceR = celBuffer[celBufferIndex];
-                    int sourceG = celBuffer[celBufferIndex + 1];
-                    int sourceB = celBuffer[celBufferIndex + 2];
-                    int sourceA = celBuffer[celBufferIndex + 3];
+                    int sourceR = source.R;
+                    int sourceG = source.G;
+                    int sourceB = source.B;
+                    int sourceA = source.A;
+
+                    int bufferIndex = GetBufferIndex(bufferX, bufferY, Width, ColorMode.RGBA);
 
                     int destinationR = buffer[bufferIndex];
                     int destinationG = buffer[bufferIndex + 1];
                     int destinationB = buffer[bufferIndex + 2];
                     int destinationA = buffer[bufferIndex + 3];
 
-                    sourceA = MulUn8(sourceA, cel.Opacity);
+                    if (sourceA > 0)
+                    {
+                        sourceA = MulUn8(sourceA, opacity);
+                        int resultA = destinationA + sourceA - MulUn8(destinationA, sourceA);
 
-                    int resultA = sourceA + destinationA - MulUn8(destinationA, sourceA);
+                        int resultR = destinationR + (sourceR - destinationR) * sourceA / resultA;
+                        int resultG = destinationG + (sourceG - destinationG) * sourceA / resultA;
+                        int resultB = destinationB + (sourceB - destinationB) * sourceA / resultA;
 
-                    if (resultA == 0)
-                        continue;
-
-                    int ratio = sourceA / resultA;
-
-                    int resultR = destinationR + (sourceR - destinationR) * ratio;
-                    int resultG = destinationG + (sourceG - destinationG) * ratio;
-                    int resultB = destinationB + (sourceB - destinationB) * ratio;
-
-
-                    buffer[bufferIndex] = (byte)resultR;
-                    buffer[bufferIndex + 1] = (byte)resultG;
-                    buffer[bufferIndex + 2] = (byte)resultB;
-                    buffer[bufferIndex + 3] = (byte)resultA;
+                        buffer[bufferIndex] = (byte)resultR;
+                        buffer[bufferIndex + 1] = (byte)resultG;
+                        buffer[bufferIndex + 2] = (byte)resultB;
+                        buffer[bufferIndex + 3] = (byte)resultA;
+                    }
                 }   
             }
         }
 
         private int MulUn8(int a, int b)
         {
-            int t = a * b + 0x80;
+            int t = (a * b) + 0x80;
 
             return ((t >> 8) + t) >> 8;
         }
 
-        private int GetBufferIndex(int x, int y, int width)
+        private int GetBufferIndex(int x, int y, int width, ColorMode mode)
         {
-            return (y * width + x) * Color.ComponentsCount;
+            int componentsCount = GetColorComponentsCount(mode);
+            return (y * width + x) * componentsCount;
+        }
+
+        private Color GetBufferColor(int x, int y, int width, byte[] buffer, ColorMode mode)
+        {
+            int index = GetBufferIndex(x, y, width, mode);
+
+            if (mode == ColorMode.RGBA)
+            {
+                byte r = buffer[index];
+                byte g = buffer[index + 1];
+                byte b = buffer[index + 2];
+                byte a = buffer[index + 3];
+
+                return new Color(r, g, b, a);
+            }
+            else if (mode == ColorMode.Grayscale)
+            {
+                byte gray = buffer[index];
+                byte a = buffer[index + 1];
+
+                return new Color(gray, gray, gray, a);
+            }
+
+            int colorIndex = buffer[index];
+
+            if (colorIndex == 0)
+                return Color.Transparent;
+
+            PaletteEntry entry = Palette[colorIndex];
+
+            return entry.Color;
+        }
+
+        private int GetColorComponentsCount(ColorMode mode)
+        {
+            return (ushort)mode / ByteSizeInBits;
         }
 
         private bool CheckFlag(uint flags, uint flag)
@@ -710,6 +816,17 @@ namespace SlowAndReverb
 
 #region ChunkTypes
 
+        public abstract class UserDataChunk
+        {
+            public UserData UserData { get; init; }
+        }
+
+        public sealed class UserData
+        {
+            public string Text { get; init; }
+            public Color? Color { get; init; }
+        }
+
         public sealed class Frame
         {
             public required Cel[] Cels { get; init; }
@@ -719,7 +836,7 @@ namespace SlowAndReverb
             public required int Duration { get; init; }
         }
 
-        public sealed class Layer
+        public sealed class Layer : UserDataChunk
         {
             public required LayerFlag Flag { get; init; }
 
@@ -736,7 +853,7 @@ namespace SlowAndReverb
             public int? TilesetIndex { get; init; }
         }
 
-        public sealed class Cel
+        public sealed class Cel : UserDataChunk
         {
             public required CelType Type { get; init; }
 
@@ -770,7 +887,7 @@ namespace SlowAndReverb
             public required byte[] ICCData { get; init; }
         }
 
-        public sealed class Slice
+        public sealed class Slice : UserDataChunk
         {
             public required string Name { get; init; }
 
@@ -831,5 +948,7 @@ namespace SlowAndReverb
 
             public required uint Rotation90Mask { get; init; }
         }
+
+        private readonly record struct ChunkHeader(uint Type, uint Size, int EndPosition);
     }
 }
