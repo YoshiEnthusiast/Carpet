@@ -262,12 +262,10 @@ namespace SlowAndReverb
         }
 
         public void Submit(Texture2D texture, Material material, Rectangle? scissor,
-            ReadOnlySpan<VertexColorTextureCoordinate> vertices, ReadOnlySpan<uint> elements, float depth)
+            ReadOnlySpan<VertexColorTextureCoordinate> vertices, int verticesLength,
+            ReadOnlySpan<uint> elements, int elementsLength, float depth)
         {
             CheckBegin(nameof(Submit));
-
-            int verticesLength = vertices.Length;
-            int elementsLength = elements.Length;
 
             if (verticesLength < 1 || elementsLength < 1)
                 return;
@@ -318,6 +316,15 @@ namespace SlowAndReverb
                 _transparentItems.Add(item);
             else
                 _opaqueItems.Add(item);
+        }
+
+        public void Submit(Texture2D texture, Material material, Rectangle? scissor,
+            ReadOnlySpan<VertexColorTextureCoordinate> vertices, ReadOnlySpan<uint> elements, float depth)
+        {
+            int verticesLength = vertices.Length;
+            int elementsLength = elements.Length;
+
+            Submit(texture, material, scissor, vertices, verticesLength, elements, elementsLength, depth);
         }
 
         public void End()

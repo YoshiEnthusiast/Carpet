@@ -51,6 +51,13 @@ namespace SlowAndReverb
             return new Rectangle(center - halfSize, center + halfSize);
         }
 
+        public static Rectangle FromCircle(Vector2 position, float radius)
+        {
+            var radiusVector = new Vector2(radius);
+
+            return new Rectangle(position - radiusVector, position + radiusVector);
+        }
+
         public Rectangle Translate(Vector2 by)
         {
             Vector2 newPosition = Position + by;

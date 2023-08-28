@@ -1,19 +1,28 @@
 ﻿using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace SlowAndReverb
 {
-    // TODO: Remove allocations, wtf
-
     public class LightRenderer : System
     {
         public const float MaxRadius = 320f;
+        private const int SurfacesPerOccluder = 4;
+        private const int MaxBloomPoints = 100;
 
         private readonly VertexColorTextureCoordinate[] _vertices = new VertexColorTextureCoordinate[4000];
         private readonly uint[] _elements = new uint[6000];
         private readonly float _shadowLengthMultiplier = Maths.Sqrt(2f) * 2f;
+
+        private readonly LightData[] _lightData;
+        private readonly LightMaterial[] _lightMaterials;
+        private readonly BloomMaterial[] _bloomMaterials = new BloomMaterial[MaxBloomPoints];
+        private readonly Line[] _surfaceBuffer = new Line[SurfacesPerOccluder];
+
+        private readonly List<Line> _surfaces = new List<Line>();
+        private readonly List<Rectangle> _rectangles = new List<Rectangle>();
 
         private readonly Material _shadowMaterial = new ShadowMaterial();
 
@@ -32,9 +41,14 @@ namespace SlowAndReverb
         private readonly int _shadowCellWidth;
         private readonly int _iterations = 12;
 
+        private Vector2 _currentLightPosition;
+
         private int _verticesCount;
         private int _elementsCount;
         private uint _currentElement;
+
+        private int _lightMaterialsAllocated = 0;
+        private int _bloomMaterialsAllocated = 0;
 
         public LightRenderer(Scene scene) : base(scene)
         {
@@ -42,9 +56,12 @@ namespace SlowAndReverb
 
             _shadowCellWidth = shadowBuffer.Width / (int)MaxRadius;
             _maxLights = _shadowCellWidth * shadowBuffer.Height / (int)MaxRadius * _masks.Length;
+
+            _lightData = new LightData[_maxLights];
+            _lightMaterials = new LightMaterial[_maxLights];
         }
 
-        public InBoundsBehaviour BoundsBehaviour { get; set; } = InBoundsBehaviour.PutOut;
+        public InBoundsBehavior BoundsBehavior { get; set; } = InBoundsBehavior.PutOut;
 
         public override void OnBeforeDraw()
         {
@@ -52,34 +69,42 @@ namespace SlowAndReverb
             _debugSurfaces.Clear();
 
             IEnumerable<Light> lights = Scene.GetComponentsOfType<Light>();
-            int lightsCount = Maths.Min(lights.Count(), _maxLights);
 
-            var data = new LightData[lightsCount];
-            var lightToRender = 0;
+            var lightsCount = 0;
+
+            SpriteBatch batch = Graphics.SpriteBatch;
+
+            RenderTarget shadowBuffer = RenderTargets.ShadowBuffer;
+            RenderTarget occluderBuffer = RenderTargets.OccluderBuffer;
+
+            batch.Begin(occluderBuffer, BlendMode.Additive, Color.Transparent, null);
 
             foreach (Light light in lights)
             {
-                IEnumerable<Line> surfaces = GetCastingSurfaces(light, out bool inBounds);
+                _surfaces.Clear();
+                _rectangles.Clear();
 
-                if (inBounds && BoundsBehaviour == InBoundsBehaviour.PutOut)
+                FindCastingSurfaces(light, _surfaces, _rectangles, out bool inBounds);
+
+                if (inBounds && BoundsBehavior == InBoundsBehavior.PutOut)
                     continue;
 
                 Vector2 lightPosition = light.Position.Floor();
                 Rectangle lightBounds = light.Bounds;
                 var bounds = new Rectangle(lightBounds.TopLeft - Vector2.One, lightBounds.BottomRight + Vector2.One);
 
-                IEnumerable<Line> boundsSurfaces = bounds.GetSurfaces();
+                FillSurfaceBuffer(bounds);
 
                 int masksCount = _masks.Length;
-                int maskIndex = lightToRender % masksCount;
+                int maskIndex = lightsCount % masksCount;
                 Color mask = _masks[maskIndex];
-                int cellIndex = lightToRender / masksCount;
+                int cellIndex = lightsCount / masksCount;
                 Vector2 cellPosition = new Vector2(cellIndex % _shadowCellWidth, cellIndex / _shadowCellWidth) * MaxRadius;
                 Vector2 offset = cellPosition - lightBounds.TopLeft;
 
-                data[lightToRender] = new LightData(light, cellPosition, maskIndex);
+                _lightData[lightsCount] = new LightData(light, cellPosition, maskIndex);
 
-                foreach (Line surface in surfaces)
+                foreach (Line surface in _surfaces)
                 {
                     Vector2 start = surface.Start;
                     Vector2 end = surface.End;
@@ -88,7 +113,7 @@ namespace SlowAndReverb
                     float endAngle = Maths.Atan2(lightPosition, end);
 
                     float length = light.Radius * _shadowLengthMultiplier;
-                    Vector2 endProjection = ProjectPoint(end, endAngle, length, boundsSurfaces);
+                    Vector2 endProjection = ProjectPoint(end, endAngle, length, _surfaceBuffer);
 
                     float destinationAngle = Maths.Atan2(start, endProjection);
 
@@ -98,7 +123,7 @@ namespace SlowAndReverb
 
                     uint startElement = AddVertex(start, offset, mask);
 
-                    Vector2 firstProjection = ProjectPoint(start, startAngle, length, boundsSurfaces);
+                    Vector2 firstProjection = ProjectPoint(start, startAngle, length, _surfaceBuffer);
                     uint previousElement = AddVertex(firstProjection, offset, mask);
 
                     _debugRays.Add(new Line(start, firstProjection));
@@ -106,7 +131,7 @@ namespace SlowAndReverb
                     for (int j = 1; j < _iterations + 1; j++)
                     {
                         float angle = startAngle + increment * j;
-                        Vector2 projection = ProjectPoint(start, angle, length, boundsSurfaces);
+                        Vector2 projection = ProjectPoint(start, angle, length, _surfaceBuffer);
 
                         uint currentElement = AddVertex(projection, offset, mask);
 
@@ -130,27 +155,38 @@ namespace SlowAndReverb
                     AddElement(endElement);
                     AddElement(previousElement);
                     AddElement(endProjectionElement);
-
-                    _debugRays.Add(new Line(end, _debugRays.Last().End));
+                    
+                    int debugRaysCount = _debugRays.Count;
+                    Line lastDebugRay = _debugRays[debugRaysCount - 1];
+                    _debugRays.Add(new Line(end, lastDebugRay.End));
                     _debugRays.Add(new Line(end, endProjection));
 
                     _debugSurfaces.Add(surface);
                 }
 
-                lightToRender++;
+                // TODO: Make scissor the property of SpriteBatch and not Graphics
+                Graphics.Scissor = new Rectangle(0f, 0f, 2240f, 2240f);
+
+                foreach (Rectangle rectangle in _rectangles)
+                {
+                    Vector2 relativePosition = rectangle.TopLeft.Floor() - lightBounds.TopLeft;
+
+                    Vector2 topLeft = relativePosition + cellPosition;
+                    Vector2 bottomRight = topLeft + rectangle.Size.Floor();
+
+                    Graphics.FillRectangle(topLeft, bottomRight, mask, 0f);
+                }
+
+                lightsCount++;
             }
 
-            var vertices = new VertexColorTextureCoordinate[_verticesCount];
-            var elements = new uint[_elementsCount];
-
-            Array.Copy(_vertices, vertices, _verticesCount);
-            Array.Copy(_elements, elements, _elementsCount);
-
-            SpriteBatch batch = Graphics.SpriteBatch;
-            RenderTarget shadowBuffer = RenderTargets.ShadowBuffer;
+            batch.End();
 
             batch.Begin(shadowBuffer, BlendMode.Additive, Color.Transparent, null);
-            batch.Submit(Graphics.BlankTexture.ActualTexture, _shadowMaterial, null, vertices, elements, 0f);
+
+            batch.Submit(Graphics.BlankTexture.ActualTexture, _shadowMaterial, null,
+                _vertices, _verticesCount, _elements, _elementsCount, 0f);
+
             batch.End();
 
             _verticesCount = 0;
@@ -158,25 +194,48 @@ namespace SlowAndReverb
             _currentElement = 0;
 
             Matrix4 view = Layers.Foreground.Camera.GetViewMatrix();
-            batch.Begin(RenderTargets.LightMap, BlendMode.Additive, Scene.Color, view);
+            Color color = Scene.Color;
+            batch.Begin(RenderTargets.LightMap, BlendMode.Additive, new Color(color.R, color.G, color.B, (byte)0), view);
 
-            for (int i = 0; i < lightToRender; i++)
+            if (lightsCount > _lightMaterialsAllocated)
             {
-                LightData lightData = data[i];
+                for (int i = _lightMaterialsAllocated; i < lightsCount; i++)
+                {
+                    _lightMaterials[i] = new LightMaterial()
+                    {
+                        ShadowTextureResolution = shadowBuffer.Size
+                    };
+
+                }
+
+                _lightMaterialsAllocated = lightsCount;
+            }
+
+            for (int i = 0; i < lightsCount; i++)
+            {
+                LightData lightData = _lightData[i];
 
                 Light light = lightData.Light;
 
                 float circumference = light.Radius * 2f;
                 Vector2 cellPosition = lightData.CellPosition;
 
-                var material = new LightMaterial()
-                {
-                    ShadowBounds = new Vector4(cellPosition.X, shadowBuffer.Height - cellPosition.Y, circumference, circumference),
-                    Mask = lightData.MaskIndex
-                };
+                LightMaterial material = _lightMaterials[i];
+
+                material.ShadowBounds = new Vector4(cellPosition.X, shadowBuffer.Height - cellPosition.Y, circumference, circumference);
+                material.Mask = lightData.MaskIndex;
+                material.Rotation = light.Rotation;
+                material.Angle = light.Angle;
+                material.FalloffAngle = light.FalloffAngle;
+                material.StartDistance = light.StartDistance;
+                material.StartFade = light.StartFade;
+                material.Volume = light.Volume;
+                material.ShadowFalloff = light.ShadowFalloff;
 
                 Graphics.FillRectangle(light.Bounds, material, light.Color, 0f);
             }
+
+            //TODO: Render bloom points here
 
             batch.End();
         }
@@ -230,48 +289,45 @@ namespace SlowAndReverb
             _elementsCount++;
         }
 
-        private IEnumerable<Line> GetCastingSurfaces(Light light, out bool inBounds)
+        private void FindCastingSurfaces(Light light, List<Line> surfaces, List<Rectangle> rectangles, out bool inBounds)
         {
-            var result = new List<Line>();
-
-            Vector2 position = light.Position;
+            _currentLightPosition = light.Position;
             Rectangle bounds = light.Bounds;
 
             inBounds = false;
 
             foreach (LightOccluder lightOccluder in Scene.CheckRectangleAllComponent<LightOccluder>(bounds))
             {
-                Rectangle occluder = lightOccluder.EntityRectangle;
+                Rectangle rectangle = lightOccluder.EntityRectangle;
 
-                if (occluder.Contains(position))
+                if (rectangle.Contains(_currentLightPosition))
                 {
                     inBounds = true;
 
-                    if (BoundsBehaviour == InBoundsBehaviour.Exclude)
+                    if (BoundsBehavior == InBoundsBehavior.Exclude)
                         continue;
                 }
 
-                if (occluder.TryGetIntersectionRectangle(bounds, out Rectangle rectangle))
-                    occluder = rectangle;
+                if (rectangle.TryGetIntersectionRectangle(bounds, out Rectangle intersection))
+                    rectangle = intersection;
 
-                Line[] surfaces = occluder.GetSurfaces()
-                    .OrderBy(surface => Vector2.Distance(position, surface.GetMidPoint()))
-                    .ToArray();
+                FillSurfaceBuffer(rectangle);
 
-                Line closest = surfaces[0];
+                Array.Sort(_surfaceBuffer, CompareSurfaces);
 
-                if (!PointIsTowards(position, closest))
-                    result.Add(surfaces[1]);
+                Line closest = _surfaceBuffer[0];
 
-                result.Add(closest);
+                if (!PointIsTowards(_currentLightPosition, closest))
+                    surfaces.Add(_surfaceBuffer[1]);
+
+                surfaces.Add(closest);
+                rectangles.Add(rectangle);
             }
-
-            return result;
         }
 
         private Vector2 ProjectPoint(Vector2 point, float angle, float length, IEnumerable<Line> bounds)
         {
-            Vector2 projection = new Vector2(point.X + length, point.Y).Rotate(point, angle);
+            var projection = new Vector2(point.X + length, point.Y).Rotate(point, angle);
             var ray = new Line(point, projection);
 
             foreach (Line bound in bounds)
@@ -303,9 +359,25 @@ namespace SlowAndReverb
             return false;
         }
 
+        private int CompareSurfaces(Line a, Line b)
+        {
+            float distanceA = Vector2.Distance(_currentLightPosition, a.GetMidPoint());
+            float distanceB = Vector2.Distance(_currentLightPosition, b.GetMidPoint());
+
+            return distanceA.CompareTo(distanceB);  
+        }
+
+        private void FillSurfaceBuffer(Rectangle rectangle)
+        {
+            _surfaceBuffer[0] = rectangle.TopSurface;
+            _surfaceBuffer[1] = rectangle.LeftSurface;
+            _surfaceBuffer[2] = rectangle.RightSurface;
+            _surfaceBuffer[3] = rectangle.BottomSurface;
+        }
+
         private readonly record struct LightData(Light Light, Vector2 CellPosition, int MaskIndex);
 
-        public enum InBoundsBehaviour
+        public enum InBoundsBehavior
         {
             Ignore,
             Exclude,

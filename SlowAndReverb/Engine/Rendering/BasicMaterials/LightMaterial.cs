@@ -1,9 +1,4 @@
 ﻿using OpenTK.Mathematics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SlowAndReverb
 {
@@ -14,9 +9,22 @@ namespace SlowAndReverb
             ShaderProgram = Content.GetPipelineShaderProgram("light");
 
             Textures.Add(RenderTargets.ShadowBuffer.Texture);
+            Textures.Add(RenderTargets.OccluderBuffer.Texture);
         }
 
         [Uniform("u_ShadowBounds")] public Vector4 ShadowBounds { get; set; }
+        [Uniform("u_ShadowTexRes")] public Vector2 ShadowTextureResolution { get; set; }
         [Uniform("u_Mask")] public float Mask { get; set; }
+
+        [Uniform("u_Rotation")] public float Rotation { get; set; }
+        [Uniform("u_Angle")] public float Angle { get; set; } = Maths.TwoPI;
+        [Uniform("u_FalloffAngle")] public float FalloffAngle { get; set; }
+
+        [Uniform("u_StartDistance")] public float StartDistance { get; set; }
+        [Uniform("u_StartFade")] public float StartFade { get; set; }
+
+        [Uniform("u_Volume")] public float Volume { get; set; }
+
+        [Uniform("u_ShadowFalloff")] public float ShadowFalloff { get; set; } = 1f;
     }
 }

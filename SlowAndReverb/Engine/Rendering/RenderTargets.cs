@@ -10,12 +10,14 @@ namespace SlowAndReverb
     {
         public static RenderTarget LightMap { get; private set; }
         public static RenderTarget ShadowBuffer { get; private set; }
+        public static RenderTarget OccluderBuffer { get; private set; }
 
         internal static void Initialize()
         {
-            LightMap = RenderTarget.FromTexture(Texture2D.CreateEmpty(324, 184));
+            LightMap = RenderTarget.FromTexture(324, 184);
 
-            ShadowBuffer = RenderTarget.FromTexture(Texture2D.CreateEmpty(2240, 2240));
+            ShadowBuffer = RenderTarget.FromTexture(2240, 2240);
+            OccluderBuffer = RenderTarget.FromTexture(2240, 2240);
         }
     }
 }

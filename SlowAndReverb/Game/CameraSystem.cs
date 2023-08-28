@@ -49,7 +49,7 @@ namespace SlowAndReverb
                     Console.WriteLine(camera.Zoom);
                 }
 
-                CameraPosition = lerpedPosition + offset;
+                CameraPosition = lerpedPosition;
                 camera.Position = CameraPosition;
             }
             else

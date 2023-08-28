@@ -12,7 +12,7 @@ namespace SlowAndReverb
 
         private Thread _contentLoadingThread;
 
-        public UntitledGame(double updateFrequence, double drawFrequency, string name) : base(updateFrequence, drawFrequency, name)
+        public UntitledGame(double updateFrequency, double drawFrequency, string name) : base(updateFrequency, drawFrequency, name)
         {
             _stateMachine.SetState(GlobalState.Loading, UpdateContentLoading, null);
             _stateMachine.SetState(GlobalState.Game, UpdateGame, DrawGame, StartGame, null);
@@ -105,7 +105,7 @@ namespace SlowAndReverb
             CurrentScene.Add(new FlyingLantern(80f, 80f));
 
             CurrentScene.Add(new Coin(150f, 60f));
-            CurrentScene.Add(new Coin(230f, 80f));
+            //CurrentScene.Add(new Coin(230f, 80f));
 
             CurrentScene.Add(new TestPlatform(300f, 60f));
 
@@ -115,14 +115,14 @@ namespace SlowAndReverb
             Palette palette = Content.GetPalette("test2");
             CurrentScene.SetPalette(palette);
 
-            CurrentScene.Add(new Boids(0f, 0f)
-            {
-                Size = new Vector2(600f, 300f),
-                Position = new Vector2(400f, 20f)
-            });
+            //CurrentScene.Add(new Boids(0f, 0f)
+            //{
+            //    Size = new Vector2(600f, 300f),
+            //    Position = new Vector2(400f, 20f)
+            //});
 
             CurrentScene.Initialize();
-            CurrentScene.GetSystem<BackgroundSystem>().CurrentBackground = new TestBackground();
+            //CurrentScene.GetSystem<BackgroundSystem>().CurrentBackground = new TestBackground();
         }
 
         private void UpdateContentLoading(float deltaTime)

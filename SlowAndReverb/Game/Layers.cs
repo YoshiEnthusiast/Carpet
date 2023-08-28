@@ -13,7 +13,7 @@
             Foreground = new SmoothCameraLayer(324, 184, 320, 180, 1f)
             {
                 Material = new ForegroundMaterial(),
-                //ClearColor = new Color(40, 40, 40)
+                ClearColor = new Color(40, 40, 40)
             };
 
             Foreground.Camera.SetCenterOrigin();

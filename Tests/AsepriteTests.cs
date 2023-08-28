@@ -1,16 +1,13 @@
 using StbImageSharp;
-using System.Diagnostics.CodeAnalysis;
 using Xunit.Abstractions;
+using AsepriteLayer = SlowAndReverb.Aseprite.Layer;
+using Cel = SlowAndReverb.Aseprite.Cel;
+using LoopAnimationDirection = SlowAndReverb.Aseprite.LoopAnimationDirection;
 using Slice = SlowAndReverb.Aseprite.Slice;
 using SliceKey = SlowAndReverb.Aseprite.SliceKey;
 using Tag = SlowAndReverb.Aseprite.Tag;
-using LoopAnimationDirection = SlowAndReverb.Aseprite.LoopAnimationDirection;
-using AsepriteLayer = SlowAndReverb.Aseprite.Layer;
-using Cel = SlowAndReverb.Aseprite.Cel;
 using UserData = SlowAndReverb.Aseprite.UserData;
 using UserDataChunk = SlowAndReverb.Aseprite.UserDataChunk;
-using Xunit.Sdk;
-using OpenTK.Graphics.ES20;
 
 namespace SlowAndReverb.Tests
 {

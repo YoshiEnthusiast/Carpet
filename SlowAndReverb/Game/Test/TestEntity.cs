@@ -13,6 +13,7 @@ namespace SlowAndReverb
         private readonly CircleParticleEmitter _emitter;
 
         private readonly VirtualTexture _grapleHookTexture = Content.GetVirtualTexture("grapleHook");
+        private readonly Light[] _lights;
 
         private readonly Sprite s;
 
@@ -36,11 +37,65 @@ namespace SlowAndReverb
 
             //Add(sprite);
 
-            Add(new Light()
+            _lights = new Light[]
             {
-                Color = new Color(180, 180, 180),
-                Radius = 60f
-            });
+                Add(new Light()
+                {
+                    Color = Color.Red
+                }),
+
+                Add(new Light()
+                {
+                    Color = new Color(255, 115, 3)
+                }),
+
+                Add(new Light()
+                {
+                    Color = new Color(255, 211, 3)
+                }),
+
+                Add(new Light()
+                {
+                    Color = new Color(73, 252, 3)
+                }),
+
+                Add(new Light()
+                {
+                    Color = new Color(3, 7, 252)
+                }),
+
+                Add(new Light()
+                {
+                    Color = new Color(251, 0, 255)
+                }),
+            };
+
+            int length = _lights.Length;
+
+            for (int i = 0; i < length; i++)
+            {
+                Light light = _lights[i];
+
+                light.Rotation = Maths.TwoPI / length * i;
+
+                light.Radius = 60f;
+                light.Angle = Maths.PI / 3f;
+                light.FalloffAngle = 0.4f;
+                light.StartDistance = 0.2f;
+                light.StartFade = 0.1f;
+                light.Volume = 0.8f;
+            }
+
+            //Add(new Light()
+            //{
+            //    Color = Color.Yellow,
+            //    Radius = 60f,
+            //    Angle = Maths.PI / 3f,
+            //    FalloffAngle = 0.4f,
+            //    StartDistance = 0.2f,
+            //    StartFade = 0.1f,
+            //    Volume = 0.8f
+            //});
 
             var behaviour = new OffCenterParticleBehaviour()
             {
@@ -66,6 +121,10 @@ namespace SlowAndReverb
         protected override void Update(float deltaTime)
         {
             Position = Layers.Foreground.MousePosition;
+            //Get<Light>().Rotation += 0.01f;
+
+            foreach (Light light in _lights)
+                light.Rotation += 0.01f;
 
             //_emitter.Awake = Input.IsMouseDown(MouseButton.Left);
 

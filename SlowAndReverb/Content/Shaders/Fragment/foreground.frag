@@ -20,9 +20,11 @@ void main()
     vec4 light = texture(u_Textures[0], v_TexCoord);
 
     vec4 result = color * light;
+    float volume = light.w;
+    result.xyz += light.xyz * volume;
     
     vec3 id = clamp(result.xyz, vec3(0.), vec3(.999));
-    result = texture(u_Palette, id);
+    //result = texture(u_Palette, id);
 
     o_FragColor = vec4(result.xyz, color.a);
 }

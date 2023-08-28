@@ -347,7 +347,7 @@ namespace SlowAndReverb
 
         public T CheckCircle<T>(Vector2 position, float radius) where T : Entity
         {
-            Rectangle rectangle = Utilities.RectangleFromCircle(position, radius);
+            Rectangle rectangle = Rectangle.FromCircle(position, radius);
 
             foreach (Entity entity in _entityMap.GetNearby(rectangle))
             {
@@ -363,7 +363,7 @@ namespace SlowAndReverb
 
         public IEnumerable<T> CheckCircleAll<T>(Vector2 position, float radius) where T : Entity
         {
-            Rectangle rectangle = Utilities.RectangleFromCircle(position, radius);
+            Rectangle rectangle = Rectangle.FromCircle(position, radius);
 
             foreach (Entity entity in _entityMap.GetNearby(rectangle))
             {

@@ -8,6 +8,10 @@ using StbImageSharp;
 using StbImageWriteSharp;
 using System;
 
+// GLOBAL TASK LIST
+
+// TODO: Scene methods that return multiple entities should accept lists
+
 namespace SlowAndReverb
 {
     public abstract class Engine
