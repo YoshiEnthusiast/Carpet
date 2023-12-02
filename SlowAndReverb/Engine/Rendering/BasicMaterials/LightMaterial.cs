@@ -8,8 +8,9 @@ namespace SlowAndReverb
         {
             ShaderProgram = Content.GetPipelineShaderProgram("light");
 
-            Textures.Add(RenderTargets.ShadowBuffer.Texture);
-            Textures.Add(RenderTargets.OccluderBuffer.Texture);
+            // TODO: remove dependency from UntitledGame
+            Textures.Add(Demo.ShadowBuffer.Texture);
+            Textures.Add(Demo.OccludeBuffer.Texture);
         }
 
         [Uniform("u_ShadowBounds")] public Vector4 ShadowBounds { get; set; }

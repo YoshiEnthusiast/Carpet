@@ -120,7 +120,7 @@ namespace SlowAndReverb
 
         protected override void Update(float deltaTime)
         {
-            Position = Layers.Foreground.MousePosition;
+            Position = Demo.ForegroundLayer.MousePosition;
             //Get<Light>().Rotation += 0.01f;
 
             foreach (Light light in _lights)

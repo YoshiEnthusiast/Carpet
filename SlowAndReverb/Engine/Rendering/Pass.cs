@@ -6,10 +6,27 @@ namespace SlowAndReverb
     {
         private RenderTarget _target;
 
-        public Pass(BlendMode blendMode, Color clearColor)
+        public Pass(BlendMode blendMode, Color clearColor, Matrix4 view)
         {
             BlendMode = blendMode;
             ClearColor = clearColor;
+            View = view;
+        }
+
+        public Pass(BlendMode blendMode, Color clearColor) : this(blendMode, clearColor,
+            Matrix4.Identity)
+        {
+
+        }
+
+        public Pass(BlendMode blendMode) : this(blendMode, Color.Transparent)
+        {
+
+        }
+
+        public Pass() : this(BlendMode.AlphaBlend)
+        {
+
         }
 
         public BlendMode BlendMode { get; set; }

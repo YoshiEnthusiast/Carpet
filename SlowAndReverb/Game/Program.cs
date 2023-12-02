@@ -13,7 +13,7 @@ namespace SlowAndReverb
 {
     internal sealed class Program
     {
-        private static UntitledGame s_game;
+        private static Demo s_game;
 
         private abstract class Abstract<T>
         {
@@ -95,7 +95,7 @@ namespace SlowAndReverb
             // temporary
             Resolution initialREsolution = Resolution.SupportedResolutions.First();
 
-            s_game = new UntitledGame(60d, 60d, "Untitled game");
+            s_game = new Demo(60d, 60d, "Demo");
 
             s_game.Run(initialREsolution, TextureLoadMode.LoadAtlas);
 

@@ -12,7 +12,7 @@ namespace SlowAndReverb
 
         public static CursorMode CursorMode { get; set; }
 
-        public static Vector2 MousePosition => Layers.UI.MousePosition;
+        public static Vector2 MousePosition => Demo.UILayer.MousePosition;
 
         internal static void Initialize()
         {
@@ -33,7 +33,7 @@ namespace SlowAndReverb
 
         public static void Draw()
         {
-            Layer layer = Layers.UI;
+            Layer layer = Demo.UILayer;
 
             Graphics.BeginLayer(layer);
 

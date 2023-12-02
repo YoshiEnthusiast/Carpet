@@ -2,14 +2,19 @@
 {
     public class BackgroundSystem : System
     {
-        public BackgroundSystem(Scene scene) : base(scene)
-        {
+        private readonly LayerPass _pass;
 
+        public BackgroundSystem(Scene scene, LayerPass pass) : base(scene)
+        {
+            _pass = pass;
         }
 
         public Background CurrentBackground { get; set; }
 
-        private Layer BackgroundLayer => Layers.Background;
+        public override void Initialize()
+        {
+            _pass.Render += OnBackgroundRender;
+        }
 
         public override void Update(float deltaTime)
         {
@@ -20,19 +25,17 @@
 
             if (CurrentBackground is not null)
                 CurrentBackground.Update(deltaTime);
-
-            if (Input.IsPressed(Key.U))
-                BackgroundLayer.RenderTarget.Texture.SaveAsPng("bacl.png");
         }
 
-        public override void OnBeforeDraw()
+        public override void Terminate()
         {
-            Graphics.BeginLayer(BackgroundLayer);
+            _pass.Render -= OnBackgroundRender;
+        }
 
+        private void OnBackgroundRender()
+        {
             if (CurrentBackground is not null)
                 CurrentBackground.Draw();
-
-            Graphics.EndCurrentLayer();
         }
     }
 }

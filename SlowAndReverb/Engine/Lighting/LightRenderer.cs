@@ -12,9 +12,9 @@ namespace SlowAndReverb
         private const int SurfacesPerOccluder = 4;
         private const int MaxBloomPoints = 100;
 
-        private readonly Pass _occludersPass;
+        private readonly Pass _occludePass;
         private readonly Pass _shadowPass;
-        private readonly Pass _lightMapPass;
+        private readonly Pass _lightmapPass;
 
         private readonly VertexColorTextureCoordinate[] _vertices = new VertexColorTextureCoordinate[4000];
         private readonly uint[] _elements = new uint[6000];
@@ -55,11 +55,11 @@ namespace SlowAndReverb
         private int _lightMaterialsAllocated = 0;
         private int _bloomMaterialsAllocated = 0;
 
-        public LightRenderer(Scene scene, Pass occludersPass, Pass shadowPass, Pass lightMapPass) : base(scene)
+        public LightRenderer(Scene scene, Pass occludePass, Pass shadowPass, Pass lightmapPass) : base(scene)
         {
-            _occludersPass = occludersPass;
+            _occludePass = occludePass;
             _shadowPass = shadowPass;
-            _lightMapPass = lightMapPass;
+            _lightmapPass = lightmapPass;
 
             RenderTarget shadowBuffer = _shadowPass.GetRenderTarget();
 
@@ -75,17 +75,17 @@ namespace SlowAndReverb
 
         public override void Initialize()
         {
-            _occludersPass.Render += OnOccludersBufferRender;
+            _occludePass.Render += OnOccludeBufferRender;
             _shadowPass.Render += OnShadowBufferRender;
-            _lightMapPass.Render += OnLightMapRender;
+            _lightmapPass.Render += OnLightmapRender;
         }
 
         public override void Update(float deltaTime)
         {
-            Matrix4 view = Layers.Foreground.Camera.GetViewMatrix();
+            Matrix4 view = Demo.ForegroundLayer.Camera.GetViewMatrix();
 
-            _lightMapPass.View = view;
-            _lightMapPass.ClearColor = new Color(InitialColor.R, InitialColor.G, InitialColor.B, (byte)0);
+            _lightmapPass.View = view;
+            _lightmapPass.ClearColor = new Color(InitialColor.R, InitialColor.G, InitialColor.B, (byte)0);
         }
 
         public override void Draw()
@@ -118,7 +118,14 @@ namespace SlowAndReverb
             }
         }
 
-        private void OnOccludersBufferRender()
+        public override void Terminate()
+        {
+            _occludePass.Render -= OnOccludeBufferRender;
+            _shadowPass.Render -= OnShadowBufferRender;
+            _lightmapPass.Render -= OnLightmapRender;
+        }
+
+        private void OnOccludeBufferRender()
         {
             _debugRays.Clear();
             _debugSurfaces.Clear();
@@ -127,7 +134,7 @@ namespace SlowAndReverb
 
             _lightsCount = 0;
 
-            RenderTarget occluderBuffer = _occludersPass.GetRenderTarget();
+            RenderTarget occludeBuffer = _occludePass.GetRenderTarget();
 
             foreach (Light light in lights)
             {
@@ -237,7 +244,7 @@ namespace SlowAndReverb
                 _vertices, _verticesCount, _elements, _elementsCount, 0f);
         }
 
-        private void OnLightMapRender()
+        private void OnLightmapRender()
         {
             RenderTarget shadowBuffer = _shadowPass.GetRenderTarget();
 

@@ -20,7 +20,7 @@ namespace SlowAndReverb
 
         public virtual void Update(float deltaTime)
         {
-            Layer foregroundLayer = Layers.Foreground;
+            Layer foregroundLayer = Demo.ForegroundLayer;
             Vector2 cameraPosition = foregroundLayer.Camera.Position;
 
             foreach (ParallaxLayer layer in _layers)
@@ -62,8 +62,8 @@ namespace SlowAndReverb
         {
             var sprite = new Sprite(name);
 
-            Layer backgroundLayer = Layers.Background;
-            SmoothCameraLayer foregroundLayer = Layers.Foreground;
+            Layer backgroundLayer = Demo.BackgroundLayer;
+            SmoothCameraLayer foregroundLayer = Demo.ForegroundLayer;
 
             float scaleX = backgroundLayer.Width / foregroundLayer.VisibleWidth;
             float scaleY = backgroundLayer.Height / foregroundLayer.VisibleHeight;

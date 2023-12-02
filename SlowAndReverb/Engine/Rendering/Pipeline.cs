@@ -10,6 +10,8 @@ namespace SlowAndReverb
     {
         private readonly List<PassBase> _passes = new List<PassBase>();
 
+        public PassBase CurrentPass { get; private set; }
+
         public T AddPass<T>(T pass) where T : PassBase
         {
             _passes.Add(pass);
@@ -39,7 +41,12 @@ namespace SlowAndReverb
         public void Process()
         {
             foreach (PassBase pass in _passes)
+            {
+                CurrentPass = pass;
                 pass.Process();
+            }
+
+            CurrentPass = null;
         }
     }
 }

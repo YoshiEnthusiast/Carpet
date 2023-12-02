@@ -5,6 +5,7 @@ using System.Linq;
 
 namespace SlowAndReverb
 {
+    // TODO: Fix "grapple" spelling
     public class Player : PhysicsBody
     {
         #region Constants
@@ -31,7 +32,7 @@ namespace SlowAndReverb
         private const float GrapplingLerpSpeed = 3f;
 
         private const float AimDisplayDistance = 30f;
-        private const int AimDispayLinesCount = 6;
+        private const int AimDisplayLinesCount = 6;
         private const float AimDisplayLineLength = 10f;
         private const float AimDisplayAlpha = 0.6f;
         private const float AimCrosshairDistance = 27f;
@@ -114,7 +115,7 @@ namespace SlowAndReverb
             base.Update(deltaTime);
 
             if (Input.IsDown(Key.O))
-                Layers.Foreground.Camera.Zoom += 0.1f;
+                Demo.ForegroundLayer.Camera.Zoom += 0.1f;
         }
 
         protected override void Draw()
@@ -398,15 +399,15 @@ namespace SlowAndReverb
             float depth = Depths.WorldUI;
             Color red = Color.Red;
 
-            float deltaAngle = Maths.DeltaAngle(_initialGrappleAngle, _grappleAngleDestination) / (AimDispayLinesCount - 1);
+            float deltaAngle = Maths.DeltaAngle(_initialGrappleAngle, _grappleAngleDestination) / (AimDisplayLinesCount - 1);
             deltaAngle *= -_grappleDirection;
 
-            for (int i = 0; i < AimDispayLinesCount; i++)
+            for (int i = 0; i < AimDisplayLinesCount; i++)
             {
                 float angle = _initialGrappleAngle + deltaAngle * i;
 
                 Vector2 linePosition = Rotate(AimDisplayDistance, angle);
-                Color color = Color.Lerp(Color.Yellow, red, i / (float)AimDispayLinesCount);
+                Color color = Color.Lerp(Color.Yellow, red, i / (float)AimDisplayLinesCount);
 
                 Graphics.DrawLine(linePosition, angle, AimDisplayLineLength, color * AimDisplayAlpha, depth);
             }

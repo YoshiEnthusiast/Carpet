@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace SlowAndReverb
 {
-    public sealed class UntitledGame : Engine
+    public sealed class Demo : Engine
     {
         private readonly StateMachine<GlobalState> _stateMachine = new StateMachine<GlobalState>();
 
@@ -12,18 +12,27 @@ namespace SlowAndReverb
 
         private Thread _contentLoadingThread;
 
-        public UntitledGame(double updateFrequency, double drawFrequency, string name) : base(updateFrequency, drawFrequency, name)
+        public Demo(double updateFrequency, double drawFrequency, string name) : base(updateFrequency, drawFrequency, name)
         {
             _stateMachine.SetState(GlobalState.Loading, UpdateContentLoading, null);
             _stateMachine.SetState(GlobalState.Game, UpdateGame, DrawGame, StartGame, null);
         }
 
+        public static SmoothCameraLayer ForegroundLayer { get; private set; }
+        public static Layer BackgroundLayer { get; private set; }
+        public static Layer UILayer { get; private set; }
+
+        public static RenderTarget OccludeBuffer { get; private set; }
+        public static RenderTarget ShadowBuffer { get; private set; }
+        public static RenderTarget Lightmap { get; private set; }
+
         public static Pipeline Pipeline { get; private set; }
 
         public static LayerPass ForegroundPass { get; private set; }
-        public static Pass OccluderBufferPass { get; private set; }
+        public static LayerPass BackgroundPass { get; private set; }
+        public static Pass OccludeBufferPass { get; private set; }
         public static Pass ShadowBufferPass { get; private set; }
-        public static Pass LightMapPass { get; private set; }
+        public static Pass LightmapPass { get; private set; }
 
         public static Scene CurrentScene { get; set; }
         public static bool Paused { get; set; }
@@ -44,21 +53,37 @@ namespace SlowAndReverb
 
         protected override void OnInitialize()
         {
-            RenderTargets.Initialize();
-            Layers.Initialize();
+            Lightmap = RenderTarget.FromTexture(324, 184);
+
+            ShadowBuffer = RenderTarget.FromTexture(2240, 2240);
+            OccludeBuffer = RenderTarget.FromTexture(2240, 2240);
+
+            BackgroundLayer = new Layer(1280, 720, 0f);
+
+            ForegroundLayer = new SmoothCameraLayer(324, 184, 320, 180, 1f)
+            {
+                Material = new ForegroundMaterial(),
+                ClearColor = new Color(40, 40, 40)
+            };
+
+            ForegroundLayer.Camera.SetCenterOrigin();
+
+            UILayer = new Layer(320, 180, 2f);
 
             Pipeline = new Pipeline();
 
-            OccluderBufferPass = Pipeline.AddPass(new Pass(BlendMode.Additive, Color.Transparent)
-                .SetRenderTarget(RenderTargets.OccluderBuffer));
+            OccludeBufferPass = Pipeline.AddPass(new Pass(BlendMode.Additive)
+                .SetRenderTarget(OccludeBuffer));
 
-            ShadowBufferPass = Pipeline.AddPass(new Pass(BlendMode.Additive, Color.Transparent)
-                .SetRenderTarget(RenderTargets.ShadowBuffer));
+            ShadowBufferPass = Pipeline.AddPass(new Pass(BlendMode.Additive)
+                .SetRenderTarget(ShadowBuffer));
 
-            LightMapPass = Pipeline.AddPass(new Pass(BlendMode.Additive, Color.Transparent)
-                .SetRenderTarget(RenderTargets.LightMap));
+            LightmapPass = Pipeline.AddPass(new Pass(BlendMode.Additive)
+                .SetRenderTarget(Lightmap));
 
-            ForegroundPass = Pipeline.AddPass(new LayerPass().SetLayer(Layers.Foreground));
+            BackgroundPass = Pipeline.AddPass(new LayerPass().SetLayer(BackgroundLayer));
+
+            ForegroundPass = Pipeline.AddPass(new LayerPass().SetLayer(ForegroundLayer));
 
             UI.Initialize();
             Editor.Initialize();

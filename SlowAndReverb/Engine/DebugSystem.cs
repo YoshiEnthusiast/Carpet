@@ -22,7 +22,7 @@ namespace SlowAndReverb
 
             //Console.WriteLine(Input.XAxis.GetValue());
 
-            Vector2 mousePosition = Layers.Foreground.MousePosition;
+            Vector2 mousePosition = Demo.ForegroundLayer.MousePosition;
 
             if (Input.IsMousePressed(MouseButton.Left))
             {

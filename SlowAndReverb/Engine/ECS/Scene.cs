@@ -21,12 +21,13 @@ namespace SlowAndReverb
         {
             _entityMap = new EntityMap(this, 100f);
 
-            AddSystem(new LightRenderer(this, UntitledGame.OccluderBufferPass, UntitledGame.ShadowBufferPass, UntitledGame.LightMapPass))
+            AddSystem(new LightRenderer(this, Demo.OccludeBufferPass, Demo.ShadowBufferPass, 
+                Demo.LightmapPass))
                 .AddSystem(new BlockGroupsSystem(this))
                 .AddSystem(new ParticleSystem(this, 1000))
                 .AddSystem(new CameraSystem(0.18f, this))
                 .AddSystem(new DebugSystem(this))
-                .AddSystem(new BackgroundSystem(this));
+                .AddSystem(new BackgroundSystem(this, Demo.BackgroundPass));
         }
 
         public Rectangle Rectangle { get; private set; }
@@ -98,7 +99,7 @@ namespace SlowAndReverb
                 bottom = Maths.Max(bottom, group.Bottom);
             }
 
-            Layer foreground = Layers.Foreground;
+            Layer foreground = Demo.ForegroundLayer;
 
             float foregroundWidth = foreground.Width;
             float foregroundHeight = foreground.Height;
@@ -124,17 +125,17 @@ namespace SlowAndReverb
 
             Rectangle = new Rectangle(new Vector2(left, top), new Vector2(right, bottom));
 
-            UntitledGame.ForegroundPass.Render += Draw;
+            Demo.ForegroundPass.Render += Draw;
         }
 
         public virtual void Terminate()
         {
-
+            Demo.ForegroundPass.Render -= Draw;
         }
 
         public void SetPalette(Palette palette)
         {
-            ForegroundMaterial material = Layers.Foreground.Material as ForegroundMaterial;
+            ForegroundMaterial material = Demo.ForegroundLayer.Material as ForegroundMaterial;
 
             material.SetPalette(palette);
         }
@@ -158,11 +159,6 @@ namespace SlowAndReverb
             _systems.Add(system);
 
             return this;
-        }
-
-        public void RemoveSystem(System system)
-        {
-            _systems.Remove(system);
         }
 
         #endregion

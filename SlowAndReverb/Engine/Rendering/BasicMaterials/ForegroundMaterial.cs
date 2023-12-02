@@ -8,7 +8,7 @@ namespace SlowAndReverb
         {
             ShaderProgram = Content.GetPipelineShaderProgram("foreground");
 
-            Textures.Add(RenderTargets.LightMap.Texture);
+            Textures.Add(Demo.Lightmap.Texture);
         }
 
         [Uniform("u_Darkness")] public float Darkness { get; set; } = 0.1f;

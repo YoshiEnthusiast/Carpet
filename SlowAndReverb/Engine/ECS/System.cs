@@ -33,5 +33,10 @@
         {
 
         }
+
+        public virtual void Terminate()
+        {
+
+        } 
     }
 }

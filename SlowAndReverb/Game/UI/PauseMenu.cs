@@ -5,7 +5,7 @@
         public PauseMenu()
         {
             Size = new Vector2(100f, 80f);
-            Position = Layers.UI.Size / 2f - HalfSize;
+            Position = Demo.UILayer.Size / 2f - HalfSize;
             Text = "Paused";
 
             var a = new UIMenuItem[]

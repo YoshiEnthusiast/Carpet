@@ -20,7 +20,7 @@ namespace SlowAndReverb
 
             if (player is not null)
             {
-                Camera camera = Layers.Foreground.Camera;
+                Camera camera = Demo.ForegroundLayer.Camera;
                 Vector2 playerPosition = player.Position;
 
                 if (_forcePosition)
@@ -34,7 +34,7 @@ namespace SlowAndReverb
                 Vector2 oldPosition = camera.Position;
                 Vector2 lerpedPosition = Vector2.Lerp(oldPosition, playerPosition, 0.06f);
 
-                Vector2 mousePosition = Layers.Foreground.MousePosition;
+                Vector2 mousePosition = Demo.ForegroundLayer.MousePosition;
                 float angle = Maths.Atan2(playerPosition, mousePosition); 
                 Vector2 offset = new Vector2(3f, 0f).Rotate(angle);
 
