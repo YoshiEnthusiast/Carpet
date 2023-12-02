@@ -21,15 +21,13 @@ namespace SlowAndReverb
         {
             _entityMap = new EntityMap(this, 100f);
 
-            AddSystem(new LightRenderer(this))
+            AddSystem(new LightRenderer(this, UntitledGame.OccluderBufferPass, UntitledGame.ShadowBufferPass, UntitledGame.LightMapPass))
                 .AddSystem(new BlockGroupsSystem(this))
                 .AddSystem(new ParticleSystem(this, 1000))
                 .AddSystem(new CameraSystem(0.18f, this))
                 .AddSystem(new DebugSystem(this))
                 .AddSystem(new BackgroundSystem(this));
         }
-
-        public Color Color { get; set; } = Color.White;
 
         public Rectangle Rectangle { get; private set; }
 
@@ -60,10 +58,8 @@ namespace SlowAndReverb
 
         public virtual void Draw()
         {
-            foreach (System system in _systems)
-                system.OnBeforeDraw();
-
-            Graphics.BeginLayer(Layers.Foreground);
+            //foreach (System system in _systems)
+            //    system.OnBeforeDraw();
 
             foreach (Entity entity in Entities)
                 entity.DoDraw();
@@ -73,8 +69,6 @@ namespace SlowAndReverb
 
             foreach (System system in _systems)
                 system.OnLateDraw();
-
-            Graphics.EndCurrentLayer();
         }
 
         public virtual void Initialize()
@@ -129,6 +123,8 @@ namespace SlowAndReverb
             }
 
             Rectangle = new Rectangle(new Vector2(left, top), new Vector2(right, bottom));
+
+            UntitledGame.ForegroundPass.Render += Draw;
         }
 
         public virtual void Terminate()

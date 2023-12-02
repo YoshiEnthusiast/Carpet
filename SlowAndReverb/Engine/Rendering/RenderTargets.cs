@@ -8,6 +8,7 @@ namespace SlowAndReverb
 {
     public static class RenderTargets
     {
+        // TODO: RENAME
         public static RenderTarget LightMap { get; private set; }
         public static RenderTarget ShadowBuffer { get; private set; }
         public static RenderTarget OccluderBuffer { get; private set; }

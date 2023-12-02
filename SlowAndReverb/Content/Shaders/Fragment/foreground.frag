@@ -20,6 +20,7 @@ void main()
     vec4 light = texture(u_Textures[0], v_TexCoord);
 
     vec4 result = color * light;
+
     float volume = light.w;
     result.xyz += light.xyz * volume;
     

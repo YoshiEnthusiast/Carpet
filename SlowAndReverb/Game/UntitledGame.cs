@@ -18,6 +18,13 @@ namespace SlowAndReverb
             _stateMachine.SetState(GlobalState.Game, UpdateGame, DrawGame, StartGame, null);
         }
 
+        public static Pipeline Pipeline { get; private set; }
+
+        public static LayerPass ForegroundPass { get; private set; }
+        public static Pass OccluderBufferPass { get; private set; }
+        public static Pass ShadowBufferPass { get; private set; }
+        public static Pass LightMapPass { get; private set; }
+
         public static Scene CurrentScene { get; set; }
         public static bool Paused { get; set; }
 
@@ -39,6 +46,20 @@ namespace SlowAndReverb
         {
             RenderTargets.Initialize();
             Layers.Initialize();
+
+            Pipeline = new Pipeline();
+
+            OccluderBufferPass = Pipeline.AddPass(new Pass(BlendMode.Additive, Color.Transparent)
+                .SetRenderTarget(RenderTargets.OccluderBuffer));
+
+            ShadowBufferPass = Pipeline.AddPass(new Pass(BlendMode.Additive, Color.Transparent)
+                .SetRenderTarget(RenderTargets.ShadowBuffer));
+
+            LightMapPass = Pipeline.AddPass(new Pass(BlendMode.Additive, Color.Transparent)
+                .SetRenderTarget(RenderTargets.LightMap));
+
+            ForegroundPass = Pipeline.AddPass(new LayerPass().SetLayer(Layers.Foreground));
+
             UI.Initialize();
             Editor.Initialize();
 
@@ -77,7 +98,8 @@ namespace SlowAndReverb
 
         private void DrawGame()
         {
-            CurrentScene.Draw();
+            //CurrentScene.Draw();
+            Pipeline.Process();
         }
 
         private void StartGame()
@@ -108,9 +130,6 @@ namespace SlowAndReverb
             //CurrentScene.Add(new Coin(230f, 80f));
 
             CurrentScene.Add(new TestPlatform(300f, 60f));
-
-
-            CurrentScene.Color = new Color(170, 170, 170);
 
             Palette palette = Content.GetPalette("test2");
             CurrentScene.SetPalette(palette);

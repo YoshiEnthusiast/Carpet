@@ -12,6 +12,10 @@ namespace SlowAndReverb
         private const int SurfacesPerOccluder = 4;
         private const int MaxBloomPoints = 100;
 
+        private readonly Pass _occludersPass;
+        private readonly Pass _shadowPass;
+        private readonly Pass _lightMapPass;
+
         private readonly VertexColorTextureCoordinate[] _vertices = new VertexColorTextureCoordinate[4000];
         private readonly uint[] _elements = new uint[6000];
         private readonly float _shadowLengthMultiplier = Maths.Sqrt(2f) * 2f;
@@ -43,6 +47,7 @@ namespace SlowAndReverb
 
         private Vector2 _currentLightPosition;
 
+        private int _lightsCount;
         private int _verticesCount;
         private int _elementsCount;
         private uint _currentElement;
@@ -50,9 +55,13 @@ namespace SlowAndReverb
         private int _lightMaterialsAllocated = 0;
         private int _bloomMaterialsAllocated = 0;
 
-        public LightRenderer(Scene scene) : base(scene)
+        public LightRenderer(Scene scene, Pass occludersPass, Pass shadowPass, Pass lightMapPass) : base(scene)
         {
-            RenderTarget shadowBuffer = RenderTargets.ShadowBuffer;
+            _occludersPass = occludersPass;
+            _shadowPass = shadowPass;
+            _lightMapPass = lightMapPass;
+
+            RenderTarget shadowBuffer = _shadowPass.GetRenderTarget();
 
             _shadowCellWidth = shadowBuffer.Width / (int)MaxRadius;
             _maxLights = _shadowCellWidth * shadowBuffer.Height / (int)MaxRadius * _masks.Length;
@@ -61,23 +70,64 @@ namespace SlowAndReverb
             _lightMaterials = new LightMaterial[_maxLights];
         }
 
+        public Color InitialColor { get; set; } = new Color(140, 140, 140);
         public InBoundsBehavior BoundsBehavior { get; set; } = InBoundsBehavior.PutOut;
 
-        public override void OnBeforeDraw()
+        public override void Initialize()
+        {
+            _occludersPass.Render += OnOccludersBufferRender;
+            _shadowPass.Render += OnShadowBufferRender;
+            _lightMapPass.Render += OnLightMapRender;
+        }
+
+        public override void Update(float deltaTime)
+        {
+            Matrix4 view = Layers.Foreground.Camera.GetViewMatrix();
+
+            _lightMapPass.View = view;
+            _lightMapPass.ClearColor = new Color(InitialColor.R, InitialColor.G, InitialColor.B, (byte)0);
+        }
+
+        public override void Draw()
+        {
+            if (!Engine.DebugLighting)
+                return;
+
+            Color red = Color.Red;
+            float debugDepth = Depths.Debug;
+
+            foreach (Light light in Scene.GetComponentsOfType<Light>())
+            {
+                Graphics.DrawRectangle(light.Bounds, red, debugDepth);
+
+                Graphics.DrawCircle(light.Position, Color.CoolOrange, (int)light.Radius, debugDepth);
+            }
+
+            foreach (Line ray in _debugRays)
+                Graphics.DrawLine(ray.Start, ray.End, Color.DarkGreen, debugDepth);
+
+            foreach (Line surface in _debugSurfaces)
+            {
+                Vector2 start = surface.Start;
+                Vector2 end = surface.End;
+
+                Graphics.DrawCircle(start, red, 3, debugDepth);
+                Graphics.DrawCircle(end, red, 3, debugDepth);
+
+                Graphics.DrawLine(start, end, red, debugDepth);
+            }
+        }
+
+        private void OnOccludersBufferRender()
         {
             _debugRays.Clear();
             _debugSurfaces.Clear();
 
             IEnumerable<Light> lights = Scene.GetComponentsOfType<Light>();
 
-            var lightsCount = 0;
+            _lightsCount = 0;
 
-            SpriteBatch batch = Graphics.SpriteBatch;
-
-            RenderTarget shadowBuffer = RenderTargets.ShadowBuffer;
-            RenderTarget occluderBuffer = RenderTargets.OccluderBuffer;
-
-            batch.Begin(occluderBuffer, BlendMode.Additive, Color.Transparent, null);
+            RenderTarget occluderBuffer = _occludersPass.GetRenderTarget();
 
             foreach (Light light in lights)
             {
@@ -96,13 +146,13 @@ namespace SlowAndReverb
                 FillSurfaceBuffer(bounds);
 
                 int masksCount = _masks.Length;
-                int maskIndex = lightsCount % masksCount;
+                int maskIndex = _lightsCount % masksCount;
                 Color mask = _masks[maskIndex];
-                int cellIndex = lightsCount / masksCount;
+                int cellIndex = _lightsCount / masksCount;
                 Vector2 cellPosition = new Vector2(cellIndex % _shadowCellWidth, cellIndex / _shadowCellWidth) * MaxRadius;
                 Vector2 offset = cellPosition - lightBounds.TopLeft;
 
-                _lightData[lightsCount] = new LightData(light, cellPosition, maskIndex);
+                _lightData[_lightsCount] = new LightData(light, cellPosition, maskIndex);
 
                 foreach (Line surface in _surfaces)
                 {
@@ -155,7 +205,7 @@ namespace SlowAndReverb
                     AddElement(endElement);
                     AddElement(previousElement);
                     AddElement(endProjectionElement);
-                    
+
                     int debugRaysCount = _debugRays.Count;
                     Line lastDebugRay = _debugRays[debugRaysCount - 1];
                     _debugRays.Add(new Line(end, lastDebugRay.End));
@@ -177,41 +227,38 @@ namespace SlowAndReverb
                     Graphics.FillRectangle(topLeft, bottomRight, mask, 0f);
                 }
 
-                lightsCount++;
+                _lightsCount++;
             }
+        }
 
-            batch.End();
-
-            batch.Begin(shadowBuffer, BlendMode.Additive, Color.Transparent, null);
-
-            batch.Submit(Graphics.BlankTexture.ActualTexture, _shadowMaterial, null,
+        private void OnShadowBufferRender()
+        {
+            Graphics.SpriteBatch.Submit(Graphics.BlankTexture.ActualTexture, _shadowMaterial, null,
                 _vertices, _verticesCount, _elements, _elementsCount, 0f);
+        }
 
-            batch.End();
+        private void OnLightMapRender()
+        {
+            RenderTarget shadowBuffer = _shadowPass.GetRenderTarget();
 
             _verticesCount = 0;
             _elementsCount = 0;
             _currentElement = 0;
 
-            Matrix4 view = Layers.Foreground.Camera.GetViewMatrix();
-            Color color = Scene.Color;
-            batch.Begin(RenderTargets.LightMap, BlendMode.Additive, new Color(color.R, color.G, color.B, (byte)0), view);
-
-            if (lightsCount > _lightMaterialsAllocated)
+            if (_lightsCount > _lightMaterialsAllocated)
             {
-                for (int i = _lightMaterialsAllocated; i < lightsCount; i++)
+                for (int i = _lightMaterialsAllocated; i < _lightsCount; i++)
                 {
                     _lightMaterials[i] = new LightMaterial()
                     {
                         ShadowTextureResolution = shadowBuffer.Size
                     };
-
                 }
 
-                _lightMaterialsAllocated = lightsCount;
+                _lightMaterialsAllocated = _lightsCount;
             }
 
-            for (int i = 0; i < lightsCount; i++)
+            for (int i = 0; i < _lightsCount; i++)
             {
                 LightData lightData = _lightData[i];
 
@@ -236,38 +283,6 @@ namespace SlowAndReverb
             }
 
             //TODO: Render bloom points here
-
-            batch.End();
-        }
-
-        public override void Draw()
-        {
-            if (!Engine.DebugLighting)
-                return;
-
-            Color red = Color.Red;
-            float debugDepth = Depths.Debug;
-
-            foreach (Light light in Scene.GetComponentsOfType<Light>())
-            {
-                Graphics.DrawRectangle(light.Bounds, red, debugDepth);
-
-                Graphics.DrawCircle(light.Position, Color.CoolOrange, (int)light.Radius, debugDepth);
-            }
-
-            foreach (Line ray in _debugRays)
-                Graphics.DrawLine(ray.Start, ray.End, Color.DarkGreen, debugDepth);
-
-            foreach (Line surface in _debugSurfaces)
-            {
-                Vector2 start = surface.Start;
-                Vector2 end = surface.End;
-
-                Graphics.DrawCircle(start, red, 3, debugDepth);
-                Graphics.DrawCircle(end, red, 3, debugDepth);
-
-                Graphics.DrawLine(start, end, red, debugDepth);
-            }
         }
 
         private uint AddVertex(Vector2 position, Vector2 offset, Color mask)
