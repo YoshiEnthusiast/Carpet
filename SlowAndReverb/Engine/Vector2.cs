@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public struct Vector2
     {

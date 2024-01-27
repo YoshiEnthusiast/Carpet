@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public abstract class Component
     {

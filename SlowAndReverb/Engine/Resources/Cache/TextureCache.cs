@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     internal class TextureCache : FileCache<Texture2D>
     {

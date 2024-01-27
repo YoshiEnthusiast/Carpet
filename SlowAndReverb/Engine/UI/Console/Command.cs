@@ -1,25 +1,37 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace SlowAndReverb
+namespace Carpet
 {
-    public sealed class Command
+    internal abstract class Command
     {
-        private readonly Argument[] _arguments;
-        private readonly Delegate _callback;
-
-        public Command(string name, Delegate callback, Argument[] arguments)
+        public Command(string name)
         {
-            _arguments = arguments;
-            _callback = callback;
-
             Name = name;
-        }
+        } 
 
+        public ImmutableArray<Argument> Arguments { get; protected init; }
+        public string Error { get; protected init; }
         public string Name { get; private init; }
 
-        public void Run(string[] input)
-        {
+        protected int RequiredArgumentsCount { get; init; }
 
+        public abstract void Run(Span<string> input, bool catchErrors);
+
+        protected bool CheckArgumentsCount(int inputLength)
+        {
+            if (inputLength > Arguments.Length || inputLength < RequiredArgumentsCount)
+            {
+                DebugConsole.Log($"Command \"{Name}\" does not take {inputLength} arguments", LogType.Error);
+
+                return true;
+            }
+
+            return false;
         }
     }
 }

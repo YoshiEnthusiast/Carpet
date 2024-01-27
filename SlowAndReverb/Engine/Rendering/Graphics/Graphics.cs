@@ -4,7 +4,7 @@ using OpenTK.Platform.Windows;
 using System;
 using System.Collections.Generic;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public static class Graphics
     {
@@ -178,7 +178,7 @@ namespace SlowAndReverb
 
         public static void DrawString(string text, Vector2 position, float depth)
         {
-            s_defaultFont.Draw(text, position, depth);
+            s_defaultFont.Draw(text, position, Color.White, depth);
         }
 
         public static void DrawCircleWithLines(Vector2 position, Color color, int raduis, float depth, int lineWidth = 1, bool centred = true, int linesCount = 18)

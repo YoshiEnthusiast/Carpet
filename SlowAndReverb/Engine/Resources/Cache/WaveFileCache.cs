@@ -1,7 +1,7 @@
 ﻿using OpenTK.Audio.OpenAL;
 using System.IO;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public class WaveFileCache : FileCache<WaveFile>
     {

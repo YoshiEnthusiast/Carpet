@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public class PhysicsBody : Entity
     {

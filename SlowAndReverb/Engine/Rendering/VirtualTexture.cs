@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public sealed class VirtualTexture
     {

@@ -1,7 +1,7 @@
 ﻿using OpenTK.Audio.OpenAL;
 using System.Collections.Generic;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public sealed class SoundDevice
     {

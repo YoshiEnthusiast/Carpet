@@ -1,6 +1,6 @@
 ﻿using OpenTK.Audio.OpenAL;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public sealed class SoundSource : OpenALObject
     {
@@ -33,9 +33,7 @@ namespace SlowAndReverb
 
         public ALSourceState GetState()
         {
-            int index = AL.GetSource(Handle, ALGetSourcei.SourceState);
-
-            return (ALSourceState)index;
+            return AL.GetSourceState(Handle);
         }
 
         public void SetBuffer(int handle)

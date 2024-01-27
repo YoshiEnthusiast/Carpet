@@ -2,7 +2,7 @@
 using System.IO;
 using System.Xml;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public static class Utilities
     {

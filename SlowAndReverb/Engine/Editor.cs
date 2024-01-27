@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public class Editor
     {

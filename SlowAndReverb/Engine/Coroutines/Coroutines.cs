@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public static class Coroutines
     {

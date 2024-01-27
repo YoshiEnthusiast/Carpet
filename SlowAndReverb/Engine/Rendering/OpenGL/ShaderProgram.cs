@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public abstract class ShaderProgram : OpenGLObject
     {

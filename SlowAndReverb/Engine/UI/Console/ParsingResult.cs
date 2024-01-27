@@ -1,47 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SlowAndReverb
+﻿namespace Carpet
 {
     public struct ParsingResult
     {
-        private ParsingResult(object value)
-        {
-            Value = value;
-        }
-
-        private ParsingResult(string error)
-        {
-            Error = error;
-        }
-
         public object Value { get; private init; }
         public string Error { get; private init; }
 
+        public bool HasError => Error is not null;
+
         public static ParsingResult CreateValue(object value)
         {
-            return new ParsingResult(value);
+            var result = new ParsingResult()
+            {
+                Value = value
+            };
+
+            return result;
         }
 
         public static ParsingResult CreateError(string error)
         {
-            return new ParsingResult(error);
+            var result = new ParsingResult()
+            {
+                Error = error
+            };
+
+            return result;
         }
 
-        public static ParsingResult CreateConvertionError(string value, string type)
+        public static ParsingResult CreateConversionError(string input, string type)
         {
-            return CreateError($"""Could not convert "{value}" to {type}""");
-        }
+            var error = $"Could not convert \"{input}\" to type {type}";
 
-        public override string ToString()
-        {
-            if (Error is not null)
-                return Error;
-
-            return Value.ToString();
+            return CreateError(error);
         }
     }
 }

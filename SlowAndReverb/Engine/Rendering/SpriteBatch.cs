@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     // Pass min and max depth to vertex shader
 

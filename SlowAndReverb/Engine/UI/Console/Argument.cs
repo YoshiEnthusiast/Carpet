@@ -1,131 +1,264 @@
 ﻿using System;
 using System.Collections.Generic;
-using GameEntity = SlowAndReverb.Entity;
+using System.Reflection;
+using System.Text;
+using KeyboardKey = Carpet.Key;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public abstract class Argument
     {
-        protected Argument(string name, bool optional)
+        private const char OpenSquareBracket = '[';
+        private const char CloseSquareBracket = ']';
+
+        private const char OpenAngleBracket = '<';
+        private const char CloseAngleBracket = '>';
+
+        private static readonly Dictionary<Type, Type> s_types = [];
+
+        private static readonly StringBuilder s_builder = new StringBuilder();
+
+        public Argument(string name, bool optional = false)
         {
             Name = name;
             Optional = optional;
         }
 
-        public string Name { get; private init; }
-        public bool Optional { get; private init; }
+        public string Name { get; init; }
+        public bool Optional { get; init; }
 
-        public abstract ParsingResult Parse(string line);
+        public string TypeRepresentation { get; protected init; }
 
-        public virtual string AutoComplete(string line)
+        public abstract ParsingResult Parse(string input);
+
+        public virtual string AutoComplete(string input)
         {
-            return line;
+            return input;
         }
 
-        private class String : Argument
+        public override string ToString()
         {
-            protected String(string name, bool optional) : base(name, optional)
-            {
+            s_builder.Clear();
 
+            if (Optional)
+            {
+                s_builder.Append(OpenAngleBracket);
+                s_builder.Append(Name);
+                s_builder.Append(CloseAngleBracket);
+            }
+            else
+            {
+                s_builder.Append(OpenSquareBracket);
+                s_builder.Append(Name);
+                s_builder.Append(CloseSquareBracket);
             }
 
-            public override ParsingResult Parse(string line)
+            return s_builder.ToString();
+        }
+
+
+        public static void AddType<T>() where T : Argument
+        {
+            Type argumentType = typeof(T);
+
+            AddType(argumentType);
+        }
+
+        internal static void Initialize()
+        {
+            Type baseType = typeof(Argument);
+            Type[] types = baseType.GetNestedTypes();
+
+            foreach (Type type in types)
             {
-                return ParsingResult.CreateValue(line);
+                if (!type.IsSubclassOf(baseType) || type.IsGenericType)
+                        continue;
+
+                AddType(type);
             }
         }
 
-        private class Integer : Argument
+        internal static Type GetArgumentType(Type type)
         {
-            protected Integer(string name, bool optional) : base(name, optional)
-            {
+            if (s_types.TryGetValue(type, out var result))
+                return result;
 
+            return null;
+        }
+
+        protected bool StartsWith(ReadOnlySpan<char> keyword, ReadOnlySpan<char> input)
+        {
+            return keyword.Length > 1 && keyword.StartsWith(input);
+        }
+
+        protected ParsingResult CreateConversionError(string input)
+        {
+            return ParsingResult.CreateConversionError(input, TypeRepresentation);
+        } 
+
+        private static void AddType(Type argumentType)
+        {
+            ArgumentTypeAttribute attribute =  
+                argumentType.GetCustomAttribute<ArgumentTypeAttribute>();
+
+            if (attribute is null)
+            {
+                DebugConsole.Log($"Argument type \"{argumentType.Name}\" does not have an" +
+                    $"{typeof(ArgumentTypeAttribute).Name} attribute");
+
+                return;
             }
 
-            public override ParsingResult Parse(string line)
+            Type type = attribute.Value;
+
+            if (s_types.ContainsKey(type))
             {
-                if (int.TryParse(line, out int value))
+                DebugConsole.Log($"Argument type for type \"{type.Name}\" already exists");
+
+                return;
+            }
+
+            s_types[type] = argumentType;
+        }
+
+        [ArgumentType(typeof(string))]
+        public class String : Argument
+        {
+            public String(string name, bool optional = false) : base(name, optional)
+            {
+                TypeRepresentation = "string";
+            }
+
+            public override ParsingResult Parse(string input)
+            {
+                return ParsingResult.CreateValue(input);
+            }
+        }
+
+        [ArgumentType(typeof(int))]
+        public class Int : Argument
+        {
+            public Int(string name, bool optional = false) : base(name, optional)
+            {
+                TypeRepresentation = "integer";
+            }
+
+            public override ParsingResult Parse(string input)
+            {
+                if (int.TryParse(input, out int value))
                     return ParsingResult.CreateValue(value);
 
-                return ParsingResult.CreateError($"""Could not convert "{line}" to integer" """);
+                return CreateConversionError(input);
             }
         }
-
-        private class Float : Argument
+        
+        [ArgumentType(typeof(float))]
+        public class Float : Argument
         {
-            protected Float(string name, bool optional) : base(name, optional)
+            public Float(string name, bool optional = false) : base(name, optional)
             {
-
+                TypeRepresentation = "float";
             }
 
-            public override ParsingResult Parse(string line)
+            public override ParsingResult Parse(string input)
             {
-                if (float.TryParse(line, out float value))
+                if (float.TryParse(input, out float value))
                     return ParsingResult.CreateValue(value);
 
-                return ParsingResult.CreateConvertionError(line, "integer");
+                return CreateConversionError(input);
             }
         }
 
-        private class Bool : Argument
+        [ArgumentType(typeof(bool))] 
+        public class Bool : Argument
         {
-            private static readonly Dictionary<string, bool> s_binaryStateWords = new Dictionary<string, bool>()
+            private static readonly Dictionary<string, bool> s_keywords = new Dictionary<string, bool>()
             {
                 ["true"] = true,
+                ["t"] = true,
                 ["1"] = true,
                 ["false"] = false,
+                ["f"] = false,
                 ["0"] = false
             };
 
-            protected Bool(string name, bool optional) : base(name, optional)
+            public Bool(string name, bool optional = false) : base(name, optional)
             {
-
+                TypeRepresentation = "boolean";
             }
 
-            public override ParsingResult Parse(string line)
+            public override ParsingResult Parse(string input)
             {
-                if (s_binaryStateWords.TryGetValue(line, out bool value))
+                if (s_keywords.TryGetValue(input, out bool value))
                     return ParsingResult.CreateValue(value);
 
-                return ParsingResult.CreateConvertionError(line, "bool");
+                return CreateConversionError(input);
             }
 
-            public override string AutoComplete(string line)
+            public override string AutoComplete(string input)
             {
-                foreach (string word in s_binaryStateWords.Keys)
-                    if (word.StartsWith(line))
-                        return word;
+                Span<char> lower = stackalloc char[input.Length];
+                MemoryExtensions.ToLowerInvariant(input, lower);
 
-                return line;
+                foreach (string keyword in s_keywords.Keys)
+                    if (StartsWith(keyword, lower))
+                        return keyword;
+
+                return input;
             }
         }
 
-        private class Entity : Argument
+        public class Enum<T> : Argument where T : struct
         {
-            protected Entity(string name, bool optional) : base(name, optional)
-            {
+            private static readonly Dictionary<Type, string[]> s_names = new Dictionary<Type, string[]>();
 
+            private readonly Type _type;
+
+            public Enum(string name, bool optional = false) : base(name, optional)
+            {
+                _type = typeof(T);
+                TypeRepresentation = _type.Name.ToLower();
+
+                if (!s_names.ContainsKey(_type))
+                {
+                    string[] names = Enum.GetNames(_type);
+
+                    for (int i = 0; i < names.Length; i++)
+                        names[i] = names[i].ToLowerInvariant();
+
+                    s_names[_type] = names;
+                }
             }
 
-            public override ParsingResult Parse(string line)
+            public override ParsingResult Parse(string input)
             {
-                Type type = Editor.GetEntityTypeByName(line);
+                if (Enum.TryParse(input, true, out T value))
+                    return ParsingResult.CreateValue(value);
 
-                if (type is null)
-                    return ParsingResult.CreateError($"""Entity {line} does not exist""");
-
-                GameEntity entity = Editor.CreateEntityOfType(type);
-
-                return ParsingResult.CreateValue(entity);
+                return CreateConversionError(input);
             }
 
-            public override string AutoComplete(string line)
+            public override string AutoComplete(string input)
             {
-                foreach (string name in Editor.EntityNamesToLower)
-                    if (name.StartsWith(line))
+                Span<char> lower = stackalloc char[input.Length];
+                MemoryExtensions.ToLowerInvariant(input, lower);
+                
+                string[] names = s_names[_type];
+
+                foreach (string name in names)
+                    if (StartsWith(name, lower))
                         return name;
 
-                return line;
+                return input;
+            }
+        }
+
+        [ArgumentType(typeof(KeyboardKey))]
+        public class Key : Enum<KeyboardKey>
+        {
+            public Key(string name, bool optional = false) : base(name, optional)
+            {
+
             }
         }
     }

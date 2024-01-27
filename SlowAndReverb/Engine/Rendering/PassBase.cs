@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public abstract class PassBase
     {

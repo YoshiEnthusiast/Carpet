@@ -8,10 +8,12 @@ using System.Text;
 using OpenTKKey = OpenTK.Windowing.GraphicsLibraryFramework.Keys;
 using OpenTKMouseButton = OpenTK.Windowing.GraphicsLibraryFramework.MouseButton;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public static class Input
     {
+        private const char NewLine = '\n';
+
         private static readonly List<Key> s_pressedKeys = new List<Key>();
         private static readonly List<Key> s_repeatedPressedKeys = new List<Key>();
 
@@ -44,6 +46,7 @@ namespace SlowAndReverb
             }
         }
 
+        public static float MouseScroll { get; private set; }
         public static InputProfile Profile { get; set; }
 
         public static InputDeviceType DeviceType { get; private set; }
@@ -82,6 +85,7 @@ namespace SlowAndReverb
             s_window.KeyDown += OnKeyDown;
             s_window.TextInput += OnTextInput;
             s_window.JoystickConnected += OnJoystickConnected;
+            s_window.MouseWheel += OnMouseWheel; 
 
             Update();
         }
@@ -152,10 +156,19 @@ namespace SlowAndReverb
             s_repeatedPressedKeys.Clear();
 
             s_textInput.Clear();
+
+            MouseScroll = 0f;
         }
 
-        public static string UpdateTextInputString(string line, int position)
+        public static string UpdateTextInputString(string line, ReadOnlySpan<char> ignore, ref int position, out bool textChanged)
         {
+            if (s_textInput.Count < 1)
+            {
+                textChanged = false;
+
+                return line;
+            }
+
             var builder = new StringBuilder(line);
 
             foreach (TextInputKey textKey in s_textInput)
@@ -168,9 +181,7 @@ namespace SlowAndReverb
 
                     if (specialKeyValue == SpecialKey.Enter)
                     {
-                        builder.Insert(position, '\n');
-
-                        position++;
+                        AppendCharacter(builder, NewLine, ignore, ref position);
                     }
                     else
                     {
@@ -198,22 +209,19 @@ namespace SlowAndReverb
 
                     if (character is not null)
                     {
-                        builder.Insert(position, character.Value);
+                        char value = character.Value;
 
-                        position++;
+                        AppendCharacter(builder, value, ignore, ref position);
                     }
                 }
             }
+
+            textChanged = true;
 
             return builder.ToString();
         }
 
         #region Input Checks
-
-        public static string UpdateTextInputString(string line)
-        {
-            return UpdateTextInputString(line, line.Length);
-        }
 
         public static bool IsPressed(Key key)
         {
@@ -383,6 +391,11 @@ namespace SlowAndReverb
             }
         }
 
+        private static void OnMouseWheel(MouseWheelEventArgs args)
+        {
+            MouseScroll = args.OffsetY;
+        }
+
         private static OpenTKKey ToOpenTKKey(Key key)
         {
             return (OpenTKKey)key;
@@ -391,6 +404,15 @@ namespace SlowAndReverb
         private static OpenTKMouseButton ToOpenTKMouseButton(MouseButton button)
         {
             return (OpenTKMouseButton)button;
+        }
+
+        private static void AppendCharacter(StringBuilder builder, char character, ReadOnlySpan<char> ignore, ref int position)
+        {
+            if (ignore.Contains(character))
+                return;
+
+            builder.Insert(position, character);
+            position++;
         }
     }
 }

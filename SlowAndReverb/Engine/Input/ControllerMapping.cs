@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public sealed class ControllerMapping
     {

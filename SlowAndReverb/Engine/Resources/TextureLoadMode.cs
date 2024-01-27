@@ -1,4 +1,4 @@
-﻿namespace SlowAndReverb
+﻿namespace Carpet
 {
     internal enum TextureLoadMode
     {

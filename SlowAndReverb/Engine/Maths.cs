@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public static class Maths
     {
@@ -174,7 +174,7 @@ namespace SlowAndReverb
         public static float Lerp(float value, float destination, float amount)
         {
             amount = Clamp(amount, 0f, 1f);
-            
+
             return value + (destination - value) * amount;
         }
 

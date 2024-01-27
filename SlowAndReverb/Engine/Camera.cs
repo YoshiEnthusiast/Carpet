@@ -1,7 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using System;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public class Camera
     {

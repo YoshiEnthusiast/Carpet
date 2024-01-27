@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Xml;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public class InputSettings
     {

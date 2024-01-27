@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public class Boids : Entity
     {

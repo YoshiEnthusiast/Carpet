@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public abstract class Computer : ShaderProgramWrapper
     {

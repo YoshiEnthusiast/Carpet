@@ -1,7 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using System.Runtime.InteropServices;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public class ComputeShaderProgram : ShaderProgram
     {

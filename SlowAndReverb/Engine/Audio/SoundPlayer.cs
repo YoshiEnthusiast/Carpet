@@ -1,7 +1,7 @@
 ﻿using OpenTK.Audio.OpenAL;
 using System.Linq;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public abstract class SoundPlayer
     {

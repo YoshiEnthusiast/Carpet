@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices.Marshalling;
 using System.Runtime.Serialization;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public class Font
     {
+        private const char NewLine = '\n';
+        
         private readonly FontFamily _family;
-        private readonly char _newLine = '\n';
 
         public Font(string fileName)
         {
@@ -19,28 +21,34 @@ namespace SlowAndReverb
 
         public TextMaterial Material { get; set; } = new TextMaterial();
         public Vector2 Scale { get; set; } = Vector2.One;
-        public Color Color { get; set; } = Color.White;
         public Color OutlineColor { get; set; }
         public int OutlineWidth { get; set; }
         public float BottomMargin { get; set; }
         public float AdditionalAdvance { get; set; }
         public float MaxWidth { get; set; }
-        public bool Multiline { get; set; }
+        public int MaxRows { get; set; }
+        public bool Multiline { get; set; } = true;
 
-        private float NewLineOffset => LineHeight + BottomMargin;
+        public float NewLineOffset => LineHeight + BottomMargin;
 
-        public void Draw(string text, Vector2 position, float depth)
+        public void Draw(ReadOnlySpan<char> text, Vector2 position, Color color, float depth, out Vector2 size)
         {
-            if (string.IsNullOrEmpty(text))
+            if (text.Length < 1)
+            {
+                size = Vector2.Zero;
+
                 return;
+            }
 
             Material.OutlineColor = OutlineColor;
             Material.OutlineWidth = Maths.Min(OutlineWidth, _family.TexturePadding);
 
-            float xOffset = 0f;
-            float yOffset = 0f;
+            float width = 0f;
 
-            foreach (char symbol in text.ToCharArray())
+            float xOffset = 0f;
+            int rows = 1;
+
+            foreach (char symbol in text)
             {
                 if (!_family.TryGetCharacter(symbol, out Character character))
                     continue;
@@ -52,32 +60,48 @@ namespace SlowAndReverb
 
                 float advance = GetCharacterAdvance(character);
 
-                if (MaxWidth > 0 && xOffset + advance > MaxWidth || symbol == _newLine)
+                if (MaxWidth > 0 && xOffset + advance > MaxWidth || symbol == NewLine)
                 {
                     if (!Multiline)
-                        return;
+                        goto exit;
 
-                    yOffset += NewLineOffset;
+                    width = Math.Max(width, xOffset);
+
+                    rows++;
                     xOffset = 0f;
                 }
 
                 float characterX = xOffset + bearing.X * Scale.X;
-                float characterY = yOffset + bearing.Y * Scale.Y;
+                float characterY = (rows - 1) * NewLineOffset + bearing.Y * Scale.Y;
 
-                Graphics.Draw(texture, null, bounds, position + new Vector2(characterX, characterY), Scale, Vector2.Zero, Color, 0f, SpriteEffect.None, SpriteEffect.None, depth);
+                Graphics.Draw(texture, null, bounds, position + new Vector2(characterX, characterY), Scale, Vector2.Zero, color, 0f, SpriteEffect.None, SpriteEffect.None, depth);
 
                 xOffset += advance;
             }
+
+exit:
+            width = Math.Max(width, xOffset);
+            size = new Vector2(width, rows * NewLineOffset - BottomMargin);
         }
 
-        public void Draw(string text, float x, float y, float depth)
+        public void Draw(ReadOnlySpan<char> text, float x, float y, Color color, float depth, out Vector2 size)
         {
-            Draw(text, new Vector2(x, y), depth);
+            Draw(text, new Vector2(x, y), color, depth, out size);
         }
 
-        public Vector2 Measure(string text)
+        public void Draw(ReadOnlySpan<char> text, Vector2 position, Color color, float depth)
         {
-            if (string.IsNullOrEmpty(text))
+            Draw(text, position, color, depth, out _);
+        }
+
+        public void Draw(ReadOnlySpan<char> text, float x, float y, Color color, float depth)
+        {
+            Draw(text, x, y, color, depth, out _);
+        }
+
+        public Vector2 Measure(ReadOnlySpan<char> text)
+        {
+            if (text.Length < 1)
                 return Vector2.Zero;
 
             float width = 0f;
@@ -85,14 +109,14 @@ namespace SlowAndReverb
 
             float currentWidth = 0f;
 
-            foreach (char symbol in text.ToCharArray())
+            foreach (char symbol in text)
             {
                 if (!_family.TryGetCharacter(symbol, out Character character))
                     continue;
 
                 float advance = GetCharacterAdvance(character);
 
-                if (MaxWidth > 0 && currentWidth + advance > MaxWidth || symbol == _newLine)
+                if (MaxWidth > 0 && currentWidth + advance > MaxWidth || symbol == NewLine)
                 {
                     if (!Multiline)
                         return new Vector2(currentWidth, height);
@@ -106,21 +130,18 @@ namespace SlowAndReverb
                 currentWidth += advance;
             }
 
-            return new Vector2(Maths.Max(width, currentWidth), height);
+            width = Math.Max(width, currentWidth);
+            return new Vector2(width, height);
         }
 
-        public float MeasureWidth(string text)
+        public float MeasureX(ReadOnlySpan<char> text)
         {
-            Vector2 size = Measure(text);
-
-            return size.X;
+            return Measure(text).X;
         }
 
-        public float MeasureHeight(string text)
+        public float MeasureY(ReadOnlySpan<char> text)
         {
-            Vector2 size = Measure(text);
-
-            return size.Y;
+            return Measure(text).Y;
         }
 
         private float GetCharacterAdvance(Character character)

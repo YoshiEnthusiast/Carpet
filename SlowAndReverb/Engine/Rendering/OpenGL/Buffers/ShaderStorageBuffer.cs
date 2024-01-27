@@ -2,7 +2,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public sealed class ShaderStorageBuffer : OpenGLObject
     {

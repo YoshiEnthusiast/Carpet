@@ -1,6 +1,6 @@
 ﻿global using Vector2GL = OpenTK.Mathematics.Vector2;
 global using SystemRandom = System.Random;
-global using ComputeItem = SlowAndReverb.Std430LayoutItem;
+global using ComputeItem = Carpet.Std430LayoutItem;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
@@ -11,8 +11,13 @@ using System;
 // GLOBAL TASK LIST
 
 // TODO: Scene methods that return multiple entities should accept lists
+// TODO: Make maaaany things internal
+// TODO: Fix input system
+// TODO: Redo content loading
+// TODO: "=new()" on the right side of the expression when initializing fields
 
-namespace SlowAndReverb
+
+namespace Carpet
 {
     public abstract class Engine
     {
@@ -43,7 +48,9 @@ namespace SlowAndReverb
 
         public static float TimeMultiplier { get; set; } = 1f;
         public static bool DebugCollition { get; set; }
-        public static bool DebugLighting { get; set; } 
+        public static bool DebugLighting { get; set; }
+
+        public static float TimeElapsedFloat => (float)TimeElapsed;
 
         internal virtual void Run(Resolution initialResolution, TextureLoadMode textureMode)
         {
@@ -61,7 +68,7 @@ namespace SlowAndReverb
 
             _window = new GameWindow(settings, nativeSettings)
             {
-                VSync = VSyncMode.Adaptive
+                VSync = VSyncMode.Off
             };
 
             StbImage.stbi_set_flip_vertically_on_load(1);

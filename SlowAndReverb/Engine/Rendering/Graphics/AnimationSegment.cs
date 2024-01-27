@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public readonly record struct AnimationSegment(int Frame, float Delay);
 }

@@ -3,7 +3,7 @@ using OpenTK.Windowing.Desktop;
 using System;
 using System.Runtime.InteropServices;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public static class OpenGL
     {

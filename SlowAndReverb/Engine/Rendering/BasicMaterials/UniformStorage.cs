@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public readonly record struct UniformStorage(string Name, PropertyInfo Property);
 }

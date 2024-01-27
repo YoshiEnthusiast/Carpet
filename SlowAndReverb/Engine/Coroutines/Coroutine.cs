@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public sealed class Coroutine
     {

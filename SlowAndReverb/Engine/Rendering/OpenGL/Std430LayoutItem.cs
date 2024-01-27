@@ -2,7 +2,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public struct Std430LayoutItem
     {

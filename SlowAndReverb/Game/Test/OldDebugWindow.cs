@@ -10,7 +10,7 @@ using System.IO;
 using System.Net.WebSockets;
 using System.Security.Cryptography;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public sealed class OldDebugWindow : GameWindow
     {
@@ -150,7 +150,7 @@ namespace SlowAndReverb
             else if (Input.IsDown(Key.Left))
                 c.Zoom -= impostor;
 
-            a = Input.UpdateTextInputString(a);
+            //a = Input.UpdateTextInputString(a);
             //Console.WriteLine(a);
 
             //Console.WriteLine(string.Join(',', Input.PressedKeys.Select(k => Input.KeyToChar(k)).ToArray()));

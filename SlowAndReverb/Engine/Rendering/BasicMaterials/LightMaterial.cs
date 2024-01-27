@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public class LightMaterial : Material
     {

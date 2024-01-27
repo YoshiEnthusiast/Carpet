@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SlowAndReverb.Tests
+namespace Carpet.Tests
 {
     public static class Tests
     {

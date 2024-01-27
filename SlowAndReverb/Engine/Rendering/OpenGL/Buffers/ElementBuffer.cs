@@ -1,6 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public sealed class ElementBuffer : DataBuffer<uint>
     {

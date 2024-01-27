@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public sealed class CoroutineRunner : Component
     {

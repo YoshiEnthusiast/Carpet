@@ -1,4 +1,4 @@
-﻿namespace SlowAndReverb
+﻿namespace Carpet
 {
     public sealed class TestMaterial : Material
     {

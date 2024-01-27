@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Xml;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public sealed class Atlas
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public sealed class UniformAttribute : Attribute

@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public class FlyingLantern : Entity
     {

@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public sealed class Palette
     {

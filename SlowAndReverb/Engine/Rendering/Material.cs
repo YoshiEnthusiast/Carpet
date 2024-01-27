@@ -1,7 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using System.Collections.Generic;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public abstract class Material : ShaderProgramWrapper
     {

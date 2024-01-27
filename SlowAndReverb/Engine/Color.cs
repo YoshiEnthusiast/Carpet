@@ -2,7 +2,7 @@
 using OpenTK.Mathematics;
 using System;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public struct Color
     {
@@ -15,6 +15,7 @@ namespace SlowAndReverb
         public static readonly Color Black = new Color(0, 0, 0);
         public static readonly Color Red = new Color(255, 0, 0);
         public static readonly Color Blue = new Color(0, 0, 255);
+        public static readonly Color Purple = new Color(255, 0, 255);
         public static readonly Color LightGreen = new Color(85, 200, 85);
         public static readonly Color DarkGreen = new Color(45, 110, 8);
         public static readonly Color Pink = new Color(255, 0, 127);

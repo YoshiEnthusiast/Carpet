@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public abstract class AutoTile : Entity
     {

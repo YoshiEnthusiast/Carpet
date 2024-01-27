@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Threading;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public sealed class Demo : Engine
     {
         private readonly StateMachine<GlobalState> _stateMachine = new StateMachine<GlobalState>();
-
-        private readonly UIRoot _pauseRoot = new UIRoot();
-        private InGameMenu _pauseMenu;
 
         private Thread _contentLoadingThread;
 
@@ -20,7 +17,7 @@ namespace SlowAndReverb
 
         public static SmoothCameraLayer ForegroundLayer { get; private set; }
         public static Layer BackgroundLayer { get; private set; }
-        public static Layer UILayer { get; private set; }
+        public static Layer ConsoleLayer { get; private set; }
 
         public static RenderTarget OccludeBuffer { get; private set; }
         public static RenderTarget ShadowBuffer { get; private set; }
@@ -30,6 +27,7 @@ namespace SlowAndReverb
 
         public static LayerPass ForegroundPass { get; private set; }
         public static LayerPass BackgroundPass { get; private set; }
+        public static LayerPass ConsolePass { get; private set; }
         public static Pass OccludeBufferPass { get; private set; }
         public static Pass ShadowBufferPass { get; private set; }
         public static Pass LightmapPass { get; private set; }
@@ -40,15 +38,11 @@ namespace SlowAndReverb
         protected override void Update(float deltaTime)
         {
             _stateMachine.DoUpdate(deltaTime);
-
-            UI.Update(deltaTime);
         }
 
         protected override void Draw()
         {
             _stateMachine.DoDraw();
-
-            UI.Draw();
         }
 
         protected override void OnInitialize()
@@ -68,7 +62,7 @@ namespace SlowAndReverb
 
             ForegroundLayer.Camera.SetCenterOrigin();
 
-            UILayer = new Layer(320, 180, 2f);
+            ConsoleLayer = new Layer(320, 180, 3f);
 
             Pipeline = new Pipeline();
 
@@ -82,13 +76,17 @@ namespace SlowAndReverb
                 .SetRenderTarget(Lightmap));
 
             BackgroundPass = Pipeline.AddPass(new LayerPass().SetLayer(BackgroundLayer));
-
             ForegroundPass = Pipeline.AddPass(new LayerPass().SetLayer(ForegroundLayer));
 
-            UI.Initialize();
+            ConsolePass = Pipeline.AddPass(new LayerPass().SetLayer(ConsoleLayer));
+            ConsolePass.Render += OnConsoleRender;
+
             Editor.Initialize();
 
-            UI.CursorMode = CursorMode.Shown;
+            DebugConsole.Initialize(ConsoleLayer, "testFont");
+
+            Argument.AddType<Game.Entity>();
+            DebugConsole.AddCommandContainer(typeof(TestCommands));
         }
 
         protected override void LoadContent()
@@ -107,14 +105,11 @@ namespace SlowAndReverb
 
         private void UpdateGame(float deltaTime)
         {
+            DebugConsole.Update(deltaTime);
+
             if (Input.IsPressed(Key.Escape))
             {
                 Paused = !Paused;
-
-                if (Paused)
-                    _pauseRoot.Open(_pauseMenu);
-                else
-                    _pauseRoot.Close();
             }
 
             if (!Paused)
@@ -129,9 +124,6 @@ namespace SlowAndReverb
 
         private void StartGame()
         {
-            UI.AddRoot(_pauseRoot);
-            _pauseMenu = new PauseMenu();
-
             CurrentScene = new Scene();
 
             CurrentScene.Add(new TestEntity(0f, 0f));
@@ -146,7 +138,7 @@ namespace SlowAndReverb
             //Scene.Add(new Block("tileset", 68f, 140f));
             //Scene.Add(new Block("tileset", 68f + 8f * 25f, 140f));
 
-            CurrentScene.Add(new Player(300f, -20f));
+            // CurrentScene.Add(new Player(300f, -20f));
             CurrentScene.Add(new TestAnchor(200f, 20f));
 
             CurrentScene.Add(new FlyingLantern(80f, 80f));
@@ -165,7 +157,9 @@ namespace SlowAndReverb
             //    Position = new Vector2(400f, 20f)
             //});
 
+            
             CurrentScene.Initialize();
+            ForegroundLayer.Camera.Position = new Vector2(400f, 50f);
             //CurrentScene.GetSystem<BackgroundSystem>().CurrentBackground = new TestBackground();
         }
 
@@ -184,6 +178,11 @@ namespace SlowAndReverb
             profile.Initialize();
 
             _stateMachine.ForceState(GlobalState.Game);
+        }
+
+        private void OnConsoleRender()
+        {
+            DebugConsole.Draw();
         }
     }
 }

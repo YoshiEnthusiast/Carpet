@@ -1,6 +1,6 @@
 ﻿using OpenTK.Audio.OpenAL;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public class DefaultSoundPlayer : SoundPlayer
     {

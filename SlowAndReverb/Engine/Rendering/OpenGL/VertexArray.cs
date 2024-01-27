@@ -2,7 +2,7 @@
 using System;
 using System.Linq;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public sealed class VertexArray<T> : OpenGLObject where T : struct
     {

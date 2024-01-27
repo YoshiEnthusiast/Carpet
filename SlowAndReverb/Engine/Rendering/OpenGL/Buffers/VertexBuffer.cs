@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using OpenTK.Graphics.OpenGL;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public sealed class VertexBuffer<T> : DataBuffer<T> where T : struct
     {

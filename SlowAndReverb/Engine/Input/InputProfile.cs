@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public sealed class InputProfile
     {

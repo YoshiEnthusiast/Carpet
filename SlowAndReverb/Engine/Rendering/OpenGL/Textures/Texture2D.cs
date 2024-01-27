@@ -6,7 +6,7 @@ using System.IO;
 using ImageReadColorComponents = StbImageSharp.ColorComponents;
 using ImageWriteColorComponents = StbImageWriteSharp.ColorComponents;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public class Texture2D : Texture
     {

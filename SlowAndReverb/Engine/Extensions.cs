@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Xml;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     internal static class Extensions
     {
@@ -20,6 +20,11 @@ namespace SlowAndReverb
         public static void SetAttribute(this XmlElement element, string name, object value)
         {
             element.SetAttribute(name, value.ToString());
+        }
+
+        public static bool StartsWith(this string line, Span<char> span)
+        {
+            return ((ReadOnlySpan<char>)line).StartsWith(span);
         }
     }
 }

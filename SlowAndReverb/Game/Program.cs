@@ -1,15 +1,22 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using Carpet;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
+using OpenTK.Core.Exceptions;
+using System.Collections.Immutable;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     internal sealed class Program
     {
@@ -26,16 +33,40 @@ namespace SlowAndReverb
             {
                 return "";
             }
-        }   
+        }
 
         private record struct Boid(Vector2 Position, Vector2 Velocity);
 
 
         public record class I(int A, int B);
 
-
         private static void Main(string[] args)
         {
+            //const string A = "a";
+            //const string B = "b";
+
+            //var command = new Command("log", new Argument[]
+            //{
+            //    new Argument.String(Text),
+            //    new Argument.Int(A),
+            //    new Argument.Int(B, true)
+            //},
+            //(Arguments args) =>
+            //{
+            //    string text = args.Get<string>(Text);
+            //    int a = args.Get<int>(A);
+            //    int b = args.Get<int>(B, 3);
+
+            //    Console.WriteLine(text);
+            //    Console.WriteLine(a + b);
+            //});
+
+            //command.Run(new string[]
+            //{
+            //    "amogus", "2"
+            //},
+            //false);
+
             //var s = Std430LayoutItem.StructArray<Boid, Vector2>(20);
             //var f = Std430LayoutItem.Struct<Boid, Vector2>();
             //Console.WriteLine(s.BaseAlignment + " " + f.BaseAlignment);
@@ -93,11 +124,11 @@ namespace SlowAndReverb
 
 
             // temporary
-            Resolution initialREsolution = Resolution.SupportedResolutions.First();
+            Resolution initialResolution = Resolution.SupportedResolutions.First();
 
             s_game = new Demo(60d, 60d, "Demo");
 
-            s_game.Run(initialREsolution, TextureLoadMode.LoadAtlas);
+            s_game.Run(initialResolution, TextureLoadMode.LoadAtlas);
 
             return;
 

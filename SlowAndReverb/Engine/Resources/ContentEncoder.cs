@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Security.Cryptography;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     internal static class ContentEncoder
     {

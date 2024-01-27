@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace SlowAndReverb
+namespace Carpet
 {
     public abstract class Cache<T>
     {

@@ -1,15 +1,15 @@
 using StbImageSharp;
 using Xunit.Abstractions;
-using AsepriteLayer = SlowAndReverb.Aseprite.Layer;
-using Cel = SlowAndReverb.Aseprite.Cel;
-using LoopAnimationDirection = SlowAndReverb.Aseprite.LoopAnimationDirection;
-using Slice = SlowAndReverb.Aseprite.Slice;
-using SliceKey = SlowAndReverb.Aseprite.SliceKey;
-using Tag = SlowAndReverb.Aseprite.Tag;
-using UserData = SlowAndReverb.Aseprite.UserData;
-using UserDataChunk = SlowAndReverb.Aseprite.UserDataChunk;
+using AsepriteLayer = Carpet.Aseprite.Layer;
+using Cel = Carpet.Aseprite.Cel;
+using LoopAnimationDirection = Carpet.Aseprite.LoopAnimationDirection;
+using Slice = Carpet.Aseprite.Slice;
+using SliceKey = Carpet.Aseprite.SliceKey;
+using Tag = Carpet.Aseprite.Tag;
+using UserData = Carpet.Aseprite.UserData;
+using UserDataChunk = Carpet.Aseprite.UserDataChunk;
 
-namespace SlowAndReverb.Tests
+namespace Carpet.Tests
 {
     public class AsepriteTests : IClassFixture<ImageData>
     {

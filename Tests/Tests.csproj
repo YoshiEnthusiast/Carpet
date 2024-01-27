@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SlowAndReverb\SlowAndReverb.csproj" />
+    <ProjectReference Include="..\SlowAndReverb\Carpet.csproj" />
   </ItemGroup>
 
   <ItemGroup>
