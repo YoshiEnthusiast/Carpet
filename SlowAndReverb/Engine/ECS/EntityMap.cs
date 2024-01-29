@@ -5,7 +5,7 @@ namespace Carpet
 {
     public sealed class EntityMap : DynamicCollection<Entity>
     {
-        private readonly Dictionary<Vector2, HashSet<Entity>> _buckets = new Dictionary<Vector2, HashSet<Entity>>();
+        private readonly Dictionary<Vector2, HashSet<Entity>> _buckets = [];
 
         private readonly Scene _scene;
         private readonly float _bucketSize;

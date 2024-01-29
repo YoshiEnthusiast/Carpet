@@ -5,7 +5,7 @@ namespace Carpet
 {
     public abstract class Material : ShaderProgramWrapper
     {
-        private readonly List<Texture> _textures = new List<Texture>();
+        private readonly List<Texture> _textures = [];
 
         private bool _applied;
 

@@ -5,7 +5,7 @@
         private readonly float _width;
         private readonly float _height;
 
-        public RectangleParticleEmitter(ParticleBehaviour behaviour, float width, float height) : base(behaviour)
+        public RectangleParticleEmitter(ParticleBehavior behavior, float width, float height) : base(behavior)
         {
             _width = width;
             _height = height;

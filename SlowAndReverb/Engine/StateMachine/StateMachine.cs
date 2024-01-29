@@ -5,7 +5,7 @@ namespace Carpet
 {
     public class StateMachine<T> : Component where T : struct
     {
-        private readonly Dictionary<T, IState> _states = new Dictionary<T, IState>();
+        private readonly Dictionary<T, IState> _states = [];
 
         public T? StateID { get; private set; }
         public T? PreviousStateID { get; private set; }

@@ -30,12 +30,12 @@ namespace Carpet
 
         private static VirtualTexture s_noTexture;
 
-        private static readonly Dictionary<string, PipelineShaderProgram> s_pipelineShaders = new Dictionary<string, PipelineShaderProgram>();
-        private static readonly Dictionary<string, ComputeShaderProgram> s_computeShaders = new Dictionary<string, ComputeShaderProgram>();
-        private static readonly Dictionary<string, VirtualTexture> s_virtualTextures = new Dictionary<string, VirtualTexture>();
+        private static readonly Dictionary<string, PipelineShaderProgram> s_pipelineShaders = [];
+        private static readonly Dictionary<string, ComputeShaderProgram> s_computeShaders = [];
+        private static readonly Dictionary<string, VirtualTexture> s_virtualTextures = [];
 
-        private static readonly Dictionary<int, int> s_tileFrames = new Dictionary<int, int>();
-        private static readonly Dictionary<string, ControllerMapping> s_controllerMappings = new Dictionary<string, ControllerMapping>();
+        private static readonly Dictionary<int, int> s_tileFrames = [];
+        private static readonly Dictionary<string, ControllerMapping> s_controllerMappings = [];
 
         public static Texture2D AtlasTexture { get; private set; }
         public static string Folder { get; private set; }

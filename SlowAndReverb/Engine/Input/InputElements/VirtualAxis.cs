@@ -7,8 +7,8 @@ namespace Carpet
         private const float PositiveDirection = 1f;
         private const float NegativeDirection = -1f;
 
-        private readonly VirtualButton _positiveButton = new VirtualButton();
-        private readonly VirtualButton _negativeButton = new VirtualButton();
+        private readonly VirtualButton _positiveButton = new();
+        private readonly VirtualButton _negativeButton = new();
 
         private VirtualButton _lastPressedButton;
 

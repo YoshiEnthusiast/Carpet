@@ -7,7 +7,7 @@ namespace Carpet
     public abstract class AutoTile : Entity
     {
         private readonly Sprite _sprite;
-        private readonly Dictionary<Vector2, AutoTile> _neighbours = new Dictionary<Vector2, AutoTile>();
+        private readonly Dictionary<Vector2, AutoTile> _neighbors = [];
 
         public AutoTile(string tileSet, float x, float y) : base(x, y)
         {
@@ -41,7 +41,7 @@ namespace Carpet
 
         private void Refresh()
         {
-            _neighbours.Clear();
+            _neighbors.Clear();
 
             int mask = 0;
             int index = 0;
@@ -55,10 +55,10 @@ namespace Carpet
 
                     index++;
 
-                    if (FindNeighbour(x, y) is null)
+                    if (FindNeighbor(x, y) is null)
                         continue;
 
-                    if (x != 0 && y != 0 && (FindNeighbour(x, 0) is null || FindNeighbour(0, y) is null))
+                    if (x != 0 && y != 0 && (FindNeighbor(x, 0) is null || FindNeighbor(0, y) is null))
                         continue;
 
                     mask += 1 << index - 1;
@@ -68,29 +68,29 @@ namespace Carpet
             _sprite.Frame = Content.GetTileFrame(mask);
         }
 
-        public AutoTile GetNeighbour(int x, int y)
+        public AutoTile GetNeighbor(int x, int y)
         {
-            if (_neighbours.TryGetValue(new Vector2(x, y), out AutoTile neighbour))
-                return neighbour;
+            if (_neighbors.TryGetValue(new Vector2(x, y), out AutoTile neighbor))
+                return neighbor;
 
             return null;
         }
 
-        private AutoTile FindNeighbour(int x, int y)
+        private AutoTile FindNeighbor(int x, int y)
         {
-            AutoTile neighbour = GetNeighbour(x, y);
+            AutoTile neighbor = GetNeighbor(x, y);
 
-            if (neighbour is not null)
-                return neighbour;
+            if (neighbor is not null)
+                return neighbor;
 
             var offset = new Vector2(x, y);
-            neighbour = Scene.CheckPosition<AutoTile>(Position + offset * Size);
+            neighbor = Scene.CheckPosition<AutoTile>(Position + offset * Size);
 
-            if (neighbour is not null && neighbour.Type == Type)
+            if (neighbor is not null && neighbor.Type == Type)
             {
-                _neighbours[offset] = neighbour;
+                _neighbors[offset] = neighbor;
                 
-                return neighbour;
+                return neighbor;
             }
 
             return default;

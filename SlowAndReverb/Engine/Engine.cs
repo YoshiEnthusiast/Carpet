@@ -14,7 +14,7 @@ using System.Diagnostics;
 
 // TODO: Scene methods that return multiple entities should accept lists
 // TODO: Make maaaany things internal
-// TODO: Fix input system
+// TODO: Gamepad support fix
 // TODO: Redo content loading
 // TODO: "=new()" on the right side of the expression when initializing fields
 
@@ -86,7 +86,7 @@ namespace Carpet
             OpenGL.Initialize(_window.Context);
             SFX.Initialize(null);
 
-            Material.InitializeUniforms();
+            ShaderProgramWrapper.InitializeUniforms();
             Content.Initialize("Content");
             Input.Initialize(_window);
             Content.LoadGraphics(TextureLoadMode.SaveAtlas);

@@ -20,10 +20,10 @@ namespace Carpet
 
         private const string TexturesUniformName = "u_Textures";
 
-        private readonly List<SpriteBatchItem> _opaqueItems = new List<SpriteBatchItem>();
-        private readonly List<SpriteBatchItem> _transparentItems = new List<SpriteBatchItem>();
+        private readonly List<SpriteBatchItem> _opaqueItems = [];
+        private readonly List<SpriteBatchItem> _transparentItems = [];
 
-        private readonly Material _basicMaterial = new BasicMaterial();
+        private readonly BasicMaterial _basicMaterial = new();
 
         private readonly VertexColorTextureCoordinate[] _submittedVertices = new VertexColorTextureCoordinate[MaxSubmittedVertices];
         private readonly uint[] _submittedElements = new uint[MaxSubmittedElements];

@@ -9,7 +9,7 @@ namespace Carpet
 {
     public sealed class Atlas
     {
-        private readonly List<AtlasItem> _items = new List<AtlasItem>();
+        private readonly List<AtlasItem> _items = [];
 
         private readonly int _maxSize;
         private readonly int _padding;

@@ -5,7 +5,7 @@ namespace Carpet
 {
     public sealed class InputProfile
     {
-        private readonly List<InputElement> _elements = new List<InputElement>();
+        private readonly List<InputElement> _elements = [];
 
         public InputProfile(InputSettings settings)
         {

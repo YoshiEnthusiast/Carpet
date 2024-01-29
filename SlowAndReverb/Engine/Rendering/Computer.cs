@@ -5,7 +5,7 @@ namespace Carpet
 {
     public abstract class Computer : ShaderProgramWrapper
     {
-        private readonly List<ShaderStorageBuffer> _buffers = new List<ShaderStorageBuffer>();
+        private readonly List<ShaderStorageBuffer> _buffers = [];
 
         private ShaderStorageBuffer _boundBuffer;
 

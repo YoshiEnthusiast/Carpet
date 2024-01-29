@@ -6,9 +6,9 @@ namespace Carpet
 {
     public class InputSettings
     {
-        private readonly Dictionary<string, Button> _buttons = new Dictionary<string, Button>();
-        private readonly Dictionary<string, Axis> _axes = new Dictionary<string, Axis>();
-        private readonly Dictionary<string, Key> _keys = new Dictionary<string, Key>();
+        private readonly Dictionary<string, Button> _buttons = [];
+        private readonly Dictionary<string, Axis> _axes = [];
+        private readonly Dictionary<string, Key> _keys = [];
 
         public InputSettings(XmlElement settings)
         {

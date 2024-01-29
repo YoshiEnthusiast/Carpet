@@ -2,8 +2,8 @@
 {
     public class VirtualStick : InputElement
     {
-        private readonly VirtualAxis _virtualXAxis = new VirtualAxis();
-        private readonly VirtualAxis _virtualYAxis = new VirtualAxis();
+        private readonly VirtualAxis _virtualXAxis = new();
+        private readonly VirtualAxis _virtualYAxis = new();
 
         public override void Update(float deltaTime)
         {

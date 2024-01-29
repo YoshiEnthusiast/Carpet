@@ -10,7 +10,7 @@ namespace Carpet
     {
         private readonly float _radius;
 
-        public CircleParticleEmitter(ParticleBehaviour behaviour, float radius) : base(behaviour)
+        public CircleParticleEmitter(ParticleBehavior behavior, float radius) : base(behavior)
         {
             _radius = radius;
         }

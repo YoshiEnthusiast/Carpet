@@ -7,12 +7,12 @@ namespace Carpet
         private ParticleSystem _system;
         private float _timer;
 
-        public ParticleEmitter(ParticleBehavior behaviour)
+        public ParticleEmitter(ParticleBehavior behavior)
         {
-            Behaviour = behaviour;
+            Behavior = behavior;
         }
 
-        public ParticleBehavior Behaviour { get; set; }
+        public ParticleBehavior Behavior { get; set; }
 
         public int EmitCount { get; set; } = 1;
         public int EmitCountVariation { get; set; }
@@ -29,7 +29,7 @@ namespace Carpet
 
         public void EmitOne(Vector2 position)
         {
-            ParticleData data = Behaviour.Create(position, Position);
+            ParticleData data = Behavior.Create(position, Position);
 
             _system.Add(data);
         }

@@ -27,15 +27,15 @@ namespace Carpet
         private readonly BloomMaterial[] _bloomMaterials = new BloomMaterial[MaxBloomPoints];
         private readonly Line[] _surfaceBuffer = new Line[SurfacesPerOccluder];
 
-        private readonly List<Line> _surfaces = new List<Line>();
-        private readonly List<Rectangle> _rectangles = new List<Rectangle>();
+        private readonly List<Line> _surfaces = [];
+        private readonly List<Rectangle> _rectangles = [];
 
-        private readonly Material _shadowMaterial = new ShadowMaterial();
+        private readonly ShadowMaterial _shadowMaterial = new();
 
-        private readonly List<Line> _debugSurfaces = new List<Line>();
-        private readonly List<Line> _debugRays = new List<Line>();
+        private readonly List<Line> _debugSurfaces = [];
+        private readonly List<Line> _debugRays = [];
 
-        private readonly Color[] _masks = new Color[]
+        private readonly Color[] _masks =
         {
             new Color(1f, 0f, 0f, 0f),
             new Color(0f, 1f, 0f, 0f),

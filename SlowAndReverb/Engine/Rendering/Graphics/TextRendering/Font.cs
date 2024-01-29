@@ -19,7 +19,7 @@ namespace Carpet
         public string FamilyName => _family.Name;
         public float LineHeight => _family.LineHeight * Scale.Y;
 
-        public TextMaterial Material { get; set; } = new TextMaterial();
+        public TextMaterial Material { get; set; } = new();
         public Vector2 Scale { get; set; } = Vector2.One;
         public Color OutlineColor { get; set; }
         public int OutlineWidth { get; set; }

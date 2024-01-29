@@ -1,6 +1,6 @@
 ﻿namespace Carpet
 {
-    public class ParticleBehaviour
+    public class ParticleBehavior
     {
         public Entity Follow { get; set; }
 
@@ -62,9 +62,9 @@
             }
         }
 
-        public virtual ParticleBehaviour Copy()
+        public virtual ParticleBehavior Copy()
         {
-            return new ParticleBehaviour()
+            return new ParticleBehavior()
             {
                 Follow = Follow,
                 Sprite = Sprite,

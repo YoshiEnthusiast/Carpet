@@ -10,7 +10,7 @@ namespace Carpet
     {
         private const int MaxUniformNameCharacters = 100;
 
-        private static readonly ActiveUniformType[] s_textureUniformTypes = new ActiveUniformType[]
+        private static readonly ActiveUniformType[] s_textureUniformTypes =
         {
             ActiveUniformType.Image1D,
             ActiveUniformType.Image2D,

@@ -7,8 +7,8 @@ namespace Carpet
 {
     public static class SFX
     {
-        private static readonly List<SoundSource> s_freeSources = new List<SoundSource>();
-        private static readonly Dictionary<SoundPlayer, SoundSource> s_soundPool = new Dictionary<SoundPlayer, SoundSource>();
+        private static readonly List<SoundSource> s_freeSources = [];
+        private static readonly Dictionary<SoundPlayer, SoundSource> s_soundPool = [];
 
         private static readonly int s_maxSources = 32;
 

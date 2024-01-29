@@ -6,7 +6,7 @@ namespace Carpet
 {
     public sealed class Demo : Engine
     {
-        private readonly StateMachine<GlobalState> _stateMachine = new StateMachine<GlobalState>();
+        private readonly StateMachine<GlobalState> _stateMachine = new();
 
         private Thread _contentLoadingThread;
 

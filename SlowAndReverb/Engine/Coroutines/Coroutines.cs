@@ -4,7 +4,7 @@ namespace Carpet
 {
     public static class Coroutines
     {
-        private static CoroutineRunner s_runner = new CoroutineRunner();
+        private static CoroutineRunner s_runner = new();
 
         public static int AliveCount => s_runner.AliveCount;
 

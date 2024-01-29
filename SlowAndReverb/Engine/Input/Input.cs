@@ -14,10 +14,10 @@ namespace Carpet
     {
         private const char NewLine = '\n';
 
-        private static readonly List<Key> s_pressedKeys = new List<Key>();
-        private static readonly List<Key> s_repeatedPressedKeys = new List<Key>();
+        private static readonly List<Key> s_pressedKeys = [];
+        private static readonly List<Key> s_repeatedPressedKeys = [];
 
-        private static readonly List<TextInputKey> s_textInput = new List<TextInputKey>();
+        private static readonly List<TextInputKey> s_textInput = [];
 
         private static JoystickState s_activeController;
         private static ControllerMapping s_currentMapping;

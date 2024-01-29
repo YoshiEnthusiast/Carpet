@@ -4,7 +4,7 @@
     {
         public const float EqualChance = 0.5f;
 
-        private static readonly SystemRandom _generator = new SystemRandom();
+        private static readonly SystemRandom _generator = new();
 
         public static float NextFloat(float min, float max)
         {

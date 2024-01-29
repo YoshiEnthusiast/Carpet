@@ -8,7 +8,7 @@ namespace Carpet
 {
     public class DotParticleEmitter : ParticleEmitter
     {
-        public DotParticleEmitter(ParticleBehaviour behaviour) : base(behaviour)
+        public DotParticleEmitter(ParticleBehavior behavior) : base(behavior)
         {
 
         }

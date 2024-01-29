@@ -50,7 +50,7 @@ namespace Carpet
                 IntervalVariation = 1f
             });
 
-            var offCenterBehavoiur = new OffCenterParticleBehaviour()
+            var offCenterBehavoiur = new OffCenterParticleBehavior()
             {
                 Velocity = new Vector2(0.3f, 0f),
                 VelocityVariation = new Vector2(0.1f, 0f),
@@ -64,7 +64,7 @@ namespace Carpet
             {
                 EmitCount = 8,
                 EmitCountVariation = 2,
-                ShapeBehaviour = ParticleShapeBehaviour.EmitAroundBorder,
+                ShapeBehavior = ParticleShapeBehavior.EmitAroundBorder,
                 Awake = false
             });
 

@@ -6,7 +6,7 @@ namespace Carpet
 {
     public struct Rectangle
     {
-        public static readonly Rectangle Empty = new Rectangle(Vector2.Zero, Vector2.Zero);
+        public static readonly Rectangle Empty = new(Vector2.Zero, Vector2.Zero);
 
         public Rectangle(Vector2 topLeft, Vector2 bottomRight)
         {

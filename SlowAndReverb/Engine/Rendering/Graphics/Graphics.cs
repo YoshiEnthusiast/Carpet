@@ -8,15 +8,15 @@ namespace Carpet
 {
     public static class Graphics
     {
-        private static readonly List<Layer> s_drawnLayers = new List<Layer>();
+        private static readonly List<Layer> s_drawnLayers = [];
 
-        private static readonly List<CircleMaterial> s_circleMaterials = new List<CircleMaterial>();
+        private static readonly List<CircleMaterial> s_circleMaterials = [];
         private static readonly Font s_defaultFont = null;
 
         private static RenderTarget s_finalTarget;
         private static RenderTarget s_screenTarget;
 
-        public static SpriteBatch SpriteBatch { get; private set; } = new SpriteBatch();
+        public static SpriteBatch SpriteBatch { get; private set; } = new();
         public static Layer CurrentLayer { get; private set; }
         public static VirtualTexture BlankTexture { get; private set; }
 

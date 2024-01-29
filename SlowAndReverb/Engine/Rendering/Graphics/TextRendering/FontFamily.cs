@@ -8,7 +8,7 @@ namespace Carpet
 {
     public sealed class FontFamily
     {
-        private readonly Dictionary<char, Character> _characters = new Dictionary<char, Character>();
+        private readonly Dictionary<char, Character> _characters = [];
 
         public FontFamily(string textureName, string dataFileName)
         {

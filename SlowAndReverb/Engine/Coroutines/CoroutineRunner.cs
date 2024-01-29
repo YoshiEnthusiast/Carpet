@@ -6,7 +6,7 @@ namespace Carpet
 {
     public sealed class CoroutineRunner : Component
     {
-        private Dictionary<int, Coroutine> _coroutines = new Dictionary<int, Coroutine>();
+        private Dictionary<int, Coroutine> _coroutines = [];
         private int _totalCoroutinesAdded;
 
         public int AliveCount => _coroutines.Count;

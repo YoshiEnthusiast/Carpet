@@ -8,7 +8,7 @@ namespace Carpet
 {
     public class PhysicsBody : Entity
     {
-        private readonly Accumulator _accumulator = new Accumulator();
+        private readonly Accumulator _accumulator = new();
 
         public PhysicsBody(float x, float y) : base(x, y)
         {

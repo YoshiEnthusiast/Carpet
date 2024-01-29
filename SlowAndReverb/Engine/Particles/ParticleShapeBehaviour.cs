@@ -1,6 +1,6 @@
 ﻿namespace Carpet
 {
-    public enum ParticleShapeBehaviour
+    public enum ParticleShapeBehavior
     {
         Fill,
 

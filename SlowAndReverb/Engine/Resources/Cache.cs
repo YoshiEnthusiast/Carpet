@@ -6,7 +6,7 @@ namespace Carpet
 {
     public abstract class Cache<T>
     {
-        private readonly Dictionary<string, T> _items = new Dictionary<string, T>();
+        private readonly Dictionary<string, T> _items = [];
 
         public Cache(string extension, string mainDirectory, bool load)
         {

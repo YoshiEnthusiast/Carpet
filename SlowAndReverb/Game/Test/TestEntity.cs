@@ -9,7 +9,7 @@ namespace Carpet
 {
     public class TestEntity : Entity
     {
-        private readonly Font _font = new Font("testFont");
+        private readonly Font _font = new("testFont");
         private readonly CircleParticleEmitter _emitter;
 
         private readonly VirtualTexture _grapleHookTexture = Content.GetVirtualTexture("grapleHook");
@@ -130,10 +130,10 @@ namespace Carpet
 
             if (Input.IsMousePressed(MouseButton.Right))
             {
-                if (_emitter.Behaviour.Follow is null)
-                    _emitter.Behaviour.Follow = this;
+                if (_emitter.Behavior.Follow is null)
+                    _emitter.Behavior.Follow = this;
                 else
-                    _emitter.Behaviour.Follow = null;
+                    _emitter.Behavior.Follow = null;
             }
         }
 

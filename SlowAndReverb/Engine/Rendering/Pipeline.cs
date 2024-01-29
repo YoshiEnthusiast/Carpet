@@ -8,7 +8,7 @@ namespace Carpet
 {
     public sealed class Pipeline
     {
-        private readonly List<PassBase> _passes = new List<PassBase>();
+        private readonly List<PassBase> _passes = [];
 
         public PassBase CurrentPass { get; private set; }
 

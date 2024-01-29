@@ -21,7 +21,7 @@ namespace Carpet
             ref Particle particle = ref _particles[_particlesCount];
 
             particle.Active = true;
-            particle.Behaviour = data.Behavior;
+            particle.Behavior = data.Behavior;
             
             particle.Follow = data.Follow;
             particle.Position = data.Position;
@@ -43,7 +43,7 @@ namespace Carpet
                 if (!particle.Active)
                     continue;
 
-                particle.Behaviour.Update(ref particle, deltaTime);
+                particle.Behavior.Update(ref particle, deltaTime);
             }
         }
 
@@ -56,7 +56,7 @@ namespace Carpet
                 if (!particle.Active)
                     continue;
 
-                particle.Behaviour.Draw(ref particle);
+                particle.Behavior.Draw(ref particle);
             }
         }
     }

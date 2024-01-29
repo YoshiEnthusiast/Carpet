@@ -8,7 +8,7 @@ namespace Carpet
         public const float MaxDepth = 1f;
 
         private readonly Sprite _mainImage;
-        private readonly List<ParallaxLayer> _layers = new List<ParallaxLayer>();
+        private readonly List<ParallaxLayer> _layers = [];
 
         public Background(string mainImageName)
         {

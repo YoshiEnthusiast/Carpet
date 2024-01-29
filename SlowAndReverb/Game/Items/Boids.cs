@@ -9,7 +9,7 @@ namespace Carpet
 
         private readonly Boid[] _boids = new Boid[BoidsComputer.MaxBoids];
         private readonly Vector2[] _acceleration = new Vector2[BoidsComputer.MaxBoids];
-        private readonly Sprite _sprite = new Sprite("boid");
+        private readonly Sprite _sprite = new("boid");
 
         private BoidsComputer _computer;
         private int _bufferHandle;

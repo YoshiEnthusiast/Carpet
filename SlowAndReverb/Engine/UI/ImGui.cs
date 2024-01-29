@@ -16,9 +16,9 @@ namespace Carpet
     {
         private const float DepthStep = 0.01f;
 
-        private static readonly Stack<Layout> s_layouts = new Stack<Layout>();
+        private static readonly Stack<Layout> s_layouts = [];
 
-        private static readonly List<Menu> s_menus = new List<Menu>();
+        private static readonly List<Menu> s_menus = [];
         private static Menu s_currentMenu;
 
         private static string s_activeId;

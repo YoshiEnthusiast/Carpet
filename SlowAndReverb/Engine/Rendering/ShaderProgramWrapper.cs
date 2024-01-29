@@ -8,10 +8,10 @@ namespace Carpet
 {
     public abstract class ShaderProgramWrapper
     {
-        private static readonly Dictionary<Type, IEnumerable<UniformStorage>> s_uniformStorages = new Dictionary<Type, IEnumerable<UniformStorage>>();
-        private static readonly Dictionary<Type, MethodInfo> s_setUniformMethods = new Dictionary<Type, MethodInfo>();
+        private static readonly Dictionary<Type, IEnumerable<UniformStorage>> s_uniformStorages = [];
+        private static readonly Dictionary<Type, MethodInfo> s_setUniformMethods = [];
 
-        private static readonly Dictionary<Type, ActiveUniformType> s_uniformTypes = new Dictionary<Type, ActiveUniformType>()
+        private static readonly Dictionary<Type, ActiveUniformType> s_uniformTypes = new()
         {
             [typeof(int)] = ActiveUniformType.Int,
             [typeof(float)] = ActiveUniformType.Float,

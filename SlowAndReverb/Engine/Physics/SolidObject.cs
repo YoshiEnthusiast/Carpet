@@ -10,7 +10,7 @@ namespace Carpet
         private const int PositiveSign = 1;
         private const int NegativeSign = -1;
 
-        private readonly Accumulator _accumulator = new Accumulator();
+        private readonly Accumulator _accumulator = new();
 
         public bool CollisionLeft { get; set; } = true;
         public bool CollisionTop { get; set; } = true;

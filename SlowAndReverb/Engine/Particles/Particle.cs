@@ -33,7 +33,7 @@ namespace Carpet
             }
         }
 
-        public ParticleBehaviour Behaviour { get; set; }
+        public ParticleBehavior Behavior { get; set; }
         public Entity Follow { get; set; }
 
         public bool Active { get; set; }

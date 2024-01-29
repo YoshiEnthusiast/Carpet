@@ -52,8 +52,8 @@ namespace Carpet
         private readonly Sprite _sprite;
 
         private readonly Sprite _hookRopeSprite;
-        private readonly Sprite _hookGrapleSprite = new Sprite("hookGraple");
-        private readonly RepeatTextureMaterial _hookRopeMaterial = new RepeatTextureMaterial();
+        private readonly Sprite _hookGrappleSprite = new("hookGrapple");
+        private readonly RepeatTextureMaterial _hookRopeMaterial = new();
 
         private double _pressedJumpAt = double.NegativeInfinity;
         private float _jumpTimer;
@@ -419,7 +419,7 @@ namespace Carpet
         private void DrawGrapple()
         {
             _hookRopeSprite.Draw(_grappleStartPosition);
-            _hookGrapleSprite.Draw(_grappleEndPosition);
+            _hookGrappleSprite.Draw(_grappleEndPosition);
         }
 
         private void Jump()
@@ -449,7 +449,7 @@ namespace Carpet
             _hookRopeSprite.Scale = scale;
             _hookRopeSprite.Angle = _grappleAngle;
 
-            _hookGrapleSprite.Angle = _grappleAngle;
+            _hookGrappleSprite.Angle = _grappleAngle;
 
             _hookRopeMaterial.Scale = scale;
         }

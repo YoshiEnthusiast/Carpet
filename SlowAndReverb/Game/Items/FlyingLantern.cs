@@ -8,11 +8,11 @@ namespace Carpet
         private readonly Light _light;
         private readonly CoroutineRunner _runner;
 
-        private readonly Color _lightColor = new Color(237, 154, 31);
+        private readonly Color _lightColor = new(237, 154, 31);
         private readonly float _maxLightRadius = 50f;
 
-        private readonly Range _shimmerIntervalRange = new Range(10f, 15f);
-        private readonly Range _lightIntensityRange = new Range(0.85f, 1f);
+        private readonly Range _shimmerIntervalRange = new(10f, 15f);
+        private readonly Range _lightIntensityRange = new(0.85f, 1f);
 
         private readonly float _initialY;
         private readonly float _yOffset = 2f;

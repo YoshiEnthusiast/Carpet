@@ -6,7 +6,7 @@ namespace Carpet
 {
     public class Sprite : Component
     {
-        private readonly Dictionary<string, Animation> _animations = new Dictionary<string, Animation>();
+        private readonly Dictionary<string, Animation> _animations = [];
 
         private Animation? _currentAnimation;
         private Rectangle _textureBounds;

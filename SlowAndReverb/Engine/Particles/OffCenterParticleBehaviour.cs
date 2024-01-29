@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Carpet
 {
-    public class OffCenterParticleBehaviour : ParticleBehaviour
+    public class OffCenterParticleBehavior : ParticleBehavior
     {
         public override ParticleData Create(Vector2 position, Vector2 sourcePosition)
         {

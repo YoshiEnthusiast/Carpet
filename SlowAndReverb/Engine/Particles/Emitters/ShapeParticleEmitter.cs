@@ -2,16 +2,16 @@
 {
     public abstract class ShapeParticleEmitter : ParticleEmitter
     {
-        public ShapeParticleEmitter(ParticleBehaviour behaviour) : base(behaviour)
+        public ShapeParticleEmitter(ParticleBehavior behavior) : base(behavior)
         {
 
         }
 
-        public ParticleShapeBehaviour ShapeBehaviour { get; set; }
+        public ParticleShapeBehavior ShapeBehavior { get; set; }
 
         protected override Vector2 GeneratePosition()
         {
-            if (ShapeBehaviour == ParticleShapeBehaviour.Fill)
+            if (ShapeBehavior == ParticleShapeBehavior.Fill)
                 return GeneratePositionInsideShape();
 
             return GeneratePositionAroundBorder();

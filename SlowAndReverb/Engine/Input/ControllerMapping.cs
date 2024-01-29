@@ -7,8 +7,8 @@ namespace Carpet
 {
     public sealed class ControllerMapping
     {
-        private readonly Dictionary<Button, int> _buttons = new Dictionary<Button, int>();
-        private readonly Dictionary<Axis, int> _axes = new Dictionary<Axis, int>();
+        private readonly Dictionary<Button, int> _buttons = [];
+        private readonly Dictionary<Axis, int> _axes = [];
 
         public ControllerMapping(XmlElement mapping)
         {

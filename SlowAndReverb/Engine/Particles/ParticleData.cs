@@ -2,12 +2,12 @@
 {
     public struct ParticleData
     {
-        public ParticleData(ParticleBehavior behaviour)
+        public ParticleData(ParticleBehavior behavior)
         {
-            Behaviour = behaviour;
+            Behavior = behavior;
         }
 
-        public ParticleBehavior Behaviour { get; private init; }
+        public ParticleBehavior Behavior { get; private init; }
         public Entity Follow { get; set; }
 
         public Vector2 Position { get; set; }

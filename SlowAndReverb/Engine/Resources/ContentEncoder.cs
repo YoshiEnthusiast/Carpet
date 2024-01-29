@@ -7,7 +7,7 @@ namespace Carpet
     {
         private const long Identifier = 5739285038023271092L;
 
-        private static readonly byte[] s_key = new byte[]
+        private static readonly byte[] s_key =
         {
             17,
             54,

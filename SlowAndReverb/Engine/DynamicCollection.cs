@@ -5,10 +5,10 @@ namespace Carpet
 {
     public class DynamicCollection<T> : IEnumerable<T>
     {
-        private readonly HashSet<T> _items = new HashSet<T>();
+        private readonly HashSet<T> _items = [];
 
-        private readonly HashSet<T> _itemsToAdd = new HashSet<T>();
-        private readonly HashSet<T> _itemsToRemove = new HashSet<T>();
+        private readonly HashSet<T> _itemsToAdd = [];
+        private readonly HashSet<T> _itemsToRemove = [];
 
         public void Update()
         {

@@ -9,13 +9,13 @@ namespace Carpet
     public class Scene
     {
         private readonly EntityMap _entityMap;
-        private readonly HashSet<Component> _components = new HashSet<Component>();
-        private readonly DynamicCollection<System> _systems = new DynamicCollection<System>();
+        private readonly HashSet<Component> _components = [];
+        private readonly DynamicCollection<System> _systems = [];
 
-        private readonly Dictionary<Type, HashSet<Entity>> _entitiesByType = new Dictionary<Type, HashSet<Entity>>();
-        private readonly Dictionary<Type, HashSet<Component>> _componentsByType = new Dictionary<Type, HashSet<Component>>();
+        private readonly Dictionary<Type, HashSet<Entity>> _entitiesByType = [];
+        private readonly Dictionary<Type, HashSet<Component>> _componentsByType = [];
 
-        private readonly CoroutineRunner _coroutineRunner = new CoroutineRunner();
+        private readonly CoroutineRunner _coroutineRunner = new();
 
         public Scene()
         {

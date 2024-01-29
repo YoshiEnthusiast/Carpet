@@ -6,9 +6,9 @@ namespace Carpet
 {
     public class Editor
     {
-        private static readonly List<Type> s_entityTypes = new List<Type>();
-        private static readonly List<string> s_entityNamesToLower = new List<string>();
-        private static readonly Dictionary<string, Type> s_entityTypeByName = new Dictionary<string, Type>();
+        private static readonly List<Type> s_entityTypes = [];
+        private static readonly List<string> s_entityNamesToLower = [];
+        private static readonly Dictionary<string, Type> s_entityTypeByName = [];
 
         public static IEnumerable<Type> EntityTypes => s_entityTypes;
         public static IEnumerable<string> EntityNamesToLower => s_entityNamesToLower;   
