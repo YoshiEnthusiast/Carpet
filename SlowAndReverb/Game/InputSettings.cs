@@ -37,8 +37,6 @@ namespace Carpet
 
                 _axes[settingName] = axis;
             }
-
-            Console.WriteLine(Save().InnerXml);
         }
 
         public Key GetKey(string name)

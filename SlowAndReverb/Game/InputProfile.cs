@@ -10,6 +10,18 @@ namespace Carpet
         public InputProfile(InputSettings settings)
         {
             Settings = settings;
+
+            Jump = CreateButton("Jump");
+            Grapple = CreateButton("Grapple");
+            CancelGrappling = CreateButton("CancelGrappling");
+
+            Up = CreateButton("Up");
+            Down = CreateButton("Down");
+
+            XAxis = CreateAxis("XAxis", "Right", "Left");
+
+            MenuXAxis = CreateAxis("MenuXAxis", "MenuRight", "MenuLeft");
+            MenuYAxis = CreateAxis("MenuYAxis", "MenuDown", "MenuUp");
         }
 
         public InputSettings Settings { get; private init; }
@@ -26,27 +38,10 @@ namespace Carpet
         public VirtualAxis MenuXAxis { get; private set; }
         public VirtualAxis MenuYAxis { get; private set; }
 
-        public void Update()
+        public void Update(float deltaTime)
         {
             foreach (InputElement element in _elements)
-                element.Update();
-        }
-
-        public void Initialize()
-        {
-            _elements.Clear();
-
-            Jump = CreateButton("Jump");
-            Grapple = CreateButton("Grapple");
-            CancelGrappling = CreateButton("CancelGrappling");
-
-            Up = CreateButton("Up");
-            Down = CreateButton("Down");
-
-            XAxis = CreateAxis("XAxis", "Right", "Left");
-
-            MenuXAxis = CreateAxis("MenuXAxis", "MenuRight", "MenuLeft");
-            MenuYAxis = CreateAxis("MenuYAxis", "MenuDown", "MenuUp");
+                element.Update(deltaTime);
         }
 
         private VirtualButton CreateButton(string name)

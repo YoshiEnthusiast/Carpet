@@ -229,6 +229,20 @@ namespace Carpet
                 }
             });
 
+            AddCommand("do", new Argument[]
+            {
+                new Argument.String("command"),
+                new Argument.Int("count")
+            },
+            (Arguments arguments) =>
+            {
+                string command = arguments.Get<string>("command");
+                int count = arguments.Get<int>("count");
+
+                for (int i = 0; i < count; i++)
+                    Run(command);
+            });
+
             AddCommand("alias", new Argument[]
             {
                 new Argument.String("name"),
@@ -254,7 +268,7 @@ namespace Carpet
                     if (s_aliases.TryGetValue(name, out string value))
                         Log(value);
                     else
-                        Log($"Alias \"{name}\" does not exist");
+                        Log($"alias \"{name}\" does not exist");
                 }
             });
 

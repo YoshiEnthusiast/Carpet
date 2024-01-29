@@ -21,8 +21,8 @@ namespace Carpet
         {
             _entityMap = new EntityMap(this, 100f);
 
-            AddSystem(new LightRenderer(this, Demo.OccludeBufferPass, Demo.ShadowBufferPass, 
-                Demo.LightmapPass))
+            AddSystem(new LightRenderer(this, Demo.OccludeBufferPass, Demo.ShadowBufferPass,
+              Demo.LightmapPass))
                 .AddSystem(new BlockGroupsSystem(this))
                 .AddSystem(new ParticleSystem(this, 1000))
                 .AddSystem(new CameraSystem(0.18f, this))

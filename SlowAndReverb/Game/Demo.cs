@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Xml;
 
 namespace Carpet
 {
@@ -49,7 +50,8 @@ namespace Carpet
         {
             Lightmap = RenderTarget.FromTexture(324, 184);
 
-            ShadowBuffer = RenderTarget.FromTexture(2240, 2240);
+            // 2240
+            ShadowBuffer = RenderTarget.FromTexture(10_000, 10_000);
             OccludeBuffer = RenderTarget.FromTexture(2240, 2240);
 
             BackgroundLayer = new Layer(1280, 720, 0f);
@@ -105,6 +107,7 @@ namespace Carpet
 
         private void UpdateGame(float deltaTime)
         {
+            Controls.Profile.Update(deltaTime);
             DebugConsole.Update(deltaTime);
 
             if (Input.IsPressed(Key.Escape))
@@ -138,7 +141,7 @@ namespace Carpet
             //Scene.Add(new Block("tileset", 68f, 140f));
             //Scene.Add(new Block("tileset", 68f + 8f * 25f, 140f));
 
-            // CurrentScene.Add(new Player(300f, -20f));
+            CurrentScene.Add(new Player(300f, -20f));
             CurrentScene.Add(new TestAnchor(200f, 20f));
 
             CurrentScene.Add(new FlyingLantern(80f, 80f));
@@ -169,13 +172,12 @@ namespace Carpet
                 return;
 
             Console.WriteLine("Content loaded");
-
-            //Temporary
-            var settings = new InputSettings(Content.DefaultInputSettings);
+                                                            //TODO: utility method
+            XmlDocument document = Utilities.LoadXML(Content.Folder + "\\defaultInputSettings.xml");
+            var settings = new InputSettings(document.DocumentElement);
             var profile = new InputProfile(settings);
 
-            Input.Profile = profile;
-            profile.Initialize();
+            Controls.Profile = profile;
 
             _stateMachine.ForceState(GlobalState.Game);
         }

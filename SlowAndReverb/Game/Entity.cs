@@ -31,6 +31,8 @@ namespace Carpet.Game
 
                 s_entityTypes[name] = type;
             }
+
+            s_entityTypes["entity"] = typeof(Carpet.Entity);
         }
 
         public override ParsingResult Parse(string input)

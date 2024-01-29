@@ -34,7 +34,7 @@ namespace Carpet
 
         protected override void OnAdded()
         {
-            var behaviour = new ParticleBehaviour()
+            var behaviour = new ParticleBehavior()
             {
                 Velocity = new Vector2(0f, -0.15f),
                 VelocityVariation = new Vector2(0f, 0.01f),

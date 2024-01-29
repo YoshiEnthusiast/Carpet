@@ -116,12 +116,12 @@ namespace Carpet
 
         private AutoTile GetLeftNeightbour(AutoTile block)
         {
-            return block.GetNeighbour(-1, 0);
+            return block.GetNeighbor(-1, 0);
         }
 
         private AutoTile GetRightNeighbour(AutoTile block)
         {
-            return block.GetNeighbour(1, 0);
+            return block.GetNeighbor(1, 0);
         }
 
         private sealed class Group

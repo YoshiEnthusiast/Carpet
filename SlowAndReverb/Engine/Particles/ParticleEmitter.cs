@@ -7,12 +7,12 @@ namespace Carpet
         private ParticleSystem _system;
         private float _timer;
 
-        public ParticleEmitter(ParticleBehaviour behaviour)
+        public ParticleEmitter(ParticleBehavior behaviour)
         {
             Behaviour = behaviour;
         }
 
-        public ParticleBehaviour Behaviour { get; set; }
+        public ParticleBehavior Behaviour { get; set; }
 
         public int EmitCount { get; set; } = 1;
         public int EmitCountVariation { get; set; }

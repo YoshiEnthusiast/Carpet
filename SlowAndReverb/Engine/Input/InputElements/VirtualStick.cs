@@ -5,10 +5,10 @@
         private readonly VirtualAxis _virtualXAxis = new VirtualAxis();
         private readonly VirtualAxis _virtualYAxis = new VirtualAxis();
 
-        public override void Update()
+        public override void Update(float deltaTime)
         {
-            _virtualXAxis.Update();
-            _virtualYAxis.Update();
+            _virtualXAxis.Update(deltaTime);
+            _virtualYAxis.Update(deltaTime);
         }
 
         public float GetAngle()

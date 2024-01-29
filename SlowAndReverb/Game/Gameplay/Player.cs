@@ -126,13 +126,13 @@ namespace Carpet
         private void UpdateMovement(float deltaTime)
         {
             float velocityX = VelocityX;
-            float xAxis = Input.XAxis.GetValue();
+            float xAxis = Controls.XAxis.GetValue();
 
             if (xAxis != 0f)
             {
                 float acceleration = GetPhysicsValue(Acceleration, AirAcceleration) * deltaTime;
 
-                Direction = (sbyte)Input.XAxis.GetSign();
+                Direction = (sbyte)Controls.XAxis.GetSign();
                 VelocityX = Maths.ApproachAbs(velocityX, acceleration * xAxis, MaxHorizontalVelocity);
 
                 _sprite.SetAnimation(null);
@@ -150,7 +150,7 @@ namespace Carpet
                 //    _sprite.SetAnimation("idle");
             }
 
-            bool jumpPressed = Input.Jump.IsPressed();
+            bool jumpPressed = Controls.Jump.IsPressed();
 
             if (jumpPressed)
                 _pressedJumpAt = Engine.TimeElapsed;
@@ -219,7 +219,7 @@ namespace Carpet
         {
             UpdateMovement(deltaTime);
 
-            if (Input.Grapple.IsPressed())
+            if (Controls.Grapple.IsPressed())
                 _stateMachine.ForceState(State.Aiming);
         }
 
@@ -247,9 +247,9 @@ namespace Carpet
         {
             UpdateMovement(deltaTime);
 
-            if (Input.Grapple.IsDown())
+            if (Controls.Grapple.IsDown())
             {
-                if (Input.CancelGrappling.IsPressed())
+                if (Controls.CancelGrappling.IsPressed())
                 {
                     _stateMachine.ForceState(State.Regular);
 
@@ -355,13 +355,13 @@ namespace Carpet
 
         private void UpdateGrappling(float deltaTime)
         {
-            if (Input.Jump.IsPressed())
+            if (Controls.Jump.IsPressed())
             {
                 ExitGrappling();
 
                 Jump();
             }
-            else if (Input.CancelGrappling.IsPressed())
+            else if (Controls.CancelGrappling.IsPressed())
             {
                 ExitGrappling();
             }
@@ -504,7 +504,7 @@ namespace Carpet
 
             while (true)
             {
-                if (!Input.Jump.IsDown() || _jumpTimer <= 0f)
+                if (!Controls.Jump.IsDown() || _jumpTimer <= 0f)
                 {
                     _jumping = false;
 

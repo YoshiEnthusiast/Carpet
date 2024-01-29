@@ -8,7 +8,7 @@ namespace Carpet
 {
     public abstract class InputElement
     {
-        public virtual void Update()
+        public virtual void Update(float deltaTime)
         {
 
         }

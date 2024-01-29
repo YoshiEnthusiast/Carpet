@@ -153,7 +153,7 @@ namespace Carpet
             base.Draw();
         }
 
-        private class OffCenterParticleBehaviour : ParticleBehaviour
+        private class OffCenterParticleBehaviour : ParticleBehavior
         {
             public override ParticleData Create(Vector2 position, Vector2 sourcePosition)
             {

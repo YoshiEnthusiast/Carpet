@@ -47,26 +47,10 @@ namespace Carpet
         }
 
         public static float MouseScroll { get; private set; }
-        public static InputProfile Profile { get; set; }
-
         public static InputDeviceType DeviceType { get; private set; }
 
         public static IEnumerable<Key> PressedKeys => s_pressedKeys;    
         public static IEnumerable<Key> RepeatedPressedKeys => s_repeatedPressedKeys;
-
-        #region Input Profile
-
-        public static VirtualButton Jump => Profile.Jump;
-        public static VirtualButton Grapple => Profile.Grapple;
-        public static VirtualButton CancelGrappling => Profile.CancelGrappling;
-        public static VirtualButton Up => Profile.Up;
-        public static VirtualButton Down => Profile.Down;
-        public static VirtualAxis XAxis => Profile.XAxis;
-
-        public static VirtualAxis MenuXAxis => Profile.MenuXAxis;
-        public static VirtualAxis MenuYAxis => Profile.MenuYAxis;
-
-        #endregion
 
         private static IEnumerable<JoystickState> Controllers 
         {
@@ -146,8 +130,6 @@ namespace Carpet
 
             if (s_pressedKeys.Any() || s_activeController is null)
                 DeviceType = InputDeviceType.Keyboard;
-
-            Profile?.Update();
         }
 
         public static void Clear()

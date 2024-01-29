@@ -16,7 +16,7 @@ namespace Carpet
 
         public float Deadzone { get; set; } = 0.125f;
 
-        public override void Update()
+        public override void Update(float deltaTime)
         {
             CheckLastPressedButton(_positiveButton);
             CheckLastPressedButton(_negativeButton);

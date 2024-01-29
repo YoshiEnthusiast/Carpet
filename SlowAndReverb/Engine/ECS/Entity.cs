@@ -2,7 +2,7 @@
 
 namespace Carpet
 {
-    public abstract class Entity
+    public class Entity
     {
         private readonly ComponentCollection _components;
 

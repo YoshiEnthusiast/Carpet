@@ -16,9 +16,9 @@ namespace Carpet
 
         public Animation(float delay, bool loop, IEnumerable<int> frameIndices)
         {
-            IEnumerable<AnimationSegment> segemts = frameIndices.Select(index => new AnimationSegment(index, delay));
+            IEnumerable<AnimationSegment> segments = frameIndices.Select(index => new AnimationSegment(index, delay));
 
-            this = new Animation(loop, segemts);
+            this = new Animation(loop, segments);
         }
 
         public Animation()

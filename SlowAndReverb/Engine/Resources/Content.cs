@@ -38,7 +38,6 @@ namespace Carpet
         private static readonly Dictionary<string, ControllerMapping> s_controllerMappings = new Dictionary<string, ControllerMapping>();
 
         public static Texture2D AtlasTexture { get; private set; }
-        public static XmlElement DefaultInputSettings { get; private set; }
         public static string Folder { get; private set; }
 
         internal static void Initialize(string folder)
@@ -55,9 +54,6 @@ namespace Carpet
 
                 s_controllerMappings[name] = controllerMapping;
             }
-
-            DefaultInputSettings = LoadXML("defaultInputSettings.xml")
-                .DocumentElement;
         }
 
         internal static void LoadGraphics(TextureLoadMode mode)

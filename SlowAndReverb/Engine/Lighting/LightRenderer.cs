@@ -6,6 +6,8 @@ using System.Linq;
 
 namespace Carpet
 {
+    // TODO: const int MaxLights
+
     public class LightRenderer : System
     {
         public const float MaxRadius = 320f;
