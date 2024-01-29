@@ -1,12 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace Carpet
 {
     public class VirtualButton : InputElement
     {
-        private readonly HashSet<Button> _buttons = new HashSet<Button>();
-        private readonly HashSet<Key> _keys = new HashSet<Key>();
+        private readonly HashSet<Button> _buttons = [];
+        private readonly HashSet<Key> _keys = [];
+
+        private bool _isRepeated;
+        private float _repeatTimer;
 
         public VirtualButton(IEnumerable<Button> buttons, IEnumerable<Key> keys)
         {
@@ -17,6 +23,35 @@ namespace Carpet
         public VirtualButton()
         {
 
+        }
+
+        public float RepeatInterval { get; set; } = 4f;
+        public float RepeatDelay { get; set; } = 25f;
+
+        public override void Update(float deltaTime)
+        {
+            _isRepeated = false;
+           
+            if (IsPressed())
+            {
+                _isRepeated = true;
+
+                _repeatTimer = RepeatDelay;
+            }
+            else
+            {
+                if (IsDown())
+                {
+                    _repeatTimer -= deltaTime;
+
+                    if (_repeatTimer <= 0f)
+                    {
+                        _isRepeated = true;
+
+                        _repeatTimer = RepeatInterval;
+                    } 
+                }
+            }
         }
 
         public bool IsPressed()
@@ -30,6 +65,11 @@ namespace Carpet
                     return true;
 
             return false;
+        }
+
+        public bool IsRepeated()
+        {
+            return _isRepeated;
         }
 
         public bool IsDown()
