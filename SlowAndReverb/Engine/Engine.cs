@@ -16,8 +16,6 @@ using System.Diagnostics;
 // TODO: Make maaaany things internal
 // TODO: Gamepad support fix
 // TODO: Redo content loading
-// TODO: "=new()" on the right side of the expression when initializing fields
-
 
 namespace Carpet
 {
@@ -119,8 +117,6 @@ namespace Carpet
 
         private void OnUpdate(FrameEventArgs args)
         {
-            Input.Update();
-
             // TODO: delta time is currently constant
             double time = 1f / _updateFrequency;
 
@@ -129,8 +125,6 @@ namespace Carpet
             TimeElapsed += time;
 
             Update(DeltaTime);
-
-            Input.Clear();
         }
 
         private void OnDraw(FrameEventArgs args)

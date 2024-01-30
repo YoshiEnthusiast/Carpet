@@ -5,18 +5,18 @@
             <Button Name="B" Id="1"/>
             <Button Name="A" Id="2"/>
             <Button Name="X" Id="3"/>
-            <Button Name="Left" Id="17"/>
-            <Button Name="Right" Id="15"/>
-            <Button Name="Up" Id="14"/>
-            <Button Name="Down" Id="16"/>
-            <Button Name="Pause" Id="9"/>
-            <Button Name="Select" Id="8"/>
+            <Button Name="Left" Id="13"/>
+            <Button Name="Right" Id="11"/>
+			<Button Name="Up" Id="10"/>
+            <Button Name="Down" Id="12"/>
+            <Button Name="Pause" Id="7"/>
+            <Button Name="Select" Id="6"/>
             <Button Name="LeftBumper" Id="4"/>
             <Button Name="RightBumper" Id="5"/>
             <Button Name="LeftTrigger" Id="6"/>
             <Button Name="RightTrigger" Id="7"/>
-            <Button Name="LeftStick" Id="10"/>
-            <Button Name="RightStick" Id="11"/>
+            <Button Name="LeftStick" Id="8"/>
+            <Button Name="RightStick" Id="9"/>
         </Buttons>
         
         <Axes>

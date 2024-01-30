@@ -102,7 +102,7 @@ namespace Carpet
             {
                 Graphics.DrawRectangle(light.Bounds, red, debugDepth);
 
-                Graphics.DrawCircle(light.Position, Color.CoolOrange, (int)light.Radius, debugDepth);
+                Graphics.DrawCircle(light.Position, Color.Orange, (int)light.Radius, debugDepth);
             }
 
             foreach (Line ray in _debugRays)

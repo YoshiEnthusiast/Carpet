@@ -70,8 +70,6 @@ namespace Carpet
             s_window.TextInput += OnTextInput;
             s_window.JoystickConnected += OnJoystickConnected;
             s_window.MouseWheel += OnMouseWheel; 
-
-            Update();
         }
 
         public static void Update()
@@ -116,13 +114,14 @@ namespace Carpet
 
                 if (mapping is null)
                 {
-                    Console.WriteLine($"Could not find mapping for \"{name}\". Applying default mapping...");
+                    DebugConsole.Log($"Could not find mapping for \"{name}\". Applying default mapping...",
+                        LogType.Info);
 
                     s_currentMapping = Content.GetControllerMapping("default");
                 }
                 else
                 {
-                    Console.WriteLine($"Found mapping for \"{name}\"");
+                    DebugConsole.Log($"Found mapping for \"{name}\"", LogType.Info);
 
                     s_currentMapping = mapping;
                 }
@@ -130,6 +129,13 @@ namespace Carpet
 
             if (s_pressedKeys.Any() || s_activeController is null)
                 DeviceType = InputDeviceType.Keyboard;
+
+            if (s_activeController is not null)
+            {
+                for (int i = 0; i < s_activeController.ButtonCount; i++)
+                    if (s_activeController.IsButtonPressed(i))
+                        Console.WriteLine(i);
+            }
         }
 
         public static void Clear()
@@ -366,7 +372,7 @@ namespace Carpet
             {
                 if (args.JoystickId == controller.Id)
                 {
-                    Console.WriteLine($"Controller \"{controller.Name}\"");
+                    DebugConsole.Log($"Controller \"{controller.Name}\" connected", LogType.Info);
 
                     break;
                 }

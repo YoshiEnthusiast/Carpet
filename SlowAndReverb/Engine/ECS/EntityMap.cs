@@ -61,7 +61,10 @@ namespace Carpet
                 Vector2 position = hash * _bucketSize;
                 HashSet<Entity> entities = _buckets[hash];
 
-                Color color = entities.Any() ? Color.Yellow : Color.Grey;
+                Color color = Color.Gray;
+
+                if (entities.Count > 0)
+                    color = Color.Yellow;
 
                 Graphics.DrawRectangle(new Rectangle(position, position + new Vector2(_bucketSize)), color, depth);
                 Graphics.DrawString($"{hash.X} {hash.Y}", position + new Vector2(2f), depth);

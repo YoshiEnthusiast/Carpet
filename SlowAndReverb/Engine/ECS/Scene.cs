@@ -21,13 +21,12 @@ namespace Carpet
         {
             _entityMap = new EntityMap(this, 100f);
 
-            AddSystem(new LightRenderer(this, Demo.OccludeBufferPass, Demo.ShadowBufferPass,
-              Demo.LightmapPass))
+            AddSystem(new CameraSystem(0.18f, this))
+                .AddSystem(new LightRenderer(this, Demo.OccludeBufferPass, Demo.ShadowBufferPass,
+                      Demo.LightmapPass))
                 .AddSystem(new BlockGroupsSystem(this))
                 .AddSystem(new ParticleSystem(this, 1000))
-                .AddSystem(new CameraSystem(0.18f, this))
-                .AddSystem(new DebugSystem(this))
-                .AddSystem(new BackgroundSystem(this, Demo.BackgroundPass));
+                .AddSystem(new DebugSystem(this));
         }
 
         public Rectangle Rectangle { get; private set; }

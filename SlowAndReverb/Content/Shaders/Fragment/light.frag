@@ -87,6 +87,7 @@ void main()
     }
 
     float shadowFalloff = (1. - c / 6. * u_ShadowFalloff);
+    shadowFalloff = 1.;
 
     float v = startFalloff * distanceFalloff * angularFalloff
         * shadowFalloff * (1. - shadow[mask]);

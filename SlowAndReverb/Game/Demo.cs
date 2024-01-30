@@ -16,7 +16,7 @@ namespace Carpet
             _stateMachine.SetState(GlobalState.Game, UpdateGame, DrawGame, StartGame, null);
         }
 
-        public static SmoothCameraLayer ForegroundLayer { get; private set; }
+        public static Layer ForegroundLayer { get; private set; }
         public static Layer BackgroundLayer { get; private set; }
         public static Layer ConsoleLayer { get; private set; }
 
@@ -38,7 +38,11 @@ namespace Carpet
 
         protected override void Update(float deltaTime)
         {
+            Input.Update();
+
             _stateMachine.DoUpdate(deltaTime);
+
+            Input.Clear();
         }
 
         protected override void Draw()
@@ -48,7 +52,8 @@ namespace Carpet
 
         protected override void OnInitialize()
         {
-            Lightmap = RenderTarget.FromTexture(324, 184);
+
+            Lightmap = RenderTarget.FromTexture(320, 180);
 
             // 2240
             ShadowBuffer = RenderTarget.FromTexture(10_000, 10_000);
@@ -56,7 +61,7 @@ namespace Carpet
 
             BackgroundLayer = new Layer(1280, 720, 0f);
 
-            ForegroundLayer = new SmoothCameraLayer(324, 184, 320, 180, 1f)
+            ForegroundLayer = new Layer(320, 180, 1f)
             {
                 Material = new ForegroundMaterial(),
                 ClearColor = new Color(40, 40, 40)

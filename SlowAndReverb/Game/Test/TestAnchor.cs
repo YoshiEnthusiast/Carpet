@@ -25,7 +25,7 @@ namespace Carpet
 
         protected override void Draw()
         {
-            Graphics.FillRectangle(Rectangle, Color.CoolOrange, Depths.Blocks + 10f);
+            Graphics.FillRectangle(Rectangle, Color.Orange, Depths.Blocks + 10f);
         }
     }
 }

@@ -15,6 +15,9 @@ using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using OpenTK.Core.Exceptions;
 using System.Collections.Immutable;
+using System.IO;
+using OpenTK.Platform.Windows;
+using OpenTK.Graphics.GL;
 
 namespace Carpet
 {
