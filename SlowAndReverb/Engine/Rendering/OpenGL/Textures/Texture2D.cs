@@ -12,44 +12,56 @@ namespace Carpet
     {
         private readonly int _colorComponentsCount = 4;
 
-        private Texture2D(int width, int height, byte[] buffer) : base(TextureTarget.Texture2D)
+        private Texture2D(int width, int height, byte[] buffer,
+            TextureMinFilter minFilter, TextureMagFilter magFilter,
+            TextureWrapMode wrapS, TextureWrapMode wrapT) : base(TextureTarget.Texture2D)
         {
             Width = width;
             Height = height;
 
-            GL.TexImage2D(Target, 0, InternalFormat, width, height, 0, Format, Type, buffer);
-            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-        }
+            GL.TexImage2D(Target, 0, PixelInternalFormat.Rgba32f, width, height, 0, Format, Type, buffer);
+            //GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 
-        private Texture2D(int width, int height, IntPtr buffer) : base(TextureTarget.Texture2D)
-        {
-            Width = width;
-            Height = height;
+            GL.TexParameter(Target, TextureParameterName.TextureMinFilter, (int)minFilter);
+            GL.TexParameter(Target, TextureParameterName.TextureMagFilter, (int)magFilter);
 
-            GL.TexImage2D(Target, 0, InternalFormat, width, height, 0, Format, Type, buffer);
-            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+            GL.TexParameter(Target, TextureParameterName.TextureWrapS, (int)wrapS);
+            GL.TexParameter(Target, TextureParameterName.TextureWrapT, (int)wrapT);
         }
 
         public int Width { get; private init; }
         public int Height { get; private init; }
 
+        public static Texture2D CreateEmpty(int width, int height,
+            TextureMinFilter minFilter, TextureMagFilter magFilter,
+            TextureWrapMode wrapS, TextureWrapMode wrapT)
+        {
+            return FromBytes(width, height, null, minFilter, 
+                magFilter, wrapS, wrapT);
+        }
+
+        public static Texture2D FromBytes(int width, int height, byte[] buffer,
+            TextureMinFilter minFilter, TextureMagFilter magFilter,
+            TextureWrapMode wrapS, TextureWrapMode wrapT)
+        {
+            CheckSize(width, height);
+
+            return new Texture2D(width, height, buffer, minFilter, 
+                magFilter, wrapS, wrapT);
+        }
+
         public static Texture2D CreateEmpty(int width, int height)
         {
-            return FromBytes(width, height, null);
+            return FromBytes(width, height, null, DefaultMinFilter, DefaultMagFilter,
+                DefaultWrapMode, DefaultWrapMode);
         }
 
         public static Texture2D FromBytes(int width, int height, byte[] buffer)
         {
             CheckSize(width, height);
 
-            return new Texture2D(width, height, buffer);
-        }
-
-        public static Texture2D FromBytes(int width, int height, IntPtr buffer)
-        {
-            CheckSize(width, height);
-
-            return new Texture2D(width, height, buffer);
+            return new Texture2D(width, height, buffer, DefaultMinFilter, DefaultMagFilter,
+                DefaultWrapMode, DefaultWrapMode);
         }
 
         public static Texture2D FromStbImage(ImageResult image)

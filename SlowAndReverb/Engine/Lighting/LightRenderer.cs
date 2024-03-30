@@ -6,8 +6,7 @@ using System.Linq;
 
 namespace Carpet
 {
-    // TODO: const int MaxLights
-
+    // TODO: Rename all cringe
     public class LightRenderer : System
     {
         public const float MaxRadius = 320f;
@@ -84,9 +83,10 @@ namespace Carpet
 
         public override void Update(float deltaTime)
         {
+            // TODO: uhh
             Matrix4 view = Demo.ForegroundLayer.Camera.GetViewMatrix();
 
-            _lightmapPass.View = view;
+            _lightmapPass.SetView(view);
             _lightmapPass.ClearColor = new Color(InitialColor.R, InitialColor.G, InitialColor.B, (byte)0);
         }
 

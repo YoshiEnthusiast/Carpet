@@ -7,10 +7,6 @@ namespace Carpet
         public LightMaterial()
         {
             ShaderProgram = Content.GetPipelineShaderProgram("light");
-
-            // TODO: remove dependency from UntitledGame
-            Textures.Add(Demo.ShadowBuffer.Texture);
-            Textures.Add(Demo.OccludeBuffer.Texture);
         }
 
         [Uniform("u_ShadowBounds")] public Vector4 ShadowBounds { get; set; }

@@ -114,7 +114,7 @@ namespace Carpet
             //{
             //    XmlElement tile = d.CreateElement("Tile");
 
-            //    tile.SetAttribute("Mask", a[i]);
+            //    tile.S/etAttribute("Mask", a[i]);
             //    tile.SetAttribute("Frame", a[i + 1]);
 
 

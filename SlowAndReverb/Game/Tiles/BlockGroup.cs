@@ -16,7 +16,7 @@ namespace Carpet
             Blocks = blocks;
 
             _coroutineRunner = Add(new CoroutineRunner());
-            _occluder = Add(new LightOccluder());
+            _occluder = Add(new LightOccluder(OcclusionMode.EntityRectangle));
             Add(new Anchor());
         }
 

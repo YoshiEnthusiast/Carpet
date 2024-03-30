@@ -1,0 +1,42 @@
+#version 460 core
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+layout (rgba32f, binding = 0) uniform image2D u_Input;
+layout (rgba32f, binding = 1) uniform image2D u_Output;
+
+uniform int u_StepLength;
+
+void main()
+{
+	ivec2 position = ivec2(gl_GlobalInvocationID.xy);
+	imageStore(u_Output, position, vec4(1., 1., 1., 1.));
+	return;
+
+	float minDistance = 99999.;
+	vec2 closestRoot;
+
+	for (int x = -1; x <= 1; x++)
+	{
+		for (int y = -1; y <= 1; y++)
+		{
+			if (x == 0 && y == 0)
+				continue;
+
+			ivec2 p = ivec2(x, y) * u_StepLength
+				+ position;
+
+			vec2 root = imageLoad(u_Input, p).xy;
+			float d = distance(position, root);
+
+			if (d < minDistance)
+			{
+				minDistance = d;
+				closestRoot = root;
+			}
+		}
+	}
+
+	vec4 c = vec4(1., 1., 1., 1.);
+	imageStore(u_Output, position, vec4(1., 1., 1., 1.));
+}

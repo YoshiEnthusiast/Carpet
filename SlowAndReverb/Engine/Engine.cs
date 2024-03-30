@@ -16,6 +16,7 @@ using System.Diagnostics;
 // TODO: Make maaaany things internal
 // TODO: Gamepad support fix
 // TODO: Redo content loading
+// TODO: make u_Resolution the default uniform??
 
 namespace Carpet
 {
@@ -132,7 +133,7 @@ namespace Carpet
             Draw();
 
             Graphics.DrawLayers();
-            OpenGL.SwapBuffers();
+            _window.SwapBuffers(); 
         }
     }
 }

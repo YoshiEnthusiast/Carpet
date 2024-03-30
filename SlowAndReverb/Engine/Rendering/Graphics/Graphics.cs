@@ -67,6 +67,15 @@ namespace Carpet
             Draw(texture, new Rectangle(Vector2.Zero, new Vector2(texture.Width, texture.Height)), position, scale, origin, color, angle, depth);
         }
 
+        public static void Draw(Texture2D texture, Material material, Rectangle rectangle, Color color, float depth)
+        {
+            Vector2 scale = rectangle.Size
+                / new Vector2(texture.Width, texture.Height);
+
+            Draw(texture, material, rectangle.TopLeft, scale, Vector2.Zero, color, 0f, 
+                SpriteEffect.None, SpriteEffect.None, depth);
+        }
+
         public static void Draw(Texture2D texture, Material material, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
         {
             Draw(texture, material, position, scale, origin, color, angle, SpriteEffect.None, SpriteEffect.None, depth);
@@ -302,7 +311,7 @@ namespace Carpet
             Texture2D texture = Texture2D.CreateEmpty(width, height);
 
             s_finalTarget = RenderTarget.FromTexture(texture);
-            s_screenTarget = RenderTarget.FromScreen(width, height);
+            s_screenTarget = RenderTarget.CreateScreen(width, height);
         }
 
         #endregion

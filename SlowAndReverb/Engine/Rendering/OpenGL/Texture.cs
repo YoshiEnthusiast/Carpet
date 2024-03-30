@@ -13,6 +13,10 @@ namespace Carpet
         protected const PixelFormat Format = PixelFormat.Rgba;
         protected const PixelType Type = PixelType.UnsignedByte;
 
+        protected const TextureMinFilter DefaultMinFilter = TextureMinFilter.Nearest;
+        protected const TextureMagFilter DefaultMagFilter = TextureMagFilter.Nearest;
+        protected const TextureWrapMode DefaultWrapMode = TextureWrapMode.ClampToEdge;
+
         private TextureUnit _unit;
 
         protected Texture(TextureTarget target)
@@ -23,7 +27,6 @@ namespace Carpet
             Target = target;
 
             Bind();
-            SetParameters();
         } 
 
         protected TextureTarget Target { get; private init; }
@@ -57,20 +60,6 @@ namespace Carpet
         protected override void Delete(int handle)
         {
             GL.DeleteTexture(handle);
-        }
-
-        protected virtual void SetParameters()
-        {
-            SetParameter(TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            SetParameter(TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
-
-            SetParameter(TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
-            SetParameter(TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
-        }
-
-        protected void SetParameter(TextureParameterName parameter, int value)
-        {
-            GL.TexParameter(Target, parameter, value);
         }
     }
 }

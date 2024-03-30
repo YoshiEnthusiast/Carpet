@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace Carpet
 {
     public sealed class EntityMap : DynamicCollection<Entity>
     {
         private readonly Dictionary<Vector2, HashSet<Entity>> _buckets = [];
+        private readonly Dictionary<Entity, List<HashSet<Entity>>> _previousBuckets = [];
+
+        private readonly List<Vector2> _hashBuffer = [];
 
         private readonly Scene _scene;
         private readonly float _bucketSize;
@@ -32,7 +34,10 @@ namespace Carpet
         {
             var result = new HashSet<T>();
 
-            foreach (Vector2 hash in GetAffectedBucketsHash(rectangle))
+            _hashBuffer.Clear();
+            GetAffectedBucketsHash(_hashBuffer, rectangle);
+
+            foreach (Vector2 hash in _hashBuffer)
             {
                 if (!_buckets.TryGetValue(hash, out HashSet<Entity> entities))
                     continue;
@@ -54,6 +59,7 @@ namespace Carpet
             return GetNearby<Entity>(rectangle);
         }
 
+        // TODO: do this some other way
         public void DrawBuckets(float depth)
         {
             foreach (Vector2 hash in _buckets.Keys)
@@ -100,46 +106,63 @@ namespace Carpet
 
         private void AddToBuckets(Entity entity)
         {
-            foreach (Vector2 hash in GetAffectedBucketsHash(entity))
-            {
-                if (_buckets.TryGetValue(hash, out HashSet<Entity> entities))
-                {
-                    entities.Add(entity);
+            _hashBuffer.Clear();
+            GetAffectedBucketsHash(_hashBuffer, entity);
 
-                    continue;
+            List<HashSet<Entity>> buckets;
+
+            if (!_previousBuckets.TryGetValue(entity, out buckets))
+            {
+                buckets = new List<HashSet<Entity>>();
+
+                _previousBuckets[entity] = buckets;
+            }
+
+            foreach (Vector2 hash in _hashBuffer)
+            {
+                if (_buckets.TryGetValue(hash, out HashSet<Entity> bucket))
+                {
+                    bucket.Add(entity);
+                }
+                else
+                {
+                    bucket = new HashSet<Entity>()
+                    {
+                        entity
+                    };
+
+                    _buckets[hash] = bucket;
                 }
 
-                _buckets.Add(hash, new HashSet<Entity>()
-                {
-                    entity
-                });
+                buckets.Add(bucket);
             }
         }
 
         private void RemoveFromBuckets(Entity entity)
         {
-            // Slow.    Dictionary<Entity, IEnumerable<Vector2>> ???????
-            foreach (HashSet<Entity> entities in _buckets.Values)
-                entities.Remove(entity);
-
-            //foreach (Vector2 hash in GetAffectedBucketsHash(entity))
-            //    if (_buckets.TryGetValue(hash, out HashSet<Entity> entities))
-            //        entities.Remove(entity);
+            foreach (HashSet<Entity> bucket in _previousBuckets[entity])
+                bucket.Remove(entity);
         }
 
-        private IEnumerable<Vector2> GetAffectedBucketsHash(Entity entity)
+        private void GetAffectedBucketsHash(List<Vector2> buffer, Entity entity)
         {
-            return GetAffectedBucketsHash(entity.Rectangle);
+            GetAffectedBucketsHash(buffer, entity.Rectangle);
         }
 
-        private IEnumerable<Vector2> GetAffectedBucketsHash(Rectangle rectangle)
+        private void GetAffectedBucketsHash(List<Vector2> buffer, Rectangle rectangle)
         {
             Vector2 topLeft = GetHash(rectangle.TopLeft);
             Vector2 bottomRight = GetHash(rectangle.BottomRight);
 
             for (int x = (int)topLeft.X; x < (int)bottomRight.X + 1; x++)
+            {
                 for (int y = (int)topLeft.Y; y < (int)bottomRight.Y + 1; y++)
-                    yield return new Vector2(x, y);
+                {
+                    var hash = new Vector2(x, y);
+
+                    buffer.Add(hash);
+                }
+            }
         }
 
         private Vector2 GetHash(Vector2 position)

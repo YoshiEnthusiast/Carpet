@@ -51,6 +51,7 @@ namespace Carpet
 
                 CameraPosition = lerpedPosition;
                 camera.Position = CameraPosition;
+                Demo.TestPass.GetLayer().Camera.Position = lerpedPosition;
             }
             else
             {

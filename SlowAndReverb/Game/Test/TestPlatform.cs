@@ -22,7 +22,7 @@ namespace Carpet
                 Origin = new Vector2(Width / 2f, 1f)
             });
 
-            Add(new LightOccluder());
+            Add(new LightOccluder(OcclusionMode.EntityRectangle));
         }
     }
 }

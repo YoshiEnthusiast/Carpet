@@ -21,7 +21,11 @@
 
   <ItemGroup>
     <None Remove="Content\Shaders\Compute\boids.comp" />
+    <None Remove="content\shaders\compute\jumpFlood.comp" />
     <None Remove="content\shaders\fragment\bloom.frag" />
+    <None Remove="content\shaders\fragment\distanceMap.frag" />
+    <None Remove="content\shaders\fragment\jumpFloodSeed.frag" />
+    <None Remove="content\shaders\fragment\RayLight.frag" />
     <None Remove="content\shaders\fragment\shadow.frag" />
   </ItemGroup>
 

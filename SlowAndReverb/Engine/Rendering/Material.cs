@@ -12,7 +12,8 @@ namespace Carpet
         public PipelineShaderProgram ShaderProgram { get; protected init; }
         public int ExtraTexturesCount => GetExtraTexturesCount();
 
-        protected IList<Texture> Textures
+        // TODO: what the hell is this
+        public IList<Texture> Textures
         {
             get
             {

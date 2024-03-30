@@ -27,6 +27,7 @@ namespace Carpet
             [typeof(Matrix3x2)] = ActiveUniformType.FloatMat3x2,
             [typeof(Matrix4x2)] = ActiveUniformType.FloatMat4x2,
             [typeof(Matrix3x4)] = ActiveUniformType.FloatMat3x4,
+            [typeof(bool)] = ActiveUniformType.Bool
         };
 
         protected abstract ShaderProgram Program { get; }
@@ -65,7 +66,9 @@ namespace Carpet
 
         protected void SetUniforms()
         {
-            foreach (UniformStorage storage in s_uniformStorages[GetType()])
+            Type type = GetType();
+
+            foreach (UniformStorage storage in s_uniformStorages[type])
             {
                 if (!Program.TryGetUniformByName(storage.Name, out Uniform uniform))
                     continue;

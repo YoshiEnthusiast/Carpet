@@ -6,12 +6,27 @@ namespace Carpet
     {
         private const int Faces = 6;
 
-        public CubeMap(int size) : base(TextureTarget.TextureCubeMap)
+        public CubeMap(int size, TextureMinFilter minFilter, TextureMagFilter magFilter,
+            TextureWrapMode wrapS, TextureWrapMode wrapT, TextureWrapMode wrapR) : base(TextureTarget.TextureCubeMap)
         {
             Size = size;
 
             for (int i = 0; i < Faces; i++)
                 GL.TexImage2D(TextureTarget.TextureCubeMapPositiveX + i, 0, InternalFormat, size, size, 0, Format, Type, 0);
+
+            GL.TexParameter(Target, TextureParameterName.TextureMinFilter, (int)minFilter);
+            GL.TexParameter(Target, TextureParameterName.TextureMagFilter, (int)magFilter);
+
+            GL.TexParameter(Target, TextureParameterName.TextureWrapT, (int)wrapS);
+            GL.TexParameter(Target, TextureParameterName.TextureWrapS, (int)wrapT);
+            GL.TexParameter(Target, TextureParameterName.TextureWrapR, (int)wrapR);
+        }
+
+        public CubeMap(int size)
+            : this(size, DefaultMinFilter, DefaultMagFilter,
+                  DefaultWrapMode, DefaultWrapMode, DefaultWrapMode)
+        {
+            
         }
 
         public int Size { get; private init; }
@@ -44,13 +59,6 @@ namespace Carpet
         public void SetNegativeZ(byte[] buffer)
         {
             SetFace(TextureTarget.TextureCubeMapNegativeZ, buffer);
-        }
-
-        protected override void SetParameters()
-        {
-            base.SetParameters();
-
-            SetParameter(TextureParameterName.TextureWrapR, (int)TextureWrapMode.ClampToBorder);
         }
 
         private void SetFace(TextureTarget face, byte[] buffer)

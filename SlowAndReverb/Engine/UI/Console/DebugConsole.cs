@@ -51,7 +51,7 @@ namespace Carpet
 
         private static readonly Dictionary<LogType, LogPrefix> s_logPrefixes = new()
         {
-            [LogType.Info] = new LogPrefix("INFO", Color.Blue),
+            [LogType.Info] = new LogPrefix("INFO", Color.LightSkyBlue),
             [LogType.Warning] = new LogPrefix("WARN", Color.Yellow),
             [LogType.Error] = new LogPrefix("ERR", Color.Red),
             [LogType.OK] = new LogPrefix("OK", Color.LightGreen),

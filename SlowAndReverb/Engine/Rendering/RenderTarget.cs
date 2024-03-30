@@ -22,12 +22,12 @@
             return new RenderTarget(texture, texture.Width, texture.Height);
         }
 
-        public static RenderTarget FromTexture(int width, int height)
+        public static RenderTarget CreateTexture(int width, int height)
         {
             return FromTexture(Texture2D.CreateEmpty(width, height));
         }
 
-        public static RenderTarget FromScreen(int width, int height)
+        public static RenderTarget CreateScreen(int width, int height)
         {
             return new RenderTarget(null, width, height);
         }

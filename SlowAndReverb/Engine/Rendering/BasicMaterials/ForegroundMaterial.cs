@@ -7,8 +7,6 @@ namespace Carpet
         public ForegroundMaterial()
         {
             ShaderProgram = Content.GetPipelineShaderProgram("foreground");
-
-            Textures.Add(Demo.Lightmap.Texture);
         }
 
         [Uniform("u_Darkness")] public float Darkness { get; set; } = 0.1f;

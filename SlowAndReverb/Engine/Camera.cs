@@ -13,10 +13,10 @@ namespace Carpet
         private Vector2 _scale = Vector2.One;
         private float _angle;
 
-        public Camera(int maxWidth, int naxHeight)
+        public Camera(int maxWidth, int maxHeight)
         {
             MaxWidth = maxWidth;
-            MaxHeight = naxHeight;
+            MaxHeight = maxHeight;
         }
 
         public int MaxWidth { get; private init; }
@@ -93,7 +93,7 @@ namespace Carpet
             }
         }
 
-        public float Heigth
+        public float Height
         {
             get
             {

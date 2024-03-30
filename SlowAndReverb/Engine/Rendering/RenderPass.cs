@@ -2,7 +2,7 @@
 
 namespace Carpet
 {
-    public abstract class PassBase
+    public abstract class RenderPass
     {
         private Render _render;
 
@@ -19,9 +19,20 @@ namespace Carpet
             }
         }
 
+        public abstract Matrix4? View { get; }
+        public abstract int Width { get; }
+        public abstract int Height { get; }
+
+        public Vector2 Size => new Vector2(Width, Height);
+
         public abstract RenderTarget GetRenderTarget();
 
         public abstract void Process();
+
+        public Texture2D GetTexture()
+        {
+            return GetRenderTarget().Texture;
+        }
 
         protected void InvokeRenderEvent()
         {

@@ -37,7 +37,7 @@ namespace Carpet
         private readonly FrameBuffer _frameBuffer;
         private readonly UniformBuffer _uniformBuffer;
 
-        private readonly uint[] _quadElements = new uint[]
+        private readonly uint[] _quadElements = 
         {
             0u,
             1u,
@@ -182,8 +182,10 @@ namespace Carpet
                 textureTop = value;
             }
 
-            float spriteScaleX = scale.FlooredX;
-            float spriteScaleY = scale.FlooredY;
+            // HACK: scale is no longer rounded
+            // This should be done in Graphics.cs where nedded
+            float spriteScaleX = scale.X;
+            float spriteScaleY = scale.Y;
 
             float x = position.X;
             float y = position.Y;

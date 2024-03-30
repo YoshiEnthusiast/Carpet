@@ -1,16 +1,19 @@
 ﻿using OpenTK.Mathematics;
+using System.ComponentModel.Design;
 
 namespace Carpet
 {
-    public class Pass : PassBase
+    public class Pass : RenderPass
     {
         private RenderTarget _target;
+
+        private Matrix4? _view;
 
         public Pass(BlendMode blendMode, Color clearColor, Matrix4 view)
         {
             BlendMode = blendMode;
             ClearColor = clearColor;
-            View = view;
+            _view = view;
         }
 
         public Pass(BlendMode blendMode, Color clearColor) : this(blendMode, clearColor,
@@ -29,9 +32,32 @@ namespace Carpet
 
         }
 
-        public BlendMode BlendMode { get; set; }
+        public override Matrix4? View
+        {
+            get
+            {
+                return _view;
+            }
+        }
+
+        public override int Width
+        {
+            get 
+            {
+                return _target.Width;
+            }
+        }
+
+        public override int Height
+        {
+            get
+            {
+                return _target.Height;
+            }
+        }
+
         public Color ClearColor { get; set; }
-        public Matrix4? View { get; set; }
+        public BlendMode BlendMode { get; set; }
 
         public override RenderTarget GetRenderTarget()
         {
@@ -41,6 +67,13 @@ namespace Carpet
         public Pass SetRenderTarget(RenderTarget target)
         {
             _target = target;
+
+            return this;
+        }
+
+        public Pass SetView(Matrix4 view)
+        {
+            _view = view;
 
             return this;
         }

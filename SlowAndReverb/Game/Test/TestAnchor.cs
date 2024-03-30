@@ -15,7 +15,7 @@ namespace Carpet
 
             Add(new Anchor());
             Add(new SolidObject());
-            Add(new LightOccluder());
+            Add(new LightOccluder(OcclusionMode.EntityRectangle));
         }
 
         protected override void Update(float deltaTime)

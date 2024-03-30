@@ -146,6 +146,11 @@ namespace Carpet
             SetUniform(GetUniformLocation(name), length, values);
         }
 
+        public void SetUniform(string name, bool value)
+        {
+            SetUniform(GetUniformLocation(name), value);
+        }
+
         public void SetUniform(int location, int value)
         {
             GL.Uniform1(location, value);
@@ -244,6 +249,11 @@ namespace Carpet
         public void SetUniform(int location, Matrix4x3 value)
         {
             GL.UniformMatrix4x3(location, true, ref value);
+        }
+
+        public void SetUniform(int location, bool value)
+        {
+            GL.Uniform1(location, Convert.ToSingle(value));
         }
 
         protected override void Bind(int handle)

@@ -20,13 +20,6 @@ namespace Carpet
         public Scene()
         {
             _entityMap = new EntityMap(this, 100f);
-
-            AddSystem(new CameraSystem(0.18f, this))
-                .AddSystem(new LightRenderer(this, Demo.OccludeBufferPass, Demo.ShadowBufferPass,
-                      Demo.LightmapPass))
-                .AddSystem(new BlockGroupsSystem(this))
-                .AddSystem(new ParticleSystem(this, 1000))
-                .AddSystem(new DebugSystem(this));
         }
 
         public Rectangle Rectangle { get; private set; }
@@ -130,13 +123,6 @@ namespace Carpet
         public virtual void Terminate()
         {
             Demo.ForegroundPass.Render -= Draw;
-        }
-
-        public void SetPalette(Palette palette)
-        {
-            ForegroundMaterial material = Demo.ForegroundLayer.Material as ForegroundMaterial;
-
-            material.SetPalette(palette);
         }
 
         #endregion

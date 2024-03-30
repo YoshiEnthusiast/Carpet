@@ -35,8 +35,6 @@ namespace Carpet
 
             MaxTextureUnits = maxTextureUnits;
             MaxTextureSize = maxTextureSize;
-
-            Console.WriteLine("OpenGL initialized");
         }
 
         public static void SwapBuffers()

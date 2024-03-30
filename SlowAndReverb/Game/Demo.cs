@@ -6,6 +6,8 @@ namespace Carpet
 {
     public sealed class Demo : Engine
     {
+        private const int MaxLights = 100;
+
         private readonly StateMachine<GlobalState> _stateMachine = new();
 
         private Thread _contentLoadingThread;
@@ -20,18 +22,15 @@ namespace Carpet
         public static Layer BackgroundLayer { get; private set; }
         public static Layer ConsoleLayer { get; private set; }
 
-        public static RenderTarget OccludeBuffer { get; private set; }
-        public static RenderTarget ShadowBuffer { get; private set; }
-        public static RenderTarget Lightmap { get; private set; }
-
         public static Pipeline Pipeline { get; private set; }
 
         public static LayerPass ForegroundPass { get; private set; }
-        public static LayerPass BackgroundPass { get; private set; }
         public static LayerPass ConsolePass { get; private set; }
-        public static Pass OccludeBufferPass { get; private set; }
-        public static Pass ShadowBufferPass { get; private set; }
-        public static Pass LightmapPass { get; private set; }
+        public static LayerPass TestPass { get; private set; }
+
+        public static Pass OcclusionPass { get; private set; }
+        public static Pass DistancePass { get; private set; }
+        public static Pass LightPass { get; private set; }
 
         public static Scene CurrentScene { get; set; }
         public static bool Paused { get; set; }
@@ -52,20 +51,23 @@ namespace Carpet
 
         protected override void OnInitialize()
         {
-
-            Lightmap = RenderTarget.FromTexture(320, 180);
-
-            // 2240
-            ShadowBuffer = RenderTarget.FromTexture(10_000, 10_000);
-            OccludeBuffer = RenderTarget.FromTexture(2240, 2240);
-
             BackgroundLayer = new Layer(1280, 720, 0f);
+
+            var foregroundMaterial = new ForegroundMaterial();
 
             ForegroundLayer = new Layer(320, 180, 1f)
             {
-                Material = new ForegroundMaterial(),
+                Material = foregroundMaterial,
                 ClearColor = new Color(40, 40, 40)
             };
+
+            var testLayer = new Layer(520, 380, 10f)
+            {
+                ClearColor = Color.Black
+            };
+
+            TestPass = new LayerPass()
+                .SetLayer(testLayer);
 
             ForegroundLayer.Camera.SetCenterOrigin();
 
@@ -73,17 +75,21 @@ namespace Carpet
 
             Pipeline = new Pipeline();
 
-            OccludeBufferPass = Pipeline.AddPass(new Pass(BlendMode.Additive)
-                .SetRenderTarget(OccludeBuffer));
+            OcclusionPass = RayLightRenderer.CreateOcclusionPass(320, 180, MaxLights);
+            DistancePass = RayLightRenderer.CreateDistancePass(256, 100);
+            LightPass = RayLightRenderer.CreateLightPass(320, 180);
 
-            ShadowBufferPass = Pipeline.AddPass(new Pass(BlendMode.Additive)
-                .SetRenderTarget(ShadowBuffer));
+            Texture2D lightMap = LightPass.GetTexture();
+            foregroundMaterial.Textures.Add(lightMap);
 
-            LightmapPass = Pipeline.AddPass(new Pass(BlendMode.Additive)
-                .SetRenderTarget(Lightmap));
+            Pipeline.AddPass(OcclusionPass);
+            Pipeline.AddPass(DistancePass);
+            Pipeline.AddPass(LightPass);
 
-            BackgroundPass = Pipeline.AddPass(new LayerPass().SetLayer(BackgroundLayer));
             ForegroundPass = Pipeline.AddPass(new LayerPass().SetLayer(ForegroundLayer));
+            testLayer.Camera.SetCenterOrigin();
+            TestPass.Render += Test;
+            // Pipeline.AddPass(TestPass);
 
             ConsolePass = Pipeline.AddPass(new LayerPass().SetLayer(ConsoleLayer));
             ConsolePass.Render += OnConsoleRender;
@@ -94,6 +100,12 @@ namespace Carpet
 
             Argument.AddType<Game.Entity>();
             DebugConsole.AddCommandContainer(typeof(TestCommands));
+        }
+
+        private void Test()
+        {
+            foreach (LightOccluder c in CurrentScene.GetComponentsOfType<LightOccluder>())
+                c.DrawOcclusion();
         }
 
         protected override void LoadContent()
@@ -115,6 +127,7 @@ namespace Carpet
             Controls.Profile.Update(deltaTime);
             DebugConsole.Update(deltaTime);
 
+
             if (Input.IsPressed(Key.Escape))
             {
                 Paused = !Paused;
@@ -126,6 +139,7 @@ namespace Carpet
 
         private void DrawGame()
         {
+                RayTracer.Test();
             //CurrentScene.Draw();
             Pipeline.Process();
         }
@@ -133,6 +147,16 @@ namespace Carpet
         private void StartGame()
         {
             CurrentScene = new Scene();
+
+            CurrentScene.AddSystem(new CameraSystem(0.18f, CurrentScene))
+                .AddSystem(new RayLightRenderer(CurrentScene, OcclusionPass, 
+                    DistancePass, LightPass, MaxLights, false, ForegroundPass))
+                //.AddSystem(new LightRenderer(this, Demo.OccludeBufferPass, Demo.ShadowBufferPass,
+                //    Demo.LightmapPass))
+                // .AddSystem(new RayLightRenderer(CurrentScene, 256, 100, 200, ForegroundPass))
+                .AddSystem(new BlockGroupsSystem(CurrentScene))
+                .AddSystem(new ParticleSystem(CurrentScene, 1000))
+                .AddSystem(new DebugSystem(CurrentScene));
 
             CurrentScene.Add(new TestEntity(0f, 0f));
             CurrentScene.Add(new TestEntity2(0f, 0f));
@@ -155,9 +179,7 @@ namespace Carpet
             //CurrentScene.Add(new Coin(230f, 80f));
 
             CurrentScene.Add(new TestPlatform(300f, 60f));
-
-            Palette palette = Content.GetPalette("test2");
-            CurrentScene.SetPalette(palette);
+            CurrentScene.Add(new SpinningBoxes(600f, 30f));
 
             //CurrentScene.Add(new Boids(0f, 0f)
             //{
@@ -176,8 +198,6 @@ namespace Carpet
             if (_contentLoadingThread.IsAlive)
                 return;
 
-            Console.WriteLine("Content loaded");
-                                                            //TODO: utility method
             XmlDocument document = Utilities.LoadXML(Content.Folder + "\\defaultInputSettings.xml");
             var settings = new InputSettings(document.DocumentElement);
             var profile = new InputProfile(settings);
