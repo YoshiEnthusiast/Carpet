@@ -10,24 +10,24 @@ uniform int u_StepLength;
 void main()
 {
 	ivec2 position = ivec2(gl_GlobalInvocationID.xy);
-	imageStore(u_Output, position, vec4(1., 1., 1., 1.));
-	return;
+	vec2 coord = position / vec2(gl_NumWorkGroups.xy);
 
 	float minDistance = 99999.;
-	vec2 closestRoot;
+	vec2 closestRoot = vec2(0.);
 
 	for (int x = -1; x <= 1; x++)
 	{
 		for (int y = -1; y <= 1; y++)
 		{
-			if (x == 0 && y == 0)
-				continue;
-
 			ivec2 p = ivec2(x, y) * u_StepLength
 				+ position;
 
 			vec2 root = imageLoad(u_Input, p).xy;
-			float d = distance(position, root);
+			
+			if (root.x == 0. || root.y == 0.)
+				continue;
+
+			float d = distance(coord, root);
 
 			if (d < minDistance)
 			{
@@ -37,6 +37,5 @@ void main()
 		}
 	}
 
-	vec4 c = vec4(1., 1., 1., 1.);
-	imageStore(u_Output, position, vec4(1., 1., 1., 1.));
+	imageStore(u_Output, position, vec4(closestRoot, 0., 1.));
 }

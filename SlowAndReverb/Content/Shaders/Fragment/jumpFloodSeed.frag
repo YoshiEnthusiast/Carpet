@@ -17,5 +17,5 @@ void main()
     vec2 fragCoord = gl_FragCoord.xy;
     vec2 norm = fragCoord / u_Resolution;
 
-    o_FragColor = vec4(norm, 1., 1.);
+    o_FragColor = vec4(norm, 0., 1.);
 }

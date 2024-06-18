@@ -19,7 +19,7 @@ namespace Carpet
             Width = width;
             Height = height;
 
-            GL.TexImage2D(Target, 0, PixelInternalFormat.Rgba32f, width, height, 0, Format, Type, buffer);
+            GL.TexImage2D(Target, 0, InternalFormat, width, height, 0, Format, Type, buffer);
             //GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 
             GL.TexParameter(Target, TextureParameterName.TextureMinFilter, (int)minFilter);

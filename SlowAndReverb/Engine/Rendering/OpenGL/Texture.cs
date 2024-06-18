@@ -9,7 +9,7 @@ namespace Carpet
 {
     public abstract class Texture : OpenGLObject
     {
-        protected const PixelInternalFormat InternalFormat = PixelInternalFormat.Rgba;
+        protected const PixelInternalFormat InternalFormat = PixelInternalFormat.Rgba32f;
         protected const PixelFormat Format = PixelFormat.Rgba;
         protected const PixelType Type = PixelType.UnsignedByte;
 

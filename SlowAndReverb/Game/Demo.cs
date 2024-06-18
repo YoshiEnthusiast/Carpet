@@ -139,7 +139,7 @@ namespace Carpet
 
         private void DrawGame()
         {
-                RayTracer.Test();
+            RayTracer.Draw();
             //CurrentScene.Draw();
             Pipeline.Process();
         }
@@ -191,6 +191,7 @@ namespace Carpet
             CurrentScene.Initialize();
             ForegroundLayer.Camera.Position = new Vector2(400f, 50f);
             //CurrentScene.GetSystem<BackgroundSystem>().CurrentBackground = new TestBackground();
+            RayTracer.Setup();
         }
 
         private void UpdateContentLoading(float deltaTime)
