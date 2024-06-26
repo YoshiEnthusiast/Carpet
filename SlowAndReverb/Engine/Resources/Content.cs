@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
@@ -42,7 +43,9 @@ namespace Carpet
 
         internal static void Initialize(string folder)
         {
-            Folder = folder;
+            string assemblyLocation = Assembly.GetExecutingAssembly().Location;
+            string assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
+            Folder = Path.Combine(assemblyDirectory, folder);
 
             XmlDocument mappingsDocument = LoadXML("controllerMappings.xml");
             XmlElement mappings = mappingsDocument["Mappings"];
@@ -123,7 +126,7 @@ namespace Carpet
                     texture.Bind();
                     texture.Delete();
                 }
-                
+
                 foreach (Texture2D texture in asepriteTextures)
                 {
                     texture.Bind();
@@ -239,7 +242,7 @@ namespace Carpet
 
         public static Texture2D GetTexture(string fileName)
         {
-            return s_textureCache.GetItem(fileName);    
+            return s_textureCache.GetItem(fileName);
         }
 
         public static VirtualTexture GetVirtualTexture(string name)
@@ -254,7 +257,7 @@ namespace Carpet
 
         public static FontFamily GetFontFamily(string fileName)
         {
-            return s_fontFamilyCache.GetItem(fileName); 
+            return s_fontFamilyCache.GetItem(fileName);
         }
 
         public static WaveFile GetWaveFile(string fileName)

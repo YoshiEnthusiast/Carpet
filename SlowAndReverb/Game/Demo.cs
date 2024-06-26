@@ -199,7 +199,7 @@ namespace Carpet
             if (_contentLoadingThread.IsAlive)
                 return;
 
-            XmlDocument document = Utilities.LoadXML(Content.Folder + "\\defaultInputSettings.xml");
+            XmlDocument document = Utilities.LoadXML(Content.Folder + "/defaultInputSettings.xml");
             var settings = new InputSettings(document.DocumentElement);
             var profile = new InputProfile(settings);
 
@@ -211,6 +211,8 @@ namespace Carpet
         private void OnConsoleRender()
         {
             DebugConsole.Draw();
+            Graphics.Draw(RayTracer.s_lightMap, null, 
+                    new Rectangle(0f, 0f, 320f, 180f), Color.White, 0f);
         }
     }
 }

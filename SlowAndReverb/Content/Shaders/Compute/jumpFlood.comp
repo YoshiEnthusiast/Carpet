@@ -9,33 +9,36 @@ uniform int u_StepLength;
 
 void main()
 {
-	ivec2 position = ivec2(gl_GlobalInvocationID.xy);
-	vec2 coord = position / vec2(gl_NumWorkGroups.xy);
+    ivec2 position = ivec2(gl_GlobalInvocationID.xy);
+    vec2 coord = position / vec2(gl_NumWorkGroups.xy);
 
-	float minDistance = 99999.;
-	vec2 closestRoot = vec2(0.);
+    // float aspect = gl_NumWorkGroups.y / gl_NumWorkGroups.x;
+    // coord.x *= aspect;
 
-	for (int x = -1; x <= 1; x++)
-	{
-		for (int y = -1; y <= 1; y++)
-		{
-			ivec2 p = ivec2(x, y) * u_StepLength
-				+ position;
+    float minDistance = 99999.;
+    vec2 closestRoot = vec2(0.);
 
-			vec2 root = imageLoad(u_Input, p).xy;
-			
-			if (root.x == 0. || root.y == 0.)
-				continue;
+    for (int x = -1; x <= 1; x++)
+    {
+        for (int y = -1; y <= 1; y++)
+        {
+            ivec2 p = ivec2(x, y) * u_StepLength
+                + position;
 
-			float d = distance(coord, root);
+            vec2 root = imageLoad(u_Input, p).xy;
 
-			if (d < minDistance)
-			{
-				minDistance = d;
-				closestRoot = root;
-			}
-		}
-	}
+            if (root.x == 0. || root.y == 0.)
+                continue;
 
-	imageStore(u_Output, position, vec4(closestRoot, 0., 1.));
+            float d = distance(coord, root);
+
+            if (d < minDistance)
+            {
+                minDistance = d;
+                closestRoot = root;
+            }
+        }
+    }
+
+    imageStore(u_Output, position, vec4(closestRoot, 0., 1.));
 }

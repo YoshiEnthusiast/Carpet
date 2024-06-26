@@ -11,8 +11,8 @@
 
         public Sprite Sprite { get; set; }
         public Rectangle Rectangle { get; set; }
-
         public void DrawOcclusion()
+
         {
             switch (Mode)
             {

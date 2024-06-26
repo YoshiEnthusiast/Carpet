@@ -7,12 +7,11 @@ layout (rgba32f, binding = 1) uniform image2D u_Output;
 
 void main()
 {
-    vec2 fragCoord = gl_FragCoord.xy;
-    vec2 norm = fragCoord / u_Resolution;
+    ivec2 position = ivec2(gl_GlobalInvocationID.xy);
+    vec2 norm = position / vec2(gl_NumWorkGroups.xy);
 
-    int index = int(v_TexIndex);
-    float alpha = texture(u_Textures[index], v_TexCoord).a;
+    float alpha = imageLoad(u_Input, position).a;
     vec4 color = vec4(norm, 0., 1.) * step(1., alpha);
 
-    o_FragColor = color;
+    imageStore(u_Output, position, color);
 }
