@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -26,11 +26,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SlowAndReverb\Carpet.csproj" />
+    <Folder Include="Content\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Content\" />
+    <ProjectReference Include="..\Carpet\Carpet.csproj" />
   </ItemGroup>
 
 </Project>
