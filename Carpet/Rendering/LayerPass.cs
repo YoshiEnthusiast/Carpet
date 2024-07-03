@@ -50,7 +50,7 @@ namespace Carpet
         public override void Process()
         {
             Graphics.BeginLayer(_layer);
-            InvokeRenderEvent();
+            InvokeProcessEvent();
             Graphics.EndCurrentLayer();
         }
     }

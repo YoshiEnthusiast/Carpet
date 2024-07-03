@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Xml;
 
@@ -18,6 +15,7 @@ namespace Carpet
         private const string AtlasFileName = AtlasName + ".png"; 
         private const string AtlasDataFileName = AtlasName + ".xml";
 
+        private static TextureCache s_atlasTextureCache;
         private static TextureCache s_textureCache;
         private static FontFamilyCache s_fontFamilyCache;
         private static WaveFileCache s_waveFileCache;
@@ -41,7 +39,7 @@ namespace Carpet
         public static Texture2D AtlasTexture { get; private set; }
         public static string Folder { get; private set; }
 
-        internal static void Initialize(string folder)
+        public static void Initialize(string folder)
         {
             string assemblyLocation = Assembly.GetCallingAssembly().Location;
             string assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
@@ -59,18 +57,19 @@ namespace Carpet
             }
         }
 
-        internal static void LoadGraphics(TextureLoadMode mode)
+        public static void LoadGraphics(TextureLoadMode mode)
         {
             s_vertexSourceCache = new ShaderSourceCache("Shaders/Vertex", ".vert", true);
             s_fragmentSourceCache = new ShaderSourceCache("Shaders/Fragment", ".frag", true);
             s_geometrySourceCache = new ShaderSourceCache("Shaders/Geometry", ".geom", true);
             s_computeSourceCache = new ShaderSourceCache("Shaders/Compute", ".comp", true);
 
+            s_atlasTextureCache = new TextureCache("AtlasTextures", true);
             s_textureCache = new TextureCache("Textures", true);
             s_paletteCache = new PaletteCache("Palettes", true);
-            s_asepriteCache = new AsepriteCache("Textures", true);
+            s_asepriteCache = new AsepriteCache("AtlasTextures", true);
 
-            string texturesDirectory = s_textureCache.MainDirectory;
+            string texturesDirectory = s_atlasTextureCache.MainDirectory;
 
             string atlasFileName = Path.Combine(texturesDirectory, AtlasFileName);
             string atlasDataFileName = Path.Combine(texturesDirectory, AtlasDataFileName);
@@ -79,7 +78,7 @@ namespace Carpet
             {
                 var atlas = new Atlas(OpenGL.MaxTextureSize, 1);
 
-                IEnumerable<CachedItem<Texture2D>> textureCacheItems = s_textureCache.GetAllValues();
+                IEnumerable<CachedItem<Texture2D>> textureCacheItems = s_atlasTextureCache.GetAllValues();
                 IEnumerable<CachedItem<Aseprite>> asepriteCacheItems = s_asepriteCache.GetAllValues();
 
                 var asepriteTextures = new List<Texture2D>();
@@ -131,7 +130,7 @@ namespace Carpet
                     texture.Delete();
                 }
 
-                s_textureCache.Clear();
+                s_atlasTextureCache.Clear();
 
                 Texture2D atlasTexture = atlas.Texture;
                 XmlDocument atlasData = atlas.Data;
@@ -148,7 +147,7 @@ namespace Carpet
             }
             else
             {
-                Texture2D atlasTexture = GetTexture(atlasFileName);
+                Texture2D atlasTexture = GetAtlasTexture(atlasFileName);
                 XmlDocument atlasData = Utilities.LoadXML(atlasDataFileName);
 
                 AtlasTexture = atlasTexture;
@@ -235,6 +234,11 @@ namespace Carpet
             return program;
         }
 
+        public static Texture2D GetAtlasTexture(string fileName)
+        {
+            return s_atlasTextureCache.GetItem(fileName);
+        }
+        
         public static Texture2D GetTexture(string fileName)
         {
             return s_textureCache.GetItem(fileName);

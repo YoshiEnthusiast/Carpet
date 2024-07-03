@@ -1,9 +1,4 @@
 ﻿using OpenTK.Graphics.OpenGL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Carpet
 {
@@ -48,6 +43,13 @@ namespace Carpet
             _unit = unit;
 
             base.Bind();
+        }
+
+        public void BindImage(int index, TextureAccess access,
+                SizedInternalFormat format)
+        {
+            GL.BindImageTexture(index, Handle, 0, false, 0,
+                    access, format);
         }
 
         protected override void Bind(int handle)

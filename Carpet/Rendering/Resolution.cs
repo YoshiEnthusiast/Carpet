@@ -7,17 +7,12 @@ namespace Carpet
 {
     public class Resolution
     {
-        private static readonly IReadOnlyCollection<Resolution> s_supportedResolutions = new Resolution[]
-        {
-            new Resolution(1280, 720)
-        };
-
         private static GameWindow s_window;
 
         private static Resolution s_current;
         private static EventHandler _change;
 
-        private Resolution(int width, int height)
+        public Resolution(int width, int height)
         {
             Size = new Vector2(width, height);
         }
@@ -35,7 +30,6 @@ namespace Carpet
             }
         }
 
-        public static IEnumerable<Resolution> SupportedResolutions => s_supportedResolutions;
         public static Resolution Current => s_current;
 
         public static int CurrentWidth

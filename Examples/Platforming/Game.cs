@@ -25,9 +25,9 @@ namespace Carpet.Platforming
         public static LayerPass ForegroundPass { get; private set; }
         public static LayerPass ConsolePass { get; private set; }
 
-        public static Pass OcclusionPass { get; private set; }
-        public static Pass DistancePass { get; private set; }
-        public static Pass LightPass { get; private set; }
+        public static TexturePass OcclusionPass { get; private set; }
+        public static TexturePass DistancePass { get; private set; }
+        public static TexturePass LightPass { get; private set; }
 
         public static Scene CurrentScene { get; set; }
         public static bool Paused { get; set; }
@@ -48,6 +48,10 @@ namespace Carpet.Platforming
 
         protected override void OnInitialize()
         {
+            Content.Initialize("Content");
+            Content.LoadGraphics(TextureLoadMode.SaveAtlas);
+            Graphics.Initialize();
+
             BackgroundLayer = new Layer(1280, 720, 0f);
 
             var foregroundMaterial = new ForegroundMaterial();
@@ -69,12 +73,12 @@ namespace Carpet.Platforming
 
             Pipeline = new Pipeline();
 
-            OcclusionPass = RayLightRenderer.CreateOcclusionPass(320, 180, MaxLights);
-            DistancePass = RayLightRenderer.CreateDistancePass(256, 100);
-            LightPass = RayLightRenderer.CreateLightPass(320, 180);
+            OcclusionPass = GPULightRenderer.CreateOcclusionPass(320, 180, MaxLights);
+            DistancePass = GPULightRenderer.CreateDistancePass(256, 100);
+            LightPass = GPULightRenderer.CreateLightPass(320, 180);
 
             Texture2D lightMap = LightPass.GetTexture();
-            foregroundMaterial.Textures.Add(lightMap);
+            foregroundMaterial.Textures[0] = lightMap;
 
             Pipeline.AddPass(OcclusionPass);
             Pipeline.AddPass(DistancePass);
@@ -125,10 +129,10 @@ namespace Carpet.Platforming
 
         private void StartGame()
         {
-            CurrentScene = new DemoScene();
+            CurrentScene = new DemoScene(100f);
 
             CurrentScene.AddSystem(new CameraSystem(0.06f, CurrentScene))
-                .AddSystem(new RayLightRenderer(CurrentScene, OcclusionPass,
+                .AddSystem(new GPULightRenderer(CurrentScene, OcclusionPass,
                     DistancePass, LightPass, MaxLights, false, ForegroundPass))
                 .AddSystem(new BlockGroupsSystem(CurrentScene))
                 .AddSystem(new ParticleSystem(CurrentScene, 1000));
@@ -149,7 +153,7 @@ namespace Carpet.Platforming
             CurrentScene.Add(new TestPlatform(300f, 60f));
             CurrentScene.Add(new SpinningBoxes(600f, 30f));
 
-            CurrentScene.Initialize(100f);
+            CurrentScene.Initialize();
 
             ForegroundLayer.Camera.Position = new Vector2(400f, 50f);
         }

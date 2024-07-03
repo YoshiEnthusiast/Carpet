@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Carpet
 {
-    // Pass min and max depth to vertex shader
+    // TexturePass min and max depth to vertex shader
 
     public class SpriteBatch
     {
@@ -282,7 +282,8 @@ namespace Carpet
 
             int scissorY = targetHeight - (int)scissorRectangle.Top - scissorHeight;
 
-            bool transparent = false;
+            // HACK:
+            bool transparent = true;
 
             for (int i = 0; i < verticesLength; i++)
             {

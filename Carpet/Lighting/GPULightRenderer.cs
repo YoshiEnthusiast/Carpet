@@ -3,11 +3,11 @@ using OpenTK.Mathematics;
 
 namespace Carpet
 {
-    public class RayLightRenderer : System
+    public class GPULightRenderer : System
     {
-        private readonly Pass _occlusionPass;
-        private readonly Pass _distancePass;
-        private readonly Pass _lightPass;
+        private readonly TexturePass _occlusionPass;
+        private readonly TexturePass _distancePass;
+        private readonly TexturePass _lightPass;
 
         private readonly Texture2D _occlusionMap;
         private readonly Texture2D _distanceMap;
@@ -15,7 +15,7 @@ namespace Carpet
         private readonly LayerPass _foregroundPass;
 
         private readonly Light[] _renderedLights;
-        private readonly RayLightMaterial[] _lightMaterials;
+        private readonly GPULightMaterial[] _lightMaterials;
         private readonly DistanceMapMaterial[] _distanceMapMaterials;
 
         private readonly int _maxLights;
@@ -33,8 +33,8 @@ namespace Carpet
             new Color(0, 0, 0, 255)
         };
 
-        public RayLightRenderer(Scene scene, Pass occlusionPass, Pass distancePass,
-            Pass lightPass, int maxRadius, bool glare, LayerPass foregroundPass) : base(scene)
+        public GPULightRenderer(Scene scene, TexturePass occlusionPass, TexturePass distancePass,
+            TexturePass lightPass, int maxRadius, bool glare, LayerPass foregroundPass) : base(scene)
         {
             _foregroundPass = foregroundPass;
             _maxRadius = maxRadius;
@@ -52,41 +52,40 @@ namespace Carpet
 
             _renderedLights = new Light[_maxLights];
             _distanceMapMaterials = new DistanceMapMaterial[_maxLights];
-            _lightMaterials = new RayLightMaterial[_maxLights];
+            _lightMaterials = new GPULightMaterial[_maxLights];
 
             for (int i = 0; i < _maxLights; i++)
             {
                 var distanceMapMaterial = new DistanceMapMaterial();
                 _distanceMapMaterials[i] = distanceMapMaterial;
 
-                var lightMaterial = new RayLightMaterial()
+                var lightMaterial = new GPULightMaterial()
                 {
                     Resolution = _lightPass.Size,
                     Glare = glare
                 };
 
-                lightMaterial.Textures.Add(_occlusionMap);
+                lightMaterial.Textures[0] = _occlusionMap;
                 _lightMaterials[i] = lightMaterial;
             }
         }
 
         public Color InitialColor { get; private set; } = new Color(140, 140, 140);
 
-        // TODO: take max radius into account
-        public static Pass CreateOcclusionPass(int foregroundWidth, int foregroundHeight, int maxRadius)
+        public static TexturePass CreateOcclusionPass(int foregroundWidth, int foregroundHeight, int maxRadius)
         {
             int additionalSize = maxRadius * 2;
 
             RenderTarget target = RenderTarget.CreateTexture(foregroundWidth + additionalSize,
                 foregroundHeight + additionalSize);
 
-            var pass = new Pass()
+            var pass = new TexturePass()
                 .SetRenderTarget(target);
 
             return pass;
         }
 
-        public static Pass CreateDistancePass(int anglesCount, int maxLights)
+        public static TexturePass CreateDistancePass(int anglesCount, int maxLights)
         {
             int height = Maths.Ceiling((float)maxLights / s_masks.Length);
 
@@ -96,17 +95,17 @@ namespace Carpet
 
             RenderTarget target = RenderTarget.FromTexture(texture);
 
-            var pass = new Pass(BlendMode.Additive)
+            var pass = new TexturePass(BlendMode.Additive)
                 .SetRenderTarget(target);
 
             return pass;
         }
 
-        public static Pass CreateLightPass(int foregroundWidth, int foregroundHeight)
+        public static TexturePass CreateLightPass(int foregroundWidth, int foregroundHeight)
         {
             RenderTarget target = RenderTarget.CreateTexture(foregroundWidth, foregroundHeight);
 
-            var pass = new Pass(BlendMode.Additive)
+            var pass = new TexturePass(BlendMode.Additive)
                 .SetRenderTarget(target);
 
             return pass;
@@ -215,7 +214,7 @@ namespace Carpet
             for (int i = 0; i < _lightsRendered; i++)
             {
                 Light light = _renderedLights[i];
-                RayLightMaterial material = _lightMaterials[i];
+                GPULightMaterial material = _lightMaterials[i];
 
                 material.Index = i;
 

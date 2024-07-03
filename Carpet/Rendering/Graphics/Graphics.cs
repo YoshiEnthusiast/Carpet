@@ -1,6 +1,4 @@
-﻿using OpenTK.Graphics.ES11;
-using OpenTK.Mathematics;
-using OpenTK.Platform.Windows;
+﻿using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
 
@@ -26,7 +24,7 @@ namespace Carpet
         public static Rectangle ScreenScissor { get; set; }
         public static Vector2 BlankTextureCoordinate { get; private set; }
 
-        internal static void Initialize()
+        public static void Initialize()
         {
             Resolution.Change += OnResolutionChanged;
             ApplyResolution();
@@ -34,7 +32,7 @@ namespace Carpet
             BlankTexture = Content.GetVirtualTexture("blank");
 
             Texture2D atlasTexture = Content.AtlasTexture;
-            Rectangle localBounds = BlankTexture.GetBounds();  // clean this up
+            Rectangle localBounds = BlankTexture.GetBounds();  
             Vector2 coordinate = (new Vector2(localBounds.Left, atlasTexture.Height - localBounds.Height) + localBounds.Size / 2f) / new Vector2(atlasTexture.Width, atlasTexture.Height);
 
             BlankTextureCoordinate = coordinate;

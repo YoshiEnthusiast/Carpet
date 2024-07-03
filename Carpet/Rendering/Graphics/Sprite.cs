@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace Carpet
 {
@@ -248,6 +246,12 @@ namespace Carpet
         public void Draw(float x, float y)
         {
             Draw(new Vector2(x, y));
+        }
+        
+        public void Draw(Material material, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle,
+                SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
+        {
+            Graphics.Draw(Texture, material, _textureBounds, position, scale, origin, color, angle, horizontalEffect, verticalEffect, depth);
         }
 
         private void UpdateTextureBounds()

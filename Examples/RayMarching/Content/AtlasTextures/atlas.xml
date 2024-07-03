@@ -1,0 +1,21 @@
+<Offsets>
+  <Offset Name="Fonts\testFont" X="0" Y="0" Width="128" Height="128" />
+  <Offset Name="Yosh" X="128" Y="0" Width="110" Height="109" />
+  <Offset Name="tileset" X="0" Y="128" Width="48" Height="64" />
+  <Offset Name="player" X="48" Y="128" Width="96" Height="24" />
+  <Offset Name="needler" X="128" Y="109" Width="95" Height="16" />
+  <Offset Name="burn" X="0" Y="192" Width="32" Height="32" />
+  <Offset Name="testPlatform" X="48" Y="152" Width="96" Height="9" />
+  <Offset Name="shockRifle" X="144" Y="128" Width="30" Height="14" />
+  <Offset Name="coin" X="0" Y="224" Width="40" Height="10" />
+  <Offset Name="grapplableCoin" X="48" Y="161" Width="40" Height="10" />
+  <Offset Name="noTexture" X="223" Y="109" Width="16" Height="16" />
+  <Offset Name="flyingLantern" X="32" Y="192" Width="14" Height="16" />
+  <Offset Name="spikeGrenade" X="174" Y="128" Width="11" Height="12" />
+  <Offset Name="cursor" X="144" Y="142" Width="10" Height="11" />
+  <Offset Name="hookGraple" X="0" Y="234" Width="4" Height="5" />
+  <Offset Name="uiArrow" X="40" Y="224" Width="3" Height="5" />
+  <Offset Name="uiBeak" X="88" Y="161" Width="3" Height="5" />
+  <Offset Name="grapleHook" X="238" Y="0" Width="2" Height="3" />
+  <Offset Name="blank" X="128" Y="125" Width="1" Height="1" />
+</Offsets>

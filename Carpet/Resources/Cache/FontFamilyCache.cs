@@ -12,7 +12,7 @@ namespace Carpet
         protected override FontFamily CreateItem(string path)
         {
             string textureName = Path.GetFileNameWithoutExtension(Path.ChangeExtension(path, null));
-            string texturePath = $@"Fonts\{textureName}";
+            string texturePath = $@"Fonts/{textureName}";
 
             return new FontFamily(texturePath, path);
         }

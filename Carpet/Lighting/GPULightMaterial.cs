@@ -1,8 +1,8 @@
 ﻿namespace Carpet
 {
-    public class RayLightMaterial : Material
+    public class GPULightMaterial : Material
     {
-        public RayLightMaterial()
+        public GPULightMaterial()
         {
             ShaderProgram = Content.GetPipelineShaderProgram("rayLight.frag");
         }

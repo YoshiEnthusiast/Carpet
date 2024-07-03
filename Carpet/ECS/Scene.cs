@@ -5,9 +5,8 @@ using System.Linq;
 
 namespace Carpet
 {
-    public abstract class Scene
+    public class Scene
     {
-        private readonly EntityMap _entityMap;
         private readonly HashSet<Component> _components = [];
         private readonly DynamicCollection<System> _systems = [];
 
@@ -16,9 +15,11 @@ namespace Carpet
 
         private readonly CoroutineRunner _coroutineRunner = new();
 
-        public Scene()
+        private EntityMap _entityMap;
+
+        public Scene(float bucketSize)
         {
-            _entityMap = new EntityMap(this, 100f);
+            _entityMap = new EntityMap(this, bucketSize);
         }
 
         public Rectangle Rectangle { get; set; }
@@ -60,7 +61,7 @@ namespace Carpet
                 system.OnLateDraw();
         }
 
-        public virtual void Initialize(float bucketSize)
+        public virtual void Initialize()
         {
             _systems.Update();
             _entityMap.Update();

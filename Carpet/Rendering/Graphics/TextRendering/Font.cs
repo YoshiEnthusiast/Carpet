@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices.Marshalling;
-using System.Runtime.Serialization;
 
 namespace Carpet
 {
@@ -74,7 +71,7 @@ namespace Carpet
                 float characterX = xOffset + bearing.X * Scale.X;
                 float characterY = (rows - 1) * NewLineOffset + bearing.Y * Scale.Y;
 
-                Graphics.Draw(texture, null, bounds, position + new Vector2(characterX, characterY), Scale, Vector2.Zero, color, 0f, SpriteEffect.None, SpriteEffect.None, depth);
+                Graphics.Draw(texture, Material, bounds, position + new Vector2(characterX, characterY), Scale, Vector2.Zero, color, 0f, SpriteEffect.None, SpriteEffect.None, depth);
 
                 xOffset += advance;
             }

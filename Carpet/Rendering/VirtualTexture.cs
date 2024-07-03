@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Carpet
+﻿namespace Carpet
 {
     public sealed class VirtualTexture
     {
@@ -22,8 +20,6 @@ namespace Carpet
 
         public Rectangle GetBounds(Rectangle localBounds)
         {
-            // Make it do that you get go beyond _bounds
-
             Vector2 position = _bounds.Position + localBounds.Position;
 
             return new Rectangle(position, position + localBounds.Size);

@@ -1,17 +1,15 @@
-﻿using Carpet;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Carpet.Platforming
+﻿namespace Carpet.Platforming
 {
     public class DemoScene : Scene
     {
-        public override void Initialize(float bucketSize)
+        public DemoScene(float bucketSize) : base(bucketSize)
         {
-            base.Initialize(bucketSize);
+
+        }
+
+        public override void Initialize()
+        {
+            base.Initialize();
 
             float left = float.PositiveInfinity;
             float top = float.PositiveInfinity;

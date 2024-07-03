@@ -10,9 +10,9 @@
         public OcclusionMode Mode { get; set; }
 
         public Sprite Sprite { get; set; }
-        public Rectangle Rectangle { get; set; }
-        public void DrawOcclusion()
+        public int CircleRadius { get; set; }
 
+        public void DrawOcclusion()
         {
             switch (Mode)
             {
@@ -20,8 +20,8 @@
                     Graphics.FillRectangle(EntityRectangle, Color.White, 0f);
                     break;
 
-                case OcclusionMode.CustomRectangle:
-                    Graphics.FillRectangle(Rectangle, Color.White, 0f);
+                case OcclusionMode.Circle:
+                    Graphics.FillCircle(Position, Color.White, CircleRadius, 0f);
                     break;
 
                 case OcclusionMode.SpriteComponent:

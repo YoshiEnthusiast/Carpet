@@ -32,12 +32,9 @@ namespace Carpet
 
         protected abstract ShaderProgram Program { get; }
 
-        internal static void InitializeUniforms()
+        public static void InitializeUniforms(Assembly assembly)
         {
-            s_uniformStorages.Clear();
-            s_setUniformMethods.Clear();
-
-            IEnumerable<Type> types = Assembly.GetExecutingAssembly().GetTypes();
+            IEnumerable<Type> types = assembly.GetTypes();
             
             foreach (Type type in types)
             {
@@ -54,6 +51,9 @@ namespace Carpet
 
             foreach (Type type in s_uniformTypes.Keys)
             {
+                if (s_setUniformMethods.ContainsKey(type))
+                    continue;
+
                 MethodInfo method = shaderProgramType.GetMethod("SetUniform", BindingFlags.Instance | BindingFlags.Public, new Type[]
                 {
                     typeof(int),
@@ -61,7 +61,15 @@ namespace Carpet
                 });
 
                 s_setUniformMethods.Add(type, method);
-            }
+        }
+        }
+
+        internal static void InitializeUniforms()
+        {
+            s_uniformStorages.Clear();
+            s_setUniformMethods.Clear();
+
+            InitializeUniforms(Assembly.GetExecutingAssembly());
         }
 
         protected void SetUniforms()

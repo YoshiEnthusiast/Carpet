@@ -9,9 +9,6 @@ void main()
     ivec2 position = ivec2(gl_GlobalInvocationID.xy);
     vec2 coord = position / vec2(gl_NumWorkGroups.xy);
 
-    // float aspect = gl_NumWorkGroups.y / gl_NumWorkGroups.x;
-    // coord.x *= aspect;
-
     vec2 root = imageLoad(u_Image, position).xy;
     float d = distance(coord, root);
     imageStore(u_Image, position, vec4(vec3(d), 1.));

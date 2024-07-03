@@ -2,23 +2,8 @@
 
 namespace Carpet
 {
-    public abstract class RenderPass
+    public abstract class RenderPass : Pass
     {
-        private Render _render;
-
-        public event Render Render
-        {
-            add
-            {
-                _render += value;
-            }
-
-            remove
-            {
-                _render -= value;
-            }
-        }
-
         public abstract Matrix4? View { get; }
         public abstract int Width { get; }
         public abstract int Height { get; }
@@ -27,16 +12,9 @@ namespace Carpet
 
         public abstract RenderTarget GetRenderTarget();
 
-        public abstract void Process();
-
         public Texture2D GetTexture()
         {
             return GetRenderTarget().Texture;
-        }
-
-        protected void InvokeRenderEvent()
-        {
-            _render?.Invoke();
         }
     }
 }

@@ -6,7 +6,7 @@
     {
         EntityRectangle,
 
-        CustomRectangle,
+        Circle,
 
         SpriteComponent,
 

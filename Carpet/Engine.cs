@@ -86,10 +86,7 @@ namespace Carpet
             SFX.Initialize(null);
 
             ShaderProgramWrapper.InitializeUniforms();
-            Content.Initialize("Content");
             Input.Initialize(_window);
-            Content.LoadGraphics(TextureLoadMode.SaveAtlas);
-            Graphics.Initialize();
 
             OnInitialize();
 

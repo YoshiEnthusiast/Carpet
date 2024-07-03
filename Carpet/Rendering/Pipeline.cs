@@ -1,37 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Carpet
 {
     public sealed class Pipeline
     {
-        private readonly List<RenderPass> _passes = [];
+        private readonly List<Pass> _passes = [];
 
-        public RenderPass CurrentPass { get; private set; }
+        public Pass CurrentPass { get; private set; }
 
-        public T AddPass<T>(T pass) where T : RenderPass
+        public T AddPass<T>(T pass) where T : Pass
         {
             _passes.Add(pass);
 
             return pass;
         }
 
-        public void RemovePass(RenderPass pass)
+        public void RemovePass(Pass pass)
         {
             _passes.Remove(pass);
         }
 
-        public RenderPass GetPass(int index)
+        public Pass GetPass(int index)
         {
             return _passes[index];
         }
 
-        public T GetPass<T>() where T : RenderPass
+        public T GetPass<T>() where T : Pass
         {
-            foreach (RenderPass pass in _passes)
+            foreach (Pass pass in _passes)
                 if (pass is T result)
                     return result;
 
@@ -40,7 +36,7 @@ namespace Carpet
 
         public void Process()
         {
-            foreach (RenderPass pass in _passes)
+            foreach (Pass pass in _passes)
             {
                 CurrentPass = pass;
                 pass.Process();

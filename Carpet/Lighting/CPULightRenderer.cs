@@ -1,21 +1,19 @@
 ﻿using OpenTK.Mathematics;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
 
 namespace Carpet
 {
     // TODO: Rename all cringe
-    public class LightRenderer : System
+    public class CPULightRenderer : System
     {
         public const float MaxRadius = 320f;
         private const int SurfacesPerOccluder = 4;
         private const int MaxBloomPoints = 100;
 
-        private readonly Pass _occludePass;
-        private readonly Pass _shadowPass;
-        private readonly Pass _lightmapPass;
+        private readonly TexturePass _occludePass;
+        private readonly TexturePass _shadowPass;
+        private readonly TexturePass _lightmapPass;
 
         private readonly Camera _camera;
 
@@ -31,8 +29,8 @@ namespace Carpet
         private readonly List<Line> _surfaces = [];
         private readonly List<Rectangle> _rectangles = [];
 
-        private readonly ShadowMaterial _shadowMaterial = new();
 
+        private readonly SolidColorMaterial _solidColorMaterial = new();
         private readonly List<Line> _debugSurfaces = [];
         private readonly List<Line> _debugRays = [];
 
@@ -58,8 +56,8 @@ namespace Carpet
         private int _lightMaterialsAllocated = 0;
         private int _bloomMaterialsAllocated = 0;
 
-        public LightRenderer(Scene scene, Pass occludePass, Pass shadowPass, 
-            Pass lightmapPass, Camera camera) : base(scene)
+        public CPULightRenderer(Scene scene, TexturePass occludePass, TexturePass shadowPass, 
+            TexturePass lightmapPass, Camera camera) : base(scene)
         {
             _occludePass = occludePass;
             _shadowPass = shadowPass;
@@ -247,7 +245,7 @@ namespace Carpet
 
         private void OnShadowBufferRender()
         {
-            Graphics.SpriteBatch.Submit(Graphics.BlankTexture.ActualTexture, _shadowMaterial, null,
+            Graphics.SpriteBatch.Submit(Graphics.BlankTexture.ActualTexture, _solidColorMaterial, null,
                 _vertices, _verticesCount, _elements, _elementsCount, 0f);
         }
 
@@ -296,7 +294,7 @@ namespace Carpet
                 Graphics.FillRectangle(light.Bounds, material, light.Color, 0f);
             }
 
-            //TODO: Render bloom points here
+            //TODO: PassProcess bloom points here
         }
 
         private uint AddVertex(Vector2 position, Vector2 offset, Color mask)
