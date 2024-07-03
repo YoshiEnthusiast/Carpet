@@ -25,14 +25,17 @@ namespace Carpet
             _buckets.Clear();
         }
 
-        public IEnumerable<Entity> GetNearby(Entity entity)
+        public HashSet<Entity> GetNearby(Entity entity, HashSet<Entity> buffer)
         {
-            return GetNearby(entity.Rectangle);
+            return GetNearby<Entity>(entity.Rectangle, buffer);
         }
 
-        public IEnumerable<T> GetNearby<T>(Rectangle rectangle) where T : Entity
+        public HashSet<T> GetNearby<T>(Rectangle rectangle, HashSet<T> buffer) where T : Entity
         {
-            var result = new HashSet<T>();
+            if (buffer is null)
+                buffer = new HashSet<T>();
+
+            buffer.Clear();
 
             _hashBuffer.Clear();
             GetAffectedBucketsHash(_hashBuffer, rectangle);
@@ -47,19 +50,18 @@ namespace Carpet
                     if (entity is not T entityOfType)
                         continue;
 
-                    result.Add(entityOfType);
+                    buffer.Add(entityOfType);
                 }
             }
 
-            return result;
+            return buffer;
         }
 
-        public IEnumerable<Entity> GetNearby(Rectangle rectangle)
+        public HashSet<Entity> GetNearby(Rectangle rectangle, HashSet<Entity> buffer)
         {
-            return GetNearby<Entity>(rectangle);
+            return GetNearby<Entity>(rectangle, buffer);
         }
 
-        // TODO: do this some other way
         public void DrawBuckets(float depth)
         {
             foreach (Vector2 hash in _buckets.Keys)

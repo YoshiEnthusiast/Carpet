@@ -29,10 +29,12 @@ namespace Carpet
         private readonly List<Line> _surfaces = [];
         private readonly List<Rectangle> _rectangles = [];
 
-
         private readonly SolidColorMaterial _solidColorMaterial = new();
         private readonly List<Line> _debugSurfaces = [];
         private readonly List<Line> _debugRays = [];
+
+        private readonly List<Light> _lightsBuffer = [];
+        private readonly List<LightOccluder> _occludersBuffer = [];
 
         private readonly Color[] _masks =
         {
@@ -101,7 +103,7 @@ namespace Carpet
 
             Color red = Color.Red;
 
-            foreach (Light light in Scene.GetComponentsOfType<Light>())
+            foreach (Light light in Scene.GetComponentsOfType<Light>(_lightsBuffer))
             {
                 Graphics.DrawRectangle(light.Bounds, red, DebugDepth);
 
@@ -135,7 +137,7 @@ namespace Carpet
             _debugRays.Clear();
             _debugSurfaces.Clear();
 
-            IEnumerable<Light> lights = Scene.GetComponentsOfType<Light>();
+            IEnumerable<Light> lights = Scene.GetComponentsOfType<Light>(_lightsBuffer);
 
             _lightsCount = 0;
 
@@ -323,7 +325,7 @@ namespace Carpet
 
             inBounds = false;
 
-            foreach (LightOccluder lightOccluder in Scene.CheckRectangleAllComponent<LightOccluder>(bounds))
+            foreach (LightOccluder lightOccluder in Scene.CheckRectangleAllComponent<LightOccluder>(bounds, _occludersBuffer))
             {
                 Rectangle rectangle = lightOccluder.EntityRectangle;
 

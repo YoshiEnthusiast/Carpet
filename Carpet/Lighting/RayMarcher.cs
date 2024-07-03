@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using System;
+using System.Collections.Generic;
 
 namespace Carpet
 {
@@ -15,6 +16,9 @@ namespace Carpet
         private readonly JumpFloodSeedComputer  _jumpFloodSeedComputer = new();
         
         private readonly RayMarchingMaterial _rayMarchingMaterial = new();
+
+        private readonly List<RayEmitter> _emittersBuffer = [];
+        private readonly List<RayOccluder> _occludersBuffer = [];
 
         private Texture2D _jumpFloodInput;
         private Texture2D _jumpFloodOutput;
@@ -70,11 +74,11 @@ namespace Carpet
 
         private void RenderOcclusion()
         {
-            foreach (RayOccluder occluder in Scene.GetComponentsOfType<RayOccluder>())
+            foreach (RayOccluder occluder in Scene.GetComponentsOfType<RayOccluder>(_occludersBuffer))
                 if (occluder.Visible)
                     occluder.DrawOcclusion();
 
-            foreach (RayEmitter emitter in Scene.GetComponentsOfType<RayEmitter>())
+            foreach (RayEmitter emitter in Scene.GetComponentsOfType<RayEmitter>(_emittersBuffer))
                 if (emitter.Visible)
                     emitter.DrawEmission();
         }
@@ -122,7 +126,7 @@ namespace Carpet
 
         private void RenderIntensity()
         {
-            foreach (RayEmitter emitter in Scene.GetComponentsOfType<RayEmitter>())
+            foreach (RayEmitter emitter in Scene.GetComponentsOfType<RayEmitter>(_emittersBuffer))
                 if (emitter.Visible)
                     emitter.DrawIntensity();
         }

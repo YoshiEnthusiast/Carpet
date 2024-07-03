@@ -10,6 +10,8 @@ namespace Carpet
         private readonly HashSet<T> _itemsToAdd = [];
         private readonly HashSet<T> _itemsToRemove = [];
 
+        public IEnumerable<T> Items => _items;
+
         public void Update()
         {
             foreach (T itemToRemove in _itemsToRemove)

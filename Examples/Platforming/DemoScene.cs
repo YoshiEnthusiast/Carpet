@@ -2,6 +2,8 @@
 {
     public class DemoScene : Scene
     {
+        private readonly List<BlockGroup> _blockGroupsBuffer = [];
+
         public DemoScene(float bucketSize) : base(bucketSize)
         {
 
@@ -17,7 +19,7 @@
             float right = float.NegativeInfinity;
             float bottom = float.NegativeInfinity;
 
-            foreach (BlockGroup group in GetEntitiesOfType<BlockGroup>())
+            foreach (BlockGroup group in GetEntitiesOfType<BlockGroup>(_blockGroupsBuffer))
             {
                 left = Maths.Min(left, group.Left);
                 top = Maths.Min(top, group.Top);

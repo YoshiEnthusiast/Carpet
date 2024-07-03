@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL;
+﻿using System.Collections.Generic;
+using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
 namespace Carpet
@@ -20,6 +21,9 @@ namespace Carpet
 
         private readonly int _maxLights;
         private readonly float _maxRadius;
+
+        private readonly List<Light> _lightsBuffer = [];
+        private readonly List<LightOccluder> _occludersBuffer = [];
 
         private Vector2 _occlusionOrigin;
 
@@ -164,7 +168,7 @@ namespace Carpet
             // HACK: bad code organization
             Graphics.Scissor = new Rectangle(0f, 0f, 520f, 380f);
 
-            foreach (LightOccluder occluder in Scene.GetComponentsOfType<LightOccluder>())
+            foreach (LightOccluder occluder in Scene.GetComponentsOfType<LightOccluder>(_occludersBuffer))
                 occluder.DrawOcclusion();
         }
 
@@ -182,7 +186,7 @@ namespace Carpet
 
             // TODO: Handle _maxLights here when all lights components are
             // added to a cached list instead of this 
-            foreach (Light light in Scene.GetComponentsOfType<Light>())
+            foreach (Light light in Scene.GetComponentsOfType<Light>(_lightsBuffer))
             {
                 int masksCount = s_masks.Length;
                 int maskIndex = _lightsRendered % masksCount;

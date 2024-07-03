@@ -1,14 +1,12 @@
-﻿using OpenTK.Graphics.ES20;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace Carpet
 {
     public class PhysicsBody : Entity
     {
         private readonly Accumulator _accumulator = new();
+
+        private readonly List<SolidObject> _solidObjectsBuffer = [];
 
         public PhysicsBody(float x, float y) : base(x, y)
         {
@@ -106,7 +104,7 @@ namespace Carpet
             var translation = new Vector2(sign, 0f);
 
             Rectangle futureRectangle = Rectangle.Translate(translation);
-            IEnumerable<SolidObject> touches = Scene.CheckRectangleAllComponent<SolidObject>(futureRectangle);
+            IEnumerable<SolidObject> touches = Scene.CheckRectangleAllComponent<SolidObject>(futureRectangle, _solidObjectsBuffer);
 
             foreach (SolidObject solid in touches)
                 if (solid.CheckHorizontalStaticCollision(sign, this))
@@ -122,7 +120,7 @@ namespace Carpet
             var translation = new Vector2(0f, sign);
 
             Rectangle futureRectangle = Rectangle.Translate(translation);
-            IEnumerable<SolidObject> touches = Scene.CheckRectangleAllComponent<SolidObject>(futureRectangle);
+            IEnumerable<SolidObject> touches = Scene.CheckRectangleAllComponent<SolidObject>(futureRectangle, _solidObjectsBuffer);
 
             foreach (SolidObject solid in touches)
                 if (solid.CheckVerticalStaticCollision(sign, this))
@@ -146,7 +144,7 @@ namespace Carpet
             Vector2 bottomLeft = BottomLeft;
             var rectangle = new Rectangle(bottomLeft, bottomLeft + new Vector2(Width, 1f));
 
-            IEnumerable<SolidObject> solids = Scene.CheckRectangleAllComponent<SolidObject>(rectangle);
+            IEnumerable<SolidObject> solids = Scene.CheckRectangleAllComponent<SolidObject>(rectangle, _solidObjectsBuffer);
 
             foreach (SolidObject solid in solids)
             {

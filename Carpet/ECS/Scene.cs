@@ -16,6 +16,9 @@ namespace Carpet
 
         private readonly CoroutineRunner _coroutineRunner = new();
 
+        private readonly List<Entity> _entityBuffer = [];
+        private readonly HashSet<Entity> _nearbyBuffer = [];
+
         private EntityMap _entityMap;
 
         public Scene(float bucketSize)
@@ -201,17 +204,25 @@ namespace Carpet
             return GetEntityByID<Entity>(id);
         }
 
-        public IEnumerable<Entity> GetEntitiesOfType(Type type)
+        public List<Entity> GetEntitiesOfType(Type type, List<Entity> buffer)
         {
-            if (_entitiesByType.TryGetValue(type, out HashSet<Entity> entities))
-                return entities;
+            buffer = PrepareBuffer(buffer);
 
-            return Enumerable.Empty<Entity>();
+            if (_entitiesByType.TryGetValue(type, out HashSet<Entity> entities))
+                buffer.AddRange(entities);
+
+            return buffer;
         }
 
-        public IEnumerable<T> GetEntitiesOfType<T>() where T : Entity
+        public List<T> GetEntitiesOfType<T>(List<T> buffer) where T : Entity
         {
-            return _entityMap.OfType<T>();
+            buffer = PrepareBuffer(buffer);
+
+            foreach (Entity entity in _entityMap.Items)
+                if (entity is T result)
+                    buffer.Add(result);
+
+            return buffer;
         }
 
         public Entity GetEntityOfType(Type type) 
@@ -227,22 +238,30 @@ namespace Carpet
             return GetEntityOfType(typeof(T)) as T;
         }
 
-        public IEnumerable<Component> GetComponentsOfType(Type type)
+        public List<Component> GetComponentsOfType(Type type, List<Component> buffer)
         {
-            if (_componentsByType.TryGetValue(type, out HashSet<Component> components))
-                return components;
+            buffer = PrepareBuffer(buffer);
 
-            return Enumerable.Empty<Component>();
+            if (_componentsByType.TryGetValue(type, out HashSet<Component> components))
+                buffer.AddRange(components);
+
+            return buffer;
         }
 
-        public IEnumerable<T> GetComponentsOfType<T>() where T : Component
+        public List<T> GetComponentsOfType<T>(List<T> buffer) where T : Component
         {
-            return GetComponentsOfType(typeof(T)).OfType<T>();
+            buffer = PrepareBuffer(buffer);
+
+            foreach (Component component in _components)
+                if (component is T result)
+                    buffer.Add(result);
+
+            return buffer;
         }
 
         public T CheckRectangle<T>(Rectangle rectangle) where T : Entity
         {
-            foreach (Entity entity in _entityMap.GetNearby(rectangle))
+            foreach (Entity entity in _entityMap.GetNearby(rectangle, _nearbyBuffer))
             {
                 if (entity is not T result)
                     continue;
@@ -254,32 +273,53 @@ namespace Carpet
             return null;
         }
 
-        public IEnumerable<T> CheckRectangleAll<T>(Rectangle rectangle) where T : Entity
+        public List<T> CheckRectangleAll<T>(Rectangle rectangle, List<T> buffer) where T : Entity
         {
-            foreach (Entity entity in _entityMap.GetNearby(rectangle))
+            buffer = PrepareBuffer(buffer);
+
+            foreach (Entity entity in _entityMap.GetNearby(rectangle, _nearbyBuffer))
             {
                 if (entity is not T result)
                     continue;
 
                 if (rectangle.Intersects(entity.Rectangle))
-                    yield return result;
+                    buffer.Add(result);
             }
+
+            return buffer;
         }
 
         public T CheckPosition<T>(Vector2 position) where T : Entity
         {
-            foreach (T entity in CheckPointAll<T>(position))
+            var rectangle = new Rectangle(position, position + Vector2.One);
+
+            foreach (Entity entity in _entityMap.GetNearby(rectangle, _nearbyBuffer))
+            {
+                if (entity is not T result)
+                    continue;
+
                 if (entity.Position == position)
-                    return entity;
+                    return result;
+            }
 
             return null;
         }
 
-        public IEnumerable<T> CheckPositionAll<T>(Vector2 position) where T : Entity
+        public List<T> CheckPositionAll<T>(Vector2 position, List<T> buffer) where T : Entity
         {
-            foreach (T entity in CheckPointAll<T>(position))
+            buffer = PrepareBuffer(buffer);
+            var rectangle = new Rectangle(position, position + Vector2.One);
+
+            foreach (Entity entity in _entityMap.GetNearby(rectangle, _nearbyBuffer))
+            {
+                if (entity is not T result)
+                    continue;
+
                 if (entity.Position == position)
-                    yield return entity;
+                    buffer.Add(result);
+            }
+
+            return buffer;
         }
 
         public T CheckPoint<T>(Vector2 point) where T : Entity
@@ -289,18 +329,18 @@ namespace Carpet
             return CheckRectangle<T>(rectangle);
         }
 
-        public IEnumerable<T> CheckPointAll<T>(Vector2 point) where T : Entity
+        public List<T> CheckPointAll<T>(Vector2 point, List<T> buffer) where T : Entity
         {
             var rectangle = new Rectangle(point, point + Vector2.One);
 
-            return CheckRectangleAll<T>(rectangle);
+            return CheckRectangleAll<T>(rectangle, buffer);
         }
 
         public T CheckCircle<T>(Vector2 position, float radius) where T : Entity
         {
             Rectangle rectangle = Rectangle.FromCircle(position, radius);
 
-            foreach (Entity entity in _entityMap.GetNearby(rectangle))
+            foreach (Entity entity in _entityMap.GetNearby(rectangle, _nearbyBuffer))
             {
                 if (entity is not T result)
                     continue;
@@ -312,18 +352,21 @@ namespace Carpet
             return null;
         }
 
-        public IEnumerable<T> CheckCircleAll<T>(Vector2 position, float radius) where T : Entity
+        public List<T> CheckCircleAll<T>(Vector2 position, float radius, List<T> buffer) where T : Entity
         {
+            buffer = PrepareBuffer(buffer);
             Rectangle rectangle = Rectangle.FromCircle(position, radius);
 
-            foreach (Entity entity in _entityMap.GetNearby(rectangle))
+            foreach (Entity entity in _entityMap.GetNearby(rectangle, _nearbyBuffer))
             {
                 if (entity is not T result)
                     continue;
 
                 if (WithinCircle(entity, position, radius))
-                    yield return result;
+                    buffer.Add(result);
             }
+
+            return buffer;
         }
 
         public T CheckLine<T>(Vector2 start, Vector2 end) where T : Entity
@@ -340,7 +383,7 @@ namespace Carpet
 
             var rectangle = new Rectangle(new Vector2(left, top), new Vector2(right, bottom));
 
-            foreach (Entity entity in _entityMap.GetNearby(rectangle))
+            foreach (Entity entity in _entityMap.GetNearby(rectangle, _nearbyBuffer))
             {
                 if (entity is not T result)
                     continue;
@@ -353,8 +396,10 @@ namespace Carpet
             return null;
         }
 
-        public IEnumerable<T> CheckLineAll<T>(Vector2 start, Vector2 end) where T : Entity
+        public List<T> CheckLineAll<T>(Vector2 start, Vector2 end, List<T> buffer) where T : Entity
         {
+            buffer = PrepareBuffer(buffer);
+
             float startX = start.X;
             float startY = start.Y;
             float endX = end.X;
@@ -367,7 +412,7 @@ namespace Carpet
 
             var rectangle = new Rectangle(new Vector2(left, top), new Vector2(right, bottom));
 
-            foreach (Entity entity in _entityMap.GetNearby(rectangle))
+            foreach (Entity entity in _entityMap.GetNearby(rectangle, _nearbyBuffer))
             {
                 if (entity is not T result)
                     continue;
@@ -376,12 +421,14 @@ namespace Carpet
                 {
                     if (Maths.TryGetIntersectionPoint(start, end, surface.Start, surface.End, out _))
                     {
-                        yield return result;
+                        buffer.Add(result);
 
                         break;
                     }
                 }
             }
+
+            return buffer;
         }
 
         public T CheckLine<T>(Line line) where T : Entity
@@ -389,93 +436,105 @@ namespace Carpet
             return CheckLine<T>(line.Start, line.End);
         }
 
-        public IEnumerable<T> CheckLineAll<T>(Line line) where T : Entity
+        public List<T> CheckLineAll<T>(Line line, List<T> buffer) where T : Entity
         {
-            return CheckLineAll<T>(line.Start, line.End);
+            return CheckLineAll<T>(line.Start, line.End, buffer);
         }
 
         public T CheckRectangleComponent<T>(Rectangle rectangle) where T : Component
         {
-            IEnumerable<Entity> entities = CheckRectangleAll<Entity>(rectangle);
+            IEnumerable<Entity> entities = CheckRectangleAll<Entity>(rectangle, _entityBuffer);
 
             return GetComponent<T>(entities);   
         }
 
-        public IEnumerable<T> CheckRectangleAllComponent<T>(Rectangle rectangle) where T : Component
+        public List<T> CheckRectangleAllComponent<T>(Rectangle rectangle, List<T> buffer) where T : Component
         {
-            IEnumerable<Entity> entities = CheckRectangleAll<Entity>(rectangle);
+            buffer = PrepareBuffer(buffer);
 
-            return GetComponents<T>(entities);
+            IEnumerable<Entity> entities = CheckRectangleAll<Entity>(rectangle, _entityBuffer);
+
+            return GetComponents<T>(entities, buffer);
         }
 
         public T CheckCircleComponent<T>(Vector2 center, float radius) where T : Component
         {
-            IEnumerable<Entity> entities = CheckCircleAll<Entity>(center, radius);
+            IEnumerable<Entity> entities = CheckCircleAll<Entity>(center, radius, _entityBuffer);
 
             return GetComponent<T>(entities);
         }
 
-        public IEnumerable<T> CheckCircleAllComponent<T>(Vector2 center, float radius) where T : Component
+        public List<T> CheckCircleAllComponent<T>(Vector2 center, float radius, List<T> buffer) where T : Component
         {
-            IEnumerable<Entity> entities = CheckCircleAll<Entity>(center, radius);
+            buffer = PrepareBuffer(buffer);
 
-            return GetComponents<T>(entities);
+            IEnumerable<Entity> entities = CheckCircleAll<Entity>(center, radius, _entityBuffer);
+
+            return GetComponents<T>(entities, buffer);
         }
 
         public T CheckPointComponent<T>(Vector2 point) where T : Component
         {
-            IEnumerable<Entity> entities = CheckPointAll<Entity>(point);
+            IEnumerable<Entity> entities = CheckPointAll<Entity>(point, _entityBuffer);
 
             return GetComponent<T>(entities);
         }
 
-        public IEnumerable<T> CheckPointAllComponent<T>(Vector2 point) where T : Component
+        public List<T> CheckPointAllComponent<T>(Vector2 point, List<T> buffer) where T : Component
         {
-            IEnumerable<Entity> entities = CheckPointAll<Entity>(point);
+            buffer = PrepareBuffer(buffer);
 
-            return GetComponents<T>(entities);
+            IEnumerable<Entity> entities = CheckPointAll<Entity>(point, _entityBuffer);
+
+            return GetComponents<T>(entities, buffer);
         }
 
         public T CheckPositionComponent<T>(Vector2 point) where T : Component
         {
-            IEnumerable<Entity> entities = CheckPositionAll<Entity>(point);
+            IEnumerable<Entity> entities = CheckPositionAll<Entity>(point, _entityBuffer);
 
             return GetComponent<T>(entities);
         }
 
-        public IEnumerable<T> CheckPositionAllComponent<T>(Vector2 point) where T : Component
+        public List<T> CheckPositionAllComponent<T>(Vector2 point, List<T> buffer) where T : Component
         {
-            IEnumerable<Entity> entities = CheckPositionAll<Entity>(point);
+            buffer = PrepareBuffer(buffer);
 
-            return GetComponents<T>(entities);
+            IEnumerable<Entity> entities = CheckPositionAll<Entity>(point, _entityBuffer);
+
+            return GetComponents<T>(entities, buffer);
         }
 
         public T CheckLineComponent<T>(Vector2 start, Vector2 end) where T : Component
         {
-            IEnumerable<Entity> entities = CheckLineAll<Entity>(start, end);
+            IEnumerable<Entity> entities = CheckLineAll<Entity>(start, end, _entityBuffer);
 
             return GetComponent<T>(entities);
         }
 
-        public IEnumerable<T> CheckLineAllComponent<T>(Vector2 start, Vector2 end) where T : Component
+        public List<T> CheckLineAllComponent<T>(Vector2 start, Vector2 end, List<T> buffer) where T : Component
         {
-            IEnumerable<Entity> entities = CheckLineAll<Entity>(start, end);
+            buffer = PrepareBuffer(buffer);
 
-            return GetComponents<T>(entities);
+            IEnumerable<Entity> entities = CheckLineAll<Entity>(start, end, _entityBuffer);
+
+            return GetComponents<T>(entities, buffer);
         }
 
         public T CheckLineComponent<T>(Line line) where T : Component
         {
-            IEnumerable<Entity> entities = CheckLineAll<Entity>(line);
+            IEnumerable<Entity> entities = CheckLineAll<Entity>(line, _entityBuffer);
 
             return GetComponent<T>(entities);
         }
 
-        public IEnumerable<T> CheckLineAllComponent<T>(Line line) where T : Component
+        public IEnumerable<T> CheckLineAllComponent<T>(Line line, List<T> buffer) where T : Component
         {
-            IEnumerable<Entity> entities = CheckLineAll<Entity>(line);
+            buffer = PrepareBuffer(buffer);
 
-            return GetComponents<T>(entities);
+            IEnumerable<Entity> entities = CheckLineAll<Entity>(line, _entityBuffer);
+
+            return GetComponents<T>(entities, buffer);
         }
 
         private T GetComponent<T>(IEnumerable<Entity> entities) where T : Component
@@ -519,15 +578,17 @@ namespace Carpet
 
         #region Helpers
 
-        private IEnumerable<T> GetComponents<T>(IEnumerable<Entity> entities) where T : Component
+        private List<T> GetComponents<T>(IEnumerable<Entity> entities, List<T> buffer) where T : Component
         {
             foreach (Entity entity in entities)
             {
                 T component = entity.Get<T>();
 
                 if (component is not null)
-                    yield return component;
+                    buffer.Add(component);
             }
+
+            return buffer;
         }
 
         private void UpdateEntities(float deltaTime)
@@ -539,6 +600,16 @@ namespace Carpet
         private bool WithinCircle(Entity entity, Vector2 center, float radius)
         {
             return Maths.WithinCircle(entity.Rectangle, center, radius);
+        }
+        
+        private List<T> PrepareBuffer<T>(List<T> buffer)
+        {
+            if (buffer is null)
+                buffer = new List<T>();
+
+            buffer.Clear();
+
+            return buffer;
         }
 
         #endregion

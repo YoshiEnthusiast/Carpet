@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Carpet.Platforming
+﻿namespace Carpet.Platforming
 {
     public class BlockGroupsSystem : System
     {
+        private readonly List<AutoTile> _autoTilesBuffer = [];
+
         public BlockGroupsSystem(Scene scene) : base(scene)
         {
 
@@ -16,7 +14,7 @@ namespace Carpet.Platforming
             var groups = new List<Group>();
             var groupedBlocks = new HashSet<AutoTile>();
 
-            foreach (AutoTile block in Scene.GetEntitiesOfType<AutoTile>())
+            foreach (AutoTile block in Scene.GetEntitiesOfType<AutoTile>(_autoTilesBuffer))
             {
                 if (groupedBlocks.Contains(block))
                     continue;

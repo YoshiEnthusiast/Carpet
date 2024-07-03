@@ -67,6 +67,8 @@ namespace Carpet.Platforming
         private float _grappleAngleDestination;
         private sbyte _grappleDirection;
 
+        private readonly List<Entity> _entitiesBuffer = [];
+
         public Player(float x, float y) : base(x, y)  
         {
             Size = new Vector2(16f, 24f);
@@ -270,7 +272,7 @@ namespace Carpet.Platforming
 
                 _grappleDestination = farthestPoint;
 
-                IEnumerable<Entity> entities = Scene.CheckLineAll<Entity>(grappleLine)
+                IEnumerable<Entity> entities = Scene.CheckLineAll<Entity>(grappleLine, _entitiesBuffer)
                     .OrderBy(entity => Vector2.Distance(_grappleStartPosition, entity.Position));
 
                 foreach (Entity entity in entities)
