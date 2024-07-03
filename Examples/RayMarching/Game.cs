@@ -15,8 +15,8 @@ namespace Carpet.RayMarching
         private RayMarcher _rayMarcher;
         private Font _font;
 
-        private MouseEmitter _mouseEmitter;
-        private Emitter[] _emitters;
+        private ulong _mouseEmitterID;
+        private ulong[] _emittersIDs;
 
         private int _modeIndex;
 
@@ -138,24 +138,29 @@ namespace Carpet.RayMarching
                     _rayMarcher.RaysPerPixel = 20;
                     _rayMarcher.Displacement = Content.GetTexture("prism");
 
-                    foreach (Emitter emitter in _emitters)
-                        emitter.Get<RayEmitter>().Visible = true;
-
+                    foreach (ulong id in _emittersIDs)
+                        CurrentScene.GetEntityByID(id)
+                            .Get<RayEmitter>()
+                            .Visible = true;
                     break;
                 case 1:
                     _rayMarcher.RaysPerPixel = 200;
                     _rayMarcher.Displacement = null;
 
-                    foreach (Emitter emitter in _emitters)
-                        emitter.Get<RayEmitter>().Visible = false;
+                    foreach (ulong id in _emittersIDs)
+                        CurrentScene.GetEntityByID(id)
+                            .Get<RayEmitter>()
+                            .Visible = false;
 
                     break;
                 case 2:
                     _rayMarcher.RaysPerPixel = 20;
                     _rayMarcher.Displacement = Content.GetTexture("tiles");
 
-                    foreach (Emitter emitter in _emitters)
-                        emitter.Get<RayEmitter>().Visible = true;
+                    foreach (ulong id in _emittersIDs)
+                        CurrentScene.GetEntityByID(id)
+                            .Get<RayEmitter>()
+                            .Visible = true;
 
                     break;
                 case 3:
@@ -166,8 +171,10 @@ namespace Carpet.RayMarching
                     _rayMarcher.RaysPerPixel = 20;
                     _rayMarcher.Displacement = Content.GetTexture("cubes");
 
-                    foreach (Emitter emitter in _emitters)
-                        emitter.Get<RayEmitter>().Visible = false;
+                    foreach (ulong id in _emittersIDs)
+                        CurrentScene.GetEntityByID(id)
+                            .Get<RayEmitter>()
+                            .Visible = false;
 
                     break;
             }
@@ -182,31 +189,34 @@ namespace Carpet.RayMarching
         {
             CurrentScene = new Scene(100f);
 
-            _mouseEmitter = new MouseEmitter(0f, 0f);
-            CurrentScene.Add(_mouseEmitter);
+            var mouseEmitter = new MouseEmitter(0f, 0f);
+            _mouseEmitterID = CurrentScene.Add(mouseEmitter);
 
-            _emitters = new Emitter[3];
-            _emitters[0] = new Emitter(200f, 40f)
+            _emittersIDs = new ulong[3];
+
+            var emitter = new Emitter(200f, 40f)
             {
                 Color = Color.LightYellow,
                 Radius = 15,
                 Intensity = 0.3f
             };
-            _emitters[1] = new Emitter(40f, 50f)
+            _emittersIDs[0] = CurrentScene.Add(emitter);
+
+            emitter = new Emitter(40f, 50f)
             {
                 Color = Color.Red,
                 Radius = 10,
                 Intensity = 0.4f
             };
-            _emitters[2] = new Emitter(290f, 150f)
+            _emittersIDs[1] = CurrentScene.Add(emitter);
+
+            emitter = new Emitter(290f, 150f)
             {
                 Color = Color.LawnGreen,
                 Radius = 15,
                 Intensity = 0.3f
             };
-
-            foreach (Emitter emitter in _emitters)
-                CurrentScene.Add(emitter);
+            _emittersIDs[2] = CurrentScene.Add(emitter);
 
             CurrentScene.Add(new Occluder(50f, 140f)
             {

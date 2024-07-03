@@ -4,11 +4,15 @@ namespace Carpet
 {
     public class Entity
     {
+        private static ulong s_totalEntitiesCreated;
+
         private readonly ComponentCollection _components;
 
         public Entity(float x, float y)
         {
             Position = new Vector2(x, y);
+            ID = s_totalEntitiesCreated;
+            s_totalEntitiesCreated++;
 
             _components = new ComponentCollection(this);
         }
@@ -65,6 +69,7 @@ namespace Carpet
             }
         }
 
+        public ulong ID { get; private init; }
         public Scene Scene { get; private set; }
 
         public bool Awake { get; set; } = true;

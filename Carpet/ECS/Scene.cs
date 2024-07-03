@@ -11,6 +11,7 @@ namespace Carpet
         private readonly DynamicCollection<System> _systems = [];
 
         private readonly Dictionary<Type, HashSet<Entity>> _entitiesByType = [];
+        private readonly Dictionary<ulong, Entity> _entitiesByID = [];
         private readonly Dictionary<Type, HashSet<Component>> _componentsByType = [];
 
         private readonly CoroutineRunner _coroutineRunner = new();
@@ -83,9 +84,11 @@ namespace Carpet
 
         #region Add / Remove
 
-        public void Add(Entity entity)
+        public ulong Add(Entity entity)
         {
             _entityMap.Add(entity);
+
+            return entity.ID;
         }
 
         public void Remove(Entity entity)
@@ -131,6 +134,8 @@ namespace Carpet
                 };
             }
 
+            _entitiesByID[entity.ID] = entity;
+
             foreach (Component component in entity.Components)
                 _components.Add(component);
         }
@@ -143,6 +148,8 @@ namespace Carpet
 
             if (_entitiesByType.TryGetValue(type, out HashSet<Entity> entities))
                 entities.Remove(entity);
+
+            _entitiesByID.Remove(entity.ID);
 
             foreach (Component component in entity.Components)
             {
@@ -179,6 +186,19 @@ namespace Carpet
 
             if (_componentsByType.TryGetValue(type, out HashSet<Component> components))
                 components.Remove(component);
+        }
+
+        public T GetEntityByID<T>(ulong id) where T : Entity
+        {
+            if (_entitiesByID.TryGetValue(id, out Entity entity))
+                return (T)entity;
+
+            return null;
+        }
+
+        public Entity GetEntityByID(ulong id)
+        {
+            return GetEntityByID<Entity>(id);
         }
 
         public IEnumerable<Entity> GetEntitiesOfType(Type type)
