@@ -27,10 +27,10 @@ namespace Carpet.Tests
         [Theory]
         [InlineData("vase")]
         [InlineData("lantern")]
-        [InlineData("transparency")]
-        [InlineData("transparent2")]
+        [InlineData("transparency1")]
+        [InlineData("transparency2")]
         [InlineData("grayscale")]
-        [InlineData("grayscale_transparent")]
+        [InlineData("grayscaleTransparent")]
         [InlineData("indexed")]
         public void FromFile_RenderSprite(string fileName)
         {
