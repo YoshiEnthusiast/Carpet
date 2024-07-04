@@ -48,7 +48,6 @@ namespace Carpet
         };
 
         private RenderTarget _renderTarget;
-        private Rectangle _fullScissor;
 
         private Matrix4 _transform;
 
@@ -63,6 +62,8 @@ namespace Carpet
 
         private uint _currentElement;
         private int _itemsCount;
+
+        private Rectangle _currentScissor;
 
         private bool _began;
 
@@ -106,7 +107,8 @@ namespace Carpet
             _uniformBuffer.Initialize(uniformBlockItems);
         }
 
-        public void Begin(RenderTarget target, BlendMode blendMode, Color clearColor, Matrix4? view)
+        public void Begin(RenderTarget target, BlendMode blendMode, Color clearColor, 
+                Matrix4? view, Rectangle? scissor)
         {
             if (_began)
                 throw new InvalidOperationException($"{nameof(Begin)} can only be called again after End is called.");
@@ -129,15 +131,17 @@ namespace Carpet
             int targetWidth = target.Width;
             int targetHeight = target.Height;
 
-            _fullScissor = new Rectangle(0f, 0f, targetWidth, targetHeight);
-            SetScissor(_fullScissor);
-
             GL.Viewport(0, 0, targetWidth, targetHeight);
 
             _renderBuffer.Bind();
             _renderBuffer.SetResolution(targetWidth, targetHeight);
 
+            _currentScissor = scissor.GetValueOrDefault(new Rectangle(0f, 0f, 
+                        targetWidth, targetHeight)); 
+            SetScissorRectangle(_currentScissor);
+
             GL.ClearColor(clearColor.ToColor4());
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             Matrix4 projection = Matrix4.CreateOrthographicOffCenter(0f, targetWidth, targetHeight, 0f, -1f, 1f);
             _transform = view.GetValueOrDefault(Matrix4.Identity) * projection;
@@ -147,10 +151,16 @@ namespace Carpet
             _uniformBuffer.Bind();
             _uniformBuffer.SetValue(_transform, 0);
 
+
             _began = true;
         }
 
-        public void Submit(Texture2D texture, Material material, Rectangle? scissor, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 localOrigin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
+        public void Begin(RenderTarget target, BlendMode blendMode, Color clearColor, Matrix4? view)
+        {
+            Begin(target, blendMode, clearColor, view, null);
+        }
+
+        public void Submit(Texture2D texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 localOrigin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
         {
             int textureWidth = texture.Width;
             int textureHeight = texture.Height;
@@ -222,35 +232,35 @@ namespace Carpet
                 new VertexColorTextureCoordinate(bottomRight, new Vector2(textureRight, textureBottom), textureBounds, color)
             };
 
-            Submit(texture, material, scissor, vertices, _quadElements, depth);
+            Submit(texture, material, vertices, _quadElements, depth);
         }
 
-        public void Submit(Texture2D texture, Material material, Rectangle? scissor, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
+        public void Submit(Texture2D texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
         {
-            Submit(texture, material, scissor, bounds, position, scale, origin, color, angle, SpriteEffect.None, SpriteEffect.None, depth);
+            Submit(texture, material, bounds, position, scale, origin, color, angle, SpriteEffect.None, SpriteEffect.None, depth);
         }
 
-        public void Submit(Texture2D texture, Material material, Rectangle? scissor, Vector2 position, Color color, float angle, float depth)
+        public void Submit(Texture2D texture, Material material, Vector2 position, Color color, float angle, float depth)
         {
-            Submit(texture, material, scissor, new Rectangle(0f, 0f, texture.Width, texture.Height), position, Vector2.One, Vector2.Zero, color, angle, depth);
+            Submit(texture, material, new Rectangle(0f, 0f, texture.Width, texture.Height), position, Vector2.One, Vector2.Zero, color, angle, depth);
         }
 
-        public void Submit(Texture2D texture, Rectangle? scissor, Vector2 position, Color color, float depth)
+        public void Submit(Texture2D texture, Vector2 position, Color color, float depth)
         {
-            Submit(texture, null, scissor, position, color, 0f, depth);
+            Submit(texture, null, position, color, 0f, depth);
         }
 
-        public void Submit(Texture2D texture, Rectangle? scissor, Vector2 position, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
+        public void Submit(Texture2D texture, Vector2 position, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
         {
-            Submit(texture, null, scissor, new Rectangle(0f, 0f, texture.Width, texture.Height), position, Vector2.One, Vector2.Zero, Color.White, 0f, horizontalEffect, verticalEffect, depth);
+            Submit(texture, null, new Rectangle(0f, 0f, texture.Width, texture.Height), position, Vector2.One, Vector2.Zero, Color.White, 0f, horizontalEffect, verticalEffect, depth);
         }
 
-        public void Submit(Texture2D texture, Rectangle? scissor, Vector2 position, float depth)
+        public void Submit(Texture2D texture, Vector2 position, float depth)
         {
-            Submit(texture, scissor, position, SpriteEffect.None, SpriteEffect.None, depth);
+            Submit(texture, position, SpriteEffect.None, SpriteEffect.None, depth);
         }
 
-        public void Submit(Texture2D texture, Material material, Rectangle? scissor, VertexColorTextureCoordinate vertex1, VertexColorTextureCoordinate vertex2, VertexColorTextureCoordinate vertex3, VertexColorTextureCoordinate vertex4, float depth)
+        public void Submit(Texture2D texture, Material material, VertexColorTextureCoordinate vertex1, VertexColorTextureCoordinate vertex2, VertexColorTextureCoordinate vertex3, VertexColorTextureCoordinate vertex4, float depth)
         {
             ReadOnlySpan<VertexColorTextureCoordinate> vertices = stackalloc VertexColorTextureCoordinate[]
             {
@@ -260,10 +270,10 @@ namespace Carpet
                 vertex4
             };
 
-            Submit(texture, material, scissor, vertices, _quadElements, depth);
+            Submit(texture, material, vertices, _quadElements, depth);
         }
 
-        public void Submit(Texture2D texture, Material material, Rectangle? scissor,
+        public void Submit(Texture2D texture, Material material,
             ReadOnlySpan<VertexColorTextureCoordinate> vertices, int verticesLength,
             ReadOnlySpan<uint> elements, int elementsLength, float depth)
         {
@@ -274,13 +284,6 @@ namespace Carpet
 
             int targetWidth = _renderTarget.Width;
             int targetHeight = _renderTarget.Height;
-
-            Rectangle scissorRectangle = scissor.GetValueOrDefault(new Rectangle(0f, 0f, targetWidth, targetHeight));
-
-            int scissorWidth = (int)scissorRectangle.Width;
-            int scissorHeight = (int)scissorRectangle.Height;
-
-            int scissorY = targetHeight - (int)scissorRectangle.Top - scissorHeight;
 
             // HACK:
             bool transparent = true;
@@ -308,7 +311,6 @@ namespace Carpet
                 VerticesPointer = new Pointer(_submittedVerticesCount, verticesLength),
                 ElementsPointer = new Pointer(_submittedElementsCount, elementsLength),
                 Material = material is null ? _basicMaterial : material,
-                Scissor = new Rectangle((int)scissorRectangle.Left, scissorY, scissorWidth, scissorHeight),
                 Depth = depth
             };
 
@@ -321,21 +323,43 @@ namespace Carpet
                 _opaqueItems.Add(item);
         }
 
-        public void Submit(Texture2D texture, Material material, Rectangle? scissor,
+        public void Submit(Texture2D texture, Material material, 
             ReadOnlySpan<VertexColorTextureCoordinate> vertices, ReadOnlySpan<uint> elements, float depth)
         {
             int verticesLength = vertices.Length;
             int elementsLength = elements.Length;
 
-            Submit(texture, material, scissor, vertices, verticesLength, elements, elementsLength, depth);
+            Submit(texture, material, vertices, verticesLength, elements, elementsLength, depth);
+        }
+
+        public void SetScissor(Rectangle scissor)
+        {
+            CheckBegin(nameof(SetScissor));
+
+            if (scissor == _currentScissor)
+                return;
+
+            DrawSubmittedItems();
+
+            _currentScissor = scissor;
+            SetScissorRectangle(scissor);
+        }
+
+        public void ResetScissor()
+        {
+            SetScissor(new Rectangle(0f, 0f, _renderTarget.Width, _renderTarget.Height));
         }
 
         public void End()
         {
             CheckBegin(nameof(End));
+            DrawSubmittedItems();
 
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            _began = false;
+        }
 
+        private void DrawSubmittedItems()
+        {
             _transparentItems.Sort(CompareItems);
 
             _vertexArray.Bind();
@@ -350,15 +374,12 @@ namespace Carpet
             _submittedElementsCount = 0;
 
             _extraTextures = 0;
-            _began = false;
         }
 
         private void DrawItems(IEnumerable<SpriteBatchItem> items)
         {
             Texture2D lastTexture = null;
             Material lastMaterial = null;
-
-            Rectangle lastScissor = _fullScissor;
 
             foreach (SpriteBatchItem item in items)
             {
@@ -367,9 +388,6 @@ namespace Carpet
 
                 PipelineShaderProgram currentProgram = currentMaterial.ShaderProgram;
                 PipelineShaderProgram lastProgram = lastMaterial?.ShaderProgram;
-
-                Rectangle currentScissor = item.Scissor;
-                bool scissorChanged = currentScissor != lastScissor;
 
                 Pointer verticesPointer = item.VerticesPointer;
                 Pointer elementsPointer = item.ElementsPointer;
@@ -384,7 +402,7 @@ namespace Carpet
                 _extraTextures = currentMaterial.ExtraTexturesCount;
                 int maxTextures = maxTextureUnits - _extraTextures;
 
-                if (lastMaterial is not null && (scissorChanged || currentMaterial != lastMaterial || currentTexture != lastTexture && _texturesCount >= maxTextures ||
+                if (lastMaterial is not null && (currentMaterial != lastMaterial || currentTexture != lastTexture && _texturesCount >= maxTextures ||
                     _verticesCount + verticesCount > MaxVertices || _elementsCount + elementsCount > MaxElements || _itemsCount >= MaxItems))
                 {
                     Flush(lastMaterial);
@@ -414,13 +432,6 @@ namespace Carpet
 
                     lastTexture = currentTexture;
                     _texturesCount++;
-                }
-
-                if (scissorChanged)
-                {
-                    SetScissor(currentScissor);
-
-                    lastScissor = currentScissor;
                 }
 
                 for (int i = verticesStartIndex; i < verticesStartIndex + verticesCount; i++)
@@ -514,9 +525,14 @@ namespace Carpet
             return TextureUnit.Texture0 + index;
         }
 
-        private void SetScissor(Rectangle rectangle)
+        private void SetScissorRectangle(Rectangle scissor)
         {
-            GL.Scissor((int)rectangle.Left, (int)rectangle.Top, (int)rectangle.Width, (int)rectangle.Height);
+            int left = (int)scissor.Left;
+            int top = (int)scissor.Top;
+            int width = (int)scissor.Width;
+            int height = (int)scissor.Height;
+            GL.Scissor(left, _renderTarget.Height - top - height,
+                    width, height);
         }
 
         private void CheckBegin(string methodName)

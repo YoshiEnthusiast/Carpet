@@ -1,8 +1,6 @@
 ﻿using OpenTK.Mathematics;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Xml;
 
 namespace Carpet
@@ -89,7 +87,7 @@ namespace Carpet
 
                 offsets.AppendChild(offset);
 
-                batch.Submit(texture, null, new Vector2(position.X, position.Y), SpriteEffect.None, SpriteEffect.None, 1f);
+                batch.Submit(texture, new Vector2(position.X, position.Y), SpriteEffect.None, SpriteEffect.None, 1f);
             }
 
             batch.End();

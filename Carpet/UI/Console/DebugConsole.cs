@@ -564,7 +564,7 @@ namespace Carpet
                 MainColor, Depth);
 
             var inputRectangle = new Rectangle(inputX - TextPadding, inputY, inputWidth + TextPadding, inputHeight);
-            Graphics.Scissor = inputRectangle;
+            Graphics.SetScissor(inputRectangle);
 
             ReadOnlySpan<char> textBeforeCarriage = s_inputString.AsSpan(0, s_carriageIndex);
             float textBeforeCarriageWidth = s_inputFont.MeasureX(textBeforeCarriage);
@@ -675,7 +675,7 @@ namespace Carpet
                 Graphics.FillRectangle(scrollBarRectangle, MainColor, Depth);
             }
 
-            Graphics.Scissor = logsWindowRectangle;
+            Graphics.SetScissor(logsWindowRectangle);
 
             for (int i = 0; i < MaxLogs; i++)
             {

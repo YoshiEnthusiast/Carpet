@@ -8,7 +8,6 @@
         public required Pointer ElementsPointer { get; init; }
 
         public required Material Material { get; init; }
-        public required Rectangle Scissor { get; init; }
 
         public float Depth { get; init; }
     }

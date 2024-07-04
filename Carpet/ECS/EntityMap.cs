@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Carpet
 {
@@ -116,10 +117,12 @@ namespace Carpet
             if (!_previousBuckets.TryGetValue(entity, out buckets))
             {
                 buckets = new List<HashSet<Entity>>();
-
+            
                 _previousBuckets[entity] = buckets;
             }
 
+            buckets.Clear();
+            
             foreach (Vector2 hash in _hashBuffer)
             {
                 if (_buckets.TryGetValue(hash, out HashSet<Entity> bucket))

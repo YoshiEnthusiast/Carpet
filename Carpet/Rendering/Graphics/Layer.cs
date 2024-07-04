@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Carpet
+﻿namespace Carpet
 {
     public class Layer
     {
@@ -47,11 +45,12 @@ namespace Carpet
 
             var bounds = new Rectangle(0f, 0f, Width, Height);
 
-            batch.Submit(RenderTarget.Texture, Material, null, bounds, 
+            batch.Submit(RenderTarget.Texture, Material, bounds, 
                 Vector2.Zero, scale, Vector2.Zero, Color.White, 0f, 
                 SpriteEffect.None, SpriteEffect.None, Depth);
         }
 
+        // TODO: prob don't need this either
         public void ResetScissor()
         {
             Scissor = new Rectangle(0f, 0f, Width, Height);

@@ -89,7 +89,6 @@ namespace Carpet
 
         public override void Update(float deltaTime)
         {
-            // TODO: uhh
             Matrix4 view = _camera.GetViewMatrix();
 
             _lightmapPass.SetView(view);
@@ -228,8 +227,8 @@ namespace Carpet
                     _debugSurfaces.Add(surface);
                 }
 
-                // TODO: Make scissor the property of SpriteBatch and not Graphics
-                Graphics.Scissor = new Rectangle(0f, 0f, 2240f, 2240f);
+                // TODO: Do we even need to call this?
+                Graphics.SetScissor(new Rectangle(0f, 0f, 2240f, 2240f));
 
                 foreach (Rectangle rectangle in _rectangles)
                 {
@@ -247,7 +246,7 @@ namespace Carpet
 
         private void OnShadowBufferRender()
         {
-            Graphics.SpriteBatch.Submit(Graphics.BlankTexture.ActualTexture, _solidColorMaterial, null,
+            Graphics.SpriteBatch.Submit(Graphics.BlankTexture.ActualTexture, _solidColorMaterial,
                 _vertices, _verticesCount, _elements, _elementsCount, 0f);
         }
 

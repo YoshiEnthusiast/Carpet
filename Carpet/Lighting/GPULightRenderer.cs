@@ -165,8 +165,9 @@ namespace Carpet
 
         private void OnOcclusionMapRender()
         {
-            // HACK: bad code organization
-            Graphics.Scissor = new Rectangle(0f, 0f, 520f, 380f);
+            //TODO: Again, why am i calling this?
+            //HACK: CONSTANT VALUES
+            Graphics.SetScissor(new Rectangle(0f, 0f, 520f, 380f));
 
             foreach (LightOccluder occluder in Scene.GetComponentsOfType<LightOccluder>(_occludersBuffer))
                 occluder.DrawOcclusion();

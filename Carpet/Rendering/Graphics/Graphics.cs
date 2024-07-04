@@ -20,8 +20,6 @@ namespace Carpet
 
         public static Material PostProcessingEffect { get; set; }
         public static Color ClearColor { get; set; }
-        public static Rectangle Scissor { get; set; }
-        public static Rectangle ScreenScissor { get; set; }
         public static Vector2 BlankTextureCoordinate { get; private set; }
 
         public static void Initialize()
@@ -180,7 +178,7 @@ namespace Carpet
             var vertex3 = new VertexColorTextureCoordinate(point3, bounds.Xy, bounds, color);
             var vertex4 = new VertexColorTextureCoordinate(point4, bounds.Xy, bounds, color);
 
-            SpriteBatch.Submit(BlankTexture.ActualTexture, null, Scissor, vertex1, vertex2, vertex3, vertex4, depth);
+            SpriteBatch.Submit(BlankTexture.ActualTexture, null, vertex1, vertex2, vertex3, vertex4, depth);
         }
 
         public static void DrawString(string text, Vector2 position, float depth)
@@ -219,8 +217,6 @@ namespace Carpet
             CurrentLayer = layer;
             s_drawnLayers.Add(layer);
 
-            ResetScissor();
-
             SpriteBatch.Begin(layer.RenderTarget, BlendMode.AlphaBlend, layer.ClearColor, layer.Camera.GetViewMatrix());
         }
 
@@ -229,7 +225,6 @@ namespace Carpet
             if (CurrentLayer is null)
                 throw new InvalidOperationException("No current layer");
 
-            ResetScissor();
             CurrentLayer = null;
 
             SpriteBatch.End();
@@ -253,31 +248,18 @@ namespace Carpet
 
             SpriteBatch.Begin(s_screenTarget, BlendMode.AlphaBlend, ClearColor, identity);
 
-            SpriteBatch.Submit(s_finalTarget.Texture, PostProcessingEffect, null, new Rectangle(0f, 0f, s_finalTarget.Width, s_finalTarget.Height), Vector2.Zero, new Vector2(1f), Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, 1f);
+            SpriteBatch.Submit(s_finalTarget.Texture, PostProcessingEffect, new Rectangle(0f, 0f, s_finalTarget.Width, s_finalTarget.Height), Vector2.Zero, new Vector2(1f), Vector2.Zero, Color.White, 0f, SpriteEffect.None, SpriteEffect.None, 1f);
 
             SpriteBatch.End();
         }
 
         #endregion
 
-        public static void ResetScissor()
-        {
-            if (CurrentLayer is null)
-                return;
-
-            Scissor = new Rectangle(0f, 0f, CurrentLayer.Width, CurrentLayer.Height);
-        }
-
-        public static void ResetScreenScissor()
-        {
-            ScreenScissor = new Rectangle(0f, 0f, Resolution.CurrentWidth, Resolution.CurrentHeight);
-        }
-
         #region Internal Draw Methods
 
         internal static void DrawWithoutRoundingPosition(Texture2D texture, Material material, Rectangle bounds, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, SpriteEffect horizontalEffect, SpriteEffect verticalEffect, float depth)
         {
-            SpriteBatch.Submit(texture, material, Scissor, bounds, position, scale, origin, color, angle, horizontalEffect, verticalEffect, depth);
+            SpriteBatch.Submit(texture, material, bounds, position, scale, origin, color, angle, horizontalEffect, verticalEffect, depth);
         }
 
         internal static void DrawWithoutRoundingPosition(VirtualTexture virtualTexture, Vector2 position, Vector2 scale, Vector2 origin, Color color, float angle, float depth)
@@ -292,7 +274,17 @@ namespace Carpet
 
         #endregion
 
-        #region Resolution
+        #region Other
+
+        public static void SetScissor(Rectangle scissor)
+        {
+            SpriteBatch.SetScissor(scissor);
+        }
+
+        public static void ResetScissor()
+        {
+            SpriteBatch.ResetScissor();
+        }
 
         private static void OnResolutionChanged(object sender, EventArgs args)
         {

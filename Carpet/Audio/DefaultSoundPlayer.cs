@@ -1,4 +1,5 @@
-﻿using OpenTK.Audio.OpenAL;
+﻿using System;
+using OpenTK.Audio.OpenAL;
 
 namespace Carpet
 {
@@ -48,6 +49,12 @@ namespace Carpet
             Source.Play();
         }
 
+        public override void Update()
+        {
+            if (GetState() == SoundState.Stopped)
+                OnStopped();
+        }
+
         public override void Pause()
         {
             if (GetState() == SoundState.Stopped)
@@ -66,7 +73,7 @@ namespace Carpet
 
         public override SoundState GetState()
         {
-            if (SourceState == ALSourceState.Initial)
+            if (SourceState == ALSourceState.Initial || SourceState == 0)
                 return SoundState.Stopped;
 
             return (SoundState)SourceState;

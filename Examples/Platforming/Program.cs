@@ -6,7 +6,7 @@
         {
             Resolution initialResolution = new Resolution(1280, 720);
 
-            var game = new Game(60d, 60d, "Platforming");
+            var game = new Game(120d, 120d, "Platforming");
             game.Run(initialResolution, TextureLoadMode.LoadAtlas);
         }
     }

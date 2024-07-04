@@ -122,6 +122,8 @@ namespace Carpet
             DeltaTime = (float)time * TimeMultiplier * _deltaTimeMultiplier;
             TimeElapsed += time;
 
+            SFX.Update();
+
             Update(DeltaTime);
         }
 

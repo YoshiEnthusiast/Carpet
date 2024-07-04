@@ -2,6 +2,7 @@
 
 namespace Carpet
 {
+    // TODO: I think I can safely delete this
     public class SmoothCameraLayer : Layer
     {
         public SmoothCameraLayer(int width, int height, int visibleWidth, int visibleHeight, float depth) 
@@ -32,7 +33,7 @@ namespace Carpet
 
             var bounds = new Rectangle(0f, 0f, Width, Height);
 
-            batch.Submit(RenderTarget.Texture, Material, null, bounds,
+            batch.Submit(RenderTarget.Texture, Material, bounds,
                 position, scale, Vector2.Zero, Color.White, 0f,
                 SpriteEffect.None, SpriteEffect.None, Depth);
         }
