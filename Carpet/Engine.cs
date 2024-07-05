@@ -6,17 +6,6 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using StbImageSharp;
 using StbImageWriteSharp;
-using System;
-using System.Threading;
-using System.Diagnostics;
-
-// GLOBAL TASK LIST
-
-// TODO: Scene methods that return multiple entities should accept lists
-// TODO: Make maaaany things internal
-// TODO: Gamepad support fix
-// TODO: Redo content loading
-// TODO: make u_Resolution the default uniform??
 
 namespace Carpet
 {

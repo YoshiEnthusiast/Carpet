@@ -442,7 +442,6 @@ namespace Carpet
             return tags;
         }
 
-        // TODO: Maybe consider doing this the other way
         public bool TryParseUserData(BinaryReader reader, out UserData userData)
         {
             Stream stream = reader.BaseStream;

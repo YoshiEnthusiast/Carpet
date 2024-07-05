@@ -1,6 +1,6 @@
 ﻿namespace Carpet
 {
-    public class BloomMaterial : Material
+    internal class BloomMaterial : Material
     {
         public BloomMaterial()
         {

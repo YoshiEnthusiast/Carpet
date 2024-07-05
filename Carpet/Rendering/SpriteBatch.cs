@@ -192,8 +192,6 @@ namespace Carpet
                 textureTop = value;
             }
 
-            // HACK: scale is no longer rounded
-            // This should be done in Graphics.cs where nedded
             float spriteScaleX = scale.X;
             float spriteScaleY = scale.Y;
 
@@ -285,7 +283,11 @@ namespace Carpet
             int targetWidth = _renderTarget.Width;
             int targetHeight = _renderTarget.Height;
 
-            // HACK:
+            // TODO: All SpriteBatch items are currently treated as transparent and
+            // therefore sorted and drawn "front to back". In order to identity which
+            // items are actually transparent, pixel data of all (Virtual)Textures needs to be 
+            // scanned during content loading. Also, all items that use materials other than
+            // BasicMaterial should be put in _transparentItems just in case.
             bool transparent = true;
 
             for (int i = 0; i < verticesLength; i++)

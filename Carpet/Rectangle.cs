@@ -130,7 +130,6 @@ namespace Carpet
         }
 
         public bool Contains(Rectangle other)
-        // TODO: Use this in Color.cs
         {
             return other.Left > Left && other.Right < Right && other.Top > Top && other.Bottom < Bottom;
         }

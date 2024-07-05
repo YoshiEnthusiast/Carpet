@@ -4,14 +4,13 @@ using System.Collections.Generic;
 
 namespace Carpet
 {
-    // TODO: Rename all cringe
     public class CPULightRenderer : System
     {
         public const float MaxRadius = 320f;
         private const int SurfacesPerOccluder = 4;
         private const int MaxBloomPoints = 100;
 
-        private readonly TexturePass _occludePass;
+        private readonly TexturePass _occlusionPass;
         private readonly TexturePass _shadowPass;
         private readonly TexturePass _lightmapPass;
 
@@ -35,6 +34,7 @@ namespace Carpet
 
         private readonly List<Light> _lightsBuffer = [];
         private readonly List<LightOccluder> _occludersBuffer = [];
+        private readonly List<BloomPoint> _bloomBuffer = [];
 
         private readonly Color[] _masks =
         {
@@ -58,10 +58,10 @@ namespace Carpet
         private int _lightMaterialsAllocated = 0;
         private int _bloomMaterialsAllocated = 0;
 
-        public CPULightRenderer(Scene scene, TexturePass occludePass, TexturePass shadowPass, 
+        public CPULightRenderer(Scene scene, TexturePass occlusionPass, TexturePass shadowPass, 
             TexturePass lightmapPass, Camera camera) : base(scene)
         {
-            _occludePass = occludePass;
+            _occlusionPass = occlusionPass;
             _shadowPass = shadowPass;
             _lightmapPass = lightmapPass;
 
@@ -82,9 +82,9 @@ namespace Carpet
 
         public override void Initialize()
         {
-            _occludePass.Render += OnOccludeBufferRender;
-            _shadowPass.Render += OnShadowBufferRender;
-            _lightmapPass.Render += OnLightmapRender;
+            _occlusionPass.Render += RenderOcclusion;
+            _shadowPass.Render += RenderShadowBuffer;
+            _lightmapPass.Render += RenderLightMap;
         }
 
         public override void Update(float deltaTime)
@@ -126,12 +126,12 @@ namespace Carpet
 
         public override void Terminate()
         {
-            _occludePass.Render -= OnOccludeBufferRender;
-            _shadowPass.Render -= OnShadowBufferRender;
-            _lightmapPass.Render -= OnLightmapRender;
+            _occlusionPass.Render -= RenderOcclusion;
+            _shadowPass.Render -= RenderShadowBuffer;
+            _lightmapPass.Render -= RenderLightMap;
         }
 
-        private void OnOccludeBufferRender()
+        private void RenderOcclusion()
         {
             _debugRays.Clear();
             _debugSurfaces.Clear();
@@ -140,7 +140,7 @@ namespace Carpet
 
             _lightsCount = 0;
 
-            RenderTarget occludeBuffer = _occludePass.GetRenderTarget();
+            RenderTarget occludeBuffer = _occlusionPass.GetRenderTarget();
 
             foreach (Light light in lights)
             {
@@ -227,9 +227,6 @@ namespace Carpet
                     _debugSurfaces.Add(surface);
                 }
 
-                // TODO: Do we even need to call this?
-                Graphics.SetScissor(new Rectangle(0f, 0f, 2240f, 2240f));
-
                 foreach (Rectangle rectangle in _rectangles)
                 {
                     Vector2 relativePosition = rectangle.TopLeft.Floor() - lightBounds.TopLeft;
@@ -244,13 +241,13 @@ namespace Carpet
             }
         }
 
-        private void OnShadowBufferRender()
+        private void RenderShadowBuffer()
         {
             Graphics.SpriteBatch.Submit(Graphics.BlankTexture.ActualTexture, _solidColorMaterial,
                 _vertices, _verticesCount, _elements, _elementsCount, 0f);
         }
 
-        private void OnLightmapRender()
+        private void RenderLightMap()
         {
             RenderTarget shadowBuffer = _shadowPass.GetRenderTarget();
 
@@ -295,7 +292,26 @@ namespace Carpet
                 Graphics.FillRectangle(light.Bounds, material, light.Color, 0f);
             }
 
-            //TODO: PassProcess bloom points here
+            Scene.GetComponentsOfType<BloomPoint>(_bloomBuffer);
+            int bloomPointsCount = Math.Min(_bloomBuffer.Count, MaxBloomPoints);
+
+            if (bloomPointsCount > _bloomMaterialsAllocated)
+            {
+                for (int i = _bloomMaterialsAllocated; i < bloomPointsCount; i++)
+                    _bloomMaterials[i] = new BloomMaterial();
+
+                _bloomMaterialsAllocated = bloomPointsCount;
+            }
+
+            for (int i = 0; i < bloomPointsCount; i++)
+            {
+                BloomPoint bloom = _bloomBuffer[i];
+                BloomMaterial material = _bloomMaterials[i];
+
+                material.Volume = bloom.Volume;
+
+                Graphics.FillRectangle(bloom.Bounds, material, bloom.Color, 0f);
+            }
         }
 
         private uint AddVertex(Vector2 position, Vector2 offset, Color mask)

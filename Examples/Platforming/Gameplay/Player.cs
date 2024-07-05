@@ -102,6 +102,20 @@ namespace Carpet.Platforming
             };
 
             _hookRopeSprite.Origin = new Vector2(0f, _hookRopeSprite.Height / 2f);
+
+            Add(new BloomPoint()
+            {
+                Radius = 70f,
+                Color = new Color(150),
+                Volume = 0f
+            });
+            
+            Add(new Light()
+            {
+                Radius = 40f,
+                Color = new Color(50),
+                Volume = 0.1f
+            });
         }
 
         public sbyte Direction { get; set; } = 1;

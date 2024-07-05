@@ -12,8 +12,6 @@
 
             Texture2D texture = Texture2D.CreateEmpty(width, height);
             RenderTarget = RenderTarget.FromTexture(texture);
-
-            ResetScissor();
         }
 
         public Vector2 MousePosition
@@ -37,7 +35,6 @@
 
         public Material Material { get; set; }
         public Color ClearColor { get; set; }
-        public Rectangle Scissor { get; set; }
 
         public virtual void Draw(Resolution resolution, SpriteBatch batch)
         {
@@ -48,12 +45,6 @@
             batch.Submit(RenderTarget.Texture, Material, bounds, 
                 Vector2.Zero, scale, Vector2.Zero, Color.White, 0f, 
                 SpriteEffect.None, SpriteEffect.None, Depth);
-        }
-
-        // TODO: prob don't need this either
-        public void ResetScissor()
-        {
-            Scissor = new Rectangle(0f, 0f, Width, Height);
         }
     }
 }

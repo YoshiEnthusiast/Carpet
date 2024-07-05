@@ -168,6 +168,11 @@ namespace Carpet
             this = new Color(r, g, b, byte.MaxValue);
         }
 
+        public Color(byte value)
+        {
+            this = new Color(value, value, value, byte.MaxValue);
+        }
+
         public Color(int r, int g, int b, int a)
         {
             this = new Color(FromInt(r), FromInt(g), FromInt(b), FromInt(a));   

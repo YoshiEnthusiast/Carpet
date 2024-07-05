@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 
@@ -6,6 +7,8 @@ namespace Carpet
 {
     public class GPULightRenderer : System
     {
+        private const int MaxBloomPoints = 100;
+
         private readonly TexturePass _occlusionPass;
         private readonly TexturePass _distancePass;
         private readonly TexturePass _lightPass;
@@ -18,16 +21,19 @@ namespace Carpet
         private readonly Light[] _renderedLights;
         private readonly GPULightMaterial[] _lightMaterials;
         private readonly DistanceMapMaterial[] _distanceMapMaterials;
+        private readonly BloomMaterial[] _bloomMaterials = new BloomMaterial[MaxBloomPoints];
 
         private readonly int _maxLights;
         private readonly float _maxRadius;
 
         private readonly List<Light> _lightsBuffer = [];
         private readonly List<LightOccluder> _occludersBuffer = [];
+        private readonly List<BloomPoint> _bloomBuffer = [];
 
         private Vector2 _occlusionOrigin;
 
         private int _lightsRendered;
+        private int _bloomMaterialsAllocated;
 
         private static readonly Color[] s_masks =
         {
@@ -117,16 +123,16 @@ namespace Carpet
 
         public override void Initialize()
         {
-            _occlusionPass.Render += OnOcclusionMapRender;
-            _distancePass.Render += OnDistanceMapRender;
-            _lightPass.Render += OnLightMapRender;
+            _occlusionPass.Render += RenderOcclusionMap;
+            _distancePass.Render += RenderDistanceMap;
+            _lightPass.Render += RenderLightMap;
         }
 
         public override void Terminate()
         {
-            _occlusionPass.Render -= OnOcclusionMapRender;
-            _distancePass.Render -= OnDistanceMapRender;
-            _lightPass.Render -= OnLightMapRender;
+            _occlusionPass.Render -= RenderOcclusionMap;
+            _distancePass.Render -= RenderDistanceMap;
+            _lightPass.Render -= RenderLightMap;
         }
 
         public override void Update(float deltaTime)
@@ -163,18 +169,13 @@ namespace Carpet
             _lightPass.ClearColor = clearColor;
         }
 
-        private void OnOcclusionMapRender()
+        private void RenderOcclusionMap()
         {
-            //TODO: Again, why am i calling this?
-            //HACK: CONSTANT VALUES
-            Graphics.SetScissor(new Rectangle(0f, 0f, 520f, 380f));
-
             foreach (LightOccluder occluder in Scene.GetComponentsOfType<LightOccluder>(_occludersBuffer))
                 occluder.DrawOcclusion();
         }
 
-        // TODO: Rename these methods
-        private void OnDistanceMapRender()
+        private void RenderDistanceMap()
         {
             _lightsRendered = 0;
 
@@ -185,10 +186,13 @@ namespace Carpet
             Vector2 cameraTopLeft = camera.Position.Floor()
                 - _occlusionOrigin;
 
-            // TODO: Handle _maxLights here when all lights components are
-            // added to a cached list instead of this 
-            foreach (Light light in Scene.GetComponentsOfType<Light>(_lightsBuffer))
+            Scene.GetComponentsOfType<Light>(_lightsBuffer);
+            int lightsCount = Math.Min(_lightsBuffer.Count, _maxLights);
+
+            for (int i = 0; i < lightsCount; i++)
             {
+                Light light = _lightsBuffer[i];
+
                 int masksCount = s_masks.Length;
                 int maskIndex = _lightsRendered % masksCount;
                 Color mask = s_masks[maskIndex];
@@ -204,7 +208,6 @@ namespace Carpet
                 material.LightPosition = positionOnOcclusionMap;
                 material.Radius = radius;
 
-                // TODO: use rectangle
                 Graphics.Draw(_occlusionMap, material, new Vector2(0f, y), new Vector2(scaleX, scaleY),
                     Vector2.Zero, mask, 0f, 0f);
 
@@ -214,7 +217,7 @@ namespace Carpet
             }
         }
 
-        private void OnLightMapRender()
+        private void RenderLightMap()
         {
             for (int i = 0; i < _lightsRendered; i++)
             {
@@ -233,6 +236,27 @@ namespace Carpet
                 material.Volume = light.Volume;
 
                 Graphics.Draw(_distanceMap, material, light.Bounds, light.Color, 0f);
+            }
+
+            Scene.GetComponentsOfType<BloomPoint>(_bloomBuffer);
+            int bloomPointsCount = Math.Min(_bloomBuffer.Count, MaxBloomPoints);
+
+            if (bloomPointsCount > _bloomMaterialsAllocated)
+            {
+                for (int i = _bloomMaterialsAllocated; i < bloomPointsCount; i++)
+                    _bloomMaterials[i] = new BloomMaterial();
+
+                _bloomMaterialsAllocated = bloomPointsCount;
+            }
+
+            for (int i = 0; i < bloomPointsCount; i++)
+            {
+                BloomPoint bloom = _bloomBuffer[i];
+                BloomMaterial material = _bloomMaterials[i];
+
+                material.Volume = bloom.Volume;
+
+                Graphics.FillRectangle(bloom.Bounds, material, bloom.Color, 0f);
             }
         }
     }

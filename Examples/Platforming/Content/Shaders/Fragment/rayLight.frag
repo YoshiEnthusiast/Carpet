@@ -109,14 +109,14 @@ void main()
 
     if (!u_Glare)
     {
-		vec2 occlusionMapSize = textureSize(u_Textures[0], 0);
+        vec2 occlusionMapSize = textureSize(u_Textures[0], 0);
         vec2 diff = (occlusionMapSize - u_Resolution) * .5;
 
-		float occlusion = texture(u_Textures[0], 
-            (gl_FragCoord.xy + diff)
-            / occlusionMapSize).a;
+        float occlusion = texture(u_Textures[0], 
+                (gl_FragCoord.xy + diff)
+                / occlusionMapSize).a;
 
-		occluded *= (1. - occlusion);
+        occluded *= (1. - occlusion);
     }
     
     float halfAngle = u_Angle / 2.;
@@ -125,7 +125,7 @@ void main()
     float angleDistance = deltaAngle(a, rotation);
     float angularFalloff = 1. - smoothstep(halfAngle - u_FalloffAngle, halfAngle, angleDistance);
 
-    float distanceFalloff = 1. - normalized;
+    float distanceFalloff = max(1. - normalized, 0.);
     float startFalloff = smoothstep(u_StartDistance, u_StartDistance + u_StartFade, normalized);
 
     float v = startFalloff * distanceFalloff * angularFalloff

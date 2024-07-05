@@ -21,7 +21,7 @@ void main()
     vec2 delta = center - v_TexCoord;
     float d = length(delta);
 
-    float distanceFalloff = 1. - d / r;
+    float distanceFalloff = max(1. - d / r, 0.);
 
-    o_FragColor = vec4(v_Color.xyz * distanceFalloff, u_Volume * distanceFalloff);       
+    o_FragColor = vec4(v_Color.xyz, u_Volume) * distanceFalloff;       
 }

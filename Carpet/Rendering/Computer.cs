@@ -24,7 +24,6 @@ namespace Carpet
 
             ShaderProgram.Bind();
 
-            // TODO: better call this manually
             SetUniforms();
 
             ShaderProgram.Compute(width, height, depth);

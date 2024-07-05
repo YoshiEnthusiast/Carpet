@@ -6,8 +6,6 @@ using System.Text;
 
 namespace Carpet
 {
-    // TODO: Test with different fonts
-
     public static class DebugConsole
     {
         private const string UnexpectedQuotesError = "Unexpected quotes";

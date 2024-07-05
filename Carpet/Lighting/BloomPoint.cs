@@ -1,6 +1,6 @@
 ﻿namespace Carpet
 {
-    public class Bloom : Component
+    public class BloomPoint : Component
     {
         private float _radius;
 

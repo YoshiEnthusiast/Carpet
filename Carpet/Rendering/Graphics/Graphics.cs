@@ -293,7 +293,13 @@ namespace Carpet
 
         private static void ApplyResolution()
         {
-            // TODO: Delete the previous render target texture if it exists (WHEN THE TEXTURE CLASS WILL HAVE THIS OPTION)!!!!!!!
+            if (s_finalTarget is not null)
+            {
+                Texture2D previousTexture = s_finalTarget.Texture;
+
+                previousTexture.Bind();
+                previousTexture.Delete();
+            }
             
             int width = Resolution.CurrentWidth;
             int height = Resolution.CurrentHeight;

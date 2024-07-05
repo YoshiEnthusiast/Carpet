@@ -51,6 +51,7 @@ namespace Carpet.Platforming
             Content.Initialize("Content");
             Content.LoadGraphics(TextureLoadMode.SaveAtlas);
             Graphics.Initialize();
+            ShaderProgramWrapper.InitializeUniforms(GetType().Assembly);
 
             BackgroundLayer = new Layer(1280, 720, 0f);
 

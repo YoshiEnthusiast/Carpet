@@ -2,7 +2,7 @@
 
 namespace Carpet
 {
-    public class LightMaterial : Material
+    internal class LightMaterial : Material
     {
         public LightMaterial()
         {
