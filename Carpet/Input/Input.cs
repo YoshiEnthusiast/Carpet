@@ -374,7 +374,6 @@ namespace Carpet
                 {
                     DebugConsole.Log($"Controller \"{controller.Name}\" connected", LogType.Info);
 
-                    break;
                 }
             }
         }

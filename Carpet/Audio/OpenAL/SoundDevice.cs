@@ -28,7 +28,7 @@ namespace Carpet
 
             if (Handle == ALDevice.Null)
             {
-                // Throw exception
+                // TODO: Throw exception?
             }
 
             Opened = true;

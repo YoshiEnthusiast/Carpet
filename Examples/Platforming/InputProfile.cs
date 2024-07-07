@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-
-namespace Carpet.Platforming
+﻿namespace Carpet.Examples.Platforming
 {
     public sealed class InputProfile
     {

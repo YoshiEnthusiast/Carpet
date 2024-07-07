@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Carpet.Platforming
+namespace Carpet.Examples.Platforming
 {
     public class CameraSystem : System
     {
@@ -32,7 +32,8 @@ namespace Carpet.Platforming
                 }
 
                 Vector2 oldPosition = camera.Position;
-                Vector2 lerpedPosition = Vector2.Lerp(oldPosition, playerPosition, _lerpAmount);
+                Vector2 lerpedPosition = Vector2.Lerp(oldPosition, playerPosition, 
+                        _lerpAmount * deltaTime * deltaTime).Ceiling(); 
 
                 CameraPosition = lerpedPosition;
                 camera.Position = CameraPosition;

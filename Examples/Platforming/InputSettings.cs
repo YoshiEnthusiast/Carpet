@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Xml;
 
-namespace Carpet.Platforming
+namespace Carpet.Examples.Platforming
 {
     public class InputSettings
     {

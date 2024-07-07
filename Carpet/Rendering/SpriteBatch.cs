@@ -6,8 +6,6 @@ using System.Linq;
 
 namespace Carpet
 {
-    // TexturePass min and max depth to vertex shader
-
     public class SpriteBatch
     {
         private const int MaxSubmittedItems = 20000;

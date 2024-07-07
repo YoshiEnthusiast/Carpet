@@ -1,4 +1,4 @@
-﻿namespace Carpet.Platforming
+﻿namespace Carpet.Examples.Platforming
 {
     public class BlockGroupsSystem : System
     {
@@ -16,6 +16,8 @@
 
             foreach (AutoTile block in Scene.GetEntitiesOfType<AutoTile>(_autoTilesBuffer))
             {
+                block.NeedsRefresh = true;
+
                 if (groupedBlocks.Contains(block))
                     continue;
 

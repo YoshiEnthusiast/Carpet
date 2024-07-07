@@ -139,7 +139,6 @@ namespace Carpet
             float x = point.X;
             float y = point.Y;  
 
-            // THIS CAN **** EVERYTHING UP
             return x >= Left && x <= Right + 1f && y >= Top && y <= Bottom + 1f;  
         }
 

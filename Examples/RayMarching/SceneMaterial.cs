@@ -1,4 +1,4 @@
-namespace Carpet.RayMarching
+namespace Carpet.Examples.RayMarching
 {
     public class SceneMaterial : Material
     {

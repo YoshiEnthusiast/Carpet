@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Carpet.Platforming
+namespace Carpet.Examples.Platforming
 {
     public class GrapplableCoin : Coin
     {

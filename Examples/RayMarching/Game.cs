@@ -1,5 +1,4 @@
-﻿
-namespace Carpet.RayMarching
+﻿namespace Carpet.Examples.RayMarching
 {
     public sealed class Game : Engine
     {

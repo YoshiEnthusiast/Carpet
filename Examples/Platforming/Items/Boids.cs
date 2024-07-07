@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using ComputeItem = Carpet.Std430LayoutItem;
 
-namespace Carpet.Platforming
+namespace Carpet.Examples.Platforming
 {
     public class Boids : Entity
     {

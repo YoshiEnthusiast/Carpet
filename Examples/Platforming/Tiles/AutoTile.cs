@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Numerics;
-
-namespace Carpet.Platforming
+﻿namespace Carpet.Examples.Platforming
 {
     public abstract class AutoTile : Entity
     {

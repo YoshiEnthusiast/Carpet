@@ -2,11 +2,6 @@
 {
     public class LightOccluder : Component
     {
-        public LightOccluder(OcclusionMode mode)
-        {
-            Mode = mode;
-        }
-
         public OcclusionMode Mode { get; set; }
 
         public Sprite Sprite { get; set; }

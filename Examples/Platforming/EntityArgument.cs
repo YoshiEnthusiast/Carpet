@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Reflection;
 
-namespace Carpet.Platforming
+namespace Carpet.Examples.Platforming
 {
     [ArgumentType(typeof(Entity))]
     public sealed class EntityArgument : Argument

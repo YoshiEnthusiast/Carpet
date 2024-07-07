@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Carpet
+namespace Carpet.Examples.Platforming
 {
     public class ForegroundMaterial : Material
     {

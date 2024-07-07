@@ -1,23 +1,23 @@
 ﻿using System.Collections;
 
-namespace Carpet.Platforming
+namespace Carpet.Examples.Platforming
 {
     public class Player : PhysicsBody
     {
         #region Constants
 
-        private const float Acceleration = 0.3f;
-        private const float AirAcceleration = 0.2f;
-        private const float MaxHorizontalVelocity = 3f;
-        private const float Friction = 0.2f;
+        private const float Acceleration = 0.9f;
+        private const float AirAcceleration = 0.3f;
+        private const float MaxHorizontalVelocity = 2f;
+        private const float Friction = 0.4f;
         private const float AirFriction = 0.1f;
-        private const float GravityAcceleration = 0.2f;
+        private const float GravityAcceleration = 0.3f;
         private const float WallClingingVelocityY = 0.8f;
-        private const float InitialJumpThrust = -1f;
-        private const float JumpThrust = -0.6f;
-        private const float JumpTime = 5f;
-        private const float JumpWindow = 0.07f; // Multiply Engine.TimeElapsed by _deltaTimeMultiplier...
-        private const float WallJumpTime = 5f;
+        private const float InitialJumpThrust = -1.5f;
+        private const float JumpThrust = -1f;
+        private const float JumpTime = 3f;
+        private const float JumpWindow = 0.1f;
+        private const float WallJumpTime = 3f;
 
         private const float GrappleLength = 140f;
         private const float MaxGrappleAngle = Maths.HalfPI;
@@ -36,8 +36,8 @@ namespace Carpet.Platforming
         private const sbyte PositiveDirection = 1;
         private const sbyte NegativeDirection = -1;
 
-        private readonly Vector2 _initialWallJumpThrust = new Vector2(0.7f, -0.9f);
-        private readonly Vector2 _wallJumpThrust = new Vector2(0.4f, -0.6f);
+        private readonly Vector2 _initialWallJumpThrust = new Vector2(1.3f, -1.3f);
+        private readonly Vector2 _wallJumpThrust = new Vector2(0.7f, -0.9f);
 
         private readonly Vector2 _wallJumpHitbox = new Vector2(2f, 8f);
 
@@ -142,24 +142,21 @@ namespace Carpet.Platforming
 
             if (xAxis != 0f)
             {
-                float acceleration = GetPhysicsValue(Acceleration, AirAcceleration) * deltaTime;
+                float acceleration = GetPhysicsValue(Acceleration, AirAcceleration) * deltaTime * deltaTime;
 
                 Direction = (sbyte)Controls.XAxis.GetSign();
-                VelocityX = Maths.ApproachAbs(velocityX, acceleration * xAxis, MaxHorizontalVelocity);
+                VelocityX = Maths.ApproachAbs(velocityX, acceleration * xAxis, MaxHorizontalVelocity * deltaTime);
 
                 _sprite.SetAnimation(null);
             }
             else
             {
-                float friction = GetPhysicsValue(Friction, AirFriction) * deltaTime;
+                float friction = GetPhysicsValue(Friction, AirFriction) * deltaTime * deltaTime;
 
                 if (velocityX > 0f)
                     VelocityX = Maths.Max(velocityX - friction, 0f);
                 else
                     VelocityX = Maths.Min(velocityX + friction, 0f);
-
-                //if (velocityX == 0f)
-                //    _sprite.SetAnimation("idle");
             }
 
             bool jumpPressed = Controls.Jump.IsPressed();
@@ -167,19 +164,19 @@ namespace Carpet.Platforming
             if (jumpPressed)
                 _pressedJumpAt = Engine.TimeElapsed;
 
-            if (Grounded)
+            if (Grounded && !_jumping)
             {
                 VelocityY = 0f;
 
-                if (!_jumping && (jumpPressed || Engine.TimeElapsed - _pressedJumpAt < JumpWindow))
+                if (!_jumping && (jumpPressed || Engine.TimeElapsed - _pressedJumpAt < JumpWindow * deltaTime))
                 {
                     _pressedJumpAt = double.NegativeInfinity;
-                    Jump();
+                    Jump(deltaTime);
                 }
             }
             else
             {
-                float gravityAcceleration = GravityAcceleration * deltaTime;
+                float gravityAcceleration = GravityAcceleration * deltaTime * deltaTime;
 
                 float width = _wallJumpHitbox.X;
                 float height = _wallJumpHitbox.Y;
@@ -200,7 +197,7 @@ namespace Carpet.Platforming
                     if (VelocityY >= 0f && (leftWall && Touches(leftSolid.Entity) || rightWall && Touches(rightSolid.Entity)))
                         VelocityY = WallClingingVelocityY * deltaTime;
                     else
-                        VelocityY += gravityAcceleration;
+                        VelocityY += gravityAcceleration; // TODO: MaxFallingSpeed?
 
                     if (jumpPressed)
                     {
@@ -209,12 +206,12 @@ namespace Carpet.Platforming
                         if (leftWall && leftSolid.AllowWallJump)
                         {
                             jumpDirection = PositiveDirection;
-                            WallJump(leftSolid, jumpDirection);
+                            WallJump(leftSolid, jumpDirection, deltaTime);
                         }
                         else if (rightSolid.AllowWallJump)
                         {
                             jumpDirection = NegativeDirection;
-                            WallJump(rightSolid, jumpDirection);
+                            WallJump(rightSolid, jumpDirection, deltaTime);
                         }
 
                         Direction = jumpDirection;
@@ -367,7 +364,7 @@ namespace Carpet.Platforming
             {
                 ExitGrappling();
 
-                Jump();
+                Jump(deltaTime);
             }
             else if (Controls.CancelGrappling.IsPressed())
             {
@@ -430,22 +427,49 @@ namespace Carpet.Platforming
             _hookGrappleSprite.Draw(_grappleEndPosition);
         }
 
-        private void Jump()
+        private void Jump(float deltaTime)
         {
-            PerformJump(new Vector2(0f, InitialJumpThrust), new Vector2(0f, JumpThrust), JumpTime);
+            PerformJump(new Vector2(0f, InitialJumpThrust), 
+                    new Vector2(0f, JumpThrust), JumpTime, deltaTime);
         }
 
-        private void WallJump(SolidObject wall, sbyte direction)
+        private void WallJump(SolidObject wall, sbyte direction, float deltaTime)
         {
-            PerformJump(new Vector2(_initialWallJumpThrust.X * direction, _initialWallJumpThrust.Y), new Vector2(_wallJumpThrust.X * direction, _wallJumpThrust.Y), WallJumpTime);
+            PerformJump(new Vector2(_initialWallJumpThrust.X * direction, _initialWallJumpThrust.Y), 
+                    new Vector2(_wallJumpThrust.X * direction, _wallJumpThrust.Y), 
+                    WallJumpTime, deltaTime);
         }
 
-        private void PerformJump(Vector2 initialThrust, Vector2 thrust, float jumpTime)
+        private void PerformJump(Vector2 initialThrust, Vector2 thrust, float jumpTime, float deltaTime)
         {
-            Velocity += initialThrust;
+            Velocity += initialThrust * deltaTime;
             _jumping = true;
 
-            _coroutineRunner.StartCoroutine(CreateJumpCoroutine(thrust, jumpTime));
+            _coroutineRunner.StartCoroutine(CreateJumpCoroutine(thrust * deltaTime * deltaTime, 
+                        jumpTime));
+        }
+
+        private IEnumerator CreateJumpCoroutine(Vector2 thrust, float jumpTime)
+        {
+            _jumpTimer = jumpTime;
+
+            while (true)
+            {
+                if (!Controls.Jump.IsDown() || _jumpTimer <= 0f)
+                {
+                    _jumping = false;
+
+                    yield break;
+                }
+
+                float deltaTime = Engine.DeltaTime;
+
+                Velocity += thrust;
+                _jumpTimer -= deltaTime;
+
+
+                yield return null;
+            }
         }
 
         private void UpdateGrappleSprites()
@@ -503,28 +527,6 @@ namespace Carpet.Platforming
                 return grounded;
 
             return air;
-        }
-
-        private IEnumerator CreateJumpCoroutine(Vector2 thrust, float jumpTime)
-        {
-            _jumpTimer = jumpTime;
-
-            while (true)
-            {
-                if (!Controls.Jump.IsDown() || _jumpTimer <= 0f)
-                {
-                    _jumping = false;
-
-                    yield break;
-                }
-
-                float deltaTime = Engine.DeltaTime;
-
-                Velocity += thrust * deltaTime;
-                _jumpTimer -= deltaTime;
-
-                yield return null;
-            }
         }
 
         private enum State

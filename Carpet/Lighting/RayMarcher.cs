@@ -6,6 +6,8 @@ namespace Carpet
 {
     public class RayMarcher : System
     {
+        private const int WorkGroupSize = 8;
+
         private readonly RenderPass _occlusionPass;
         private readonly RenderPass _intensityPass;
         private readonly RenderPass _rayMarchingPass;
@@ -85,8 +87,8 @@ namespace Carpet
 
         private void ComputeDistanceField()
         {
-            int width = _occlusionPass.Width;
-            int height = _occlusionPass.Height;
+            int width = Maths.Ceiling((float)_occlusionPass.Width / WorkGroupSize);
+            int height = Maths.Ceiling((float)_occlusionPass.Height / WorkGroupSize);
 
             _occlusionPass.GetTexture().
                 BindImage(0, TextureAccess.ReadOnly, SizedInternalFormat.Rgba32f);

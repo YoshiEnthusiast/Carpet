@@ -1,0 +1,33 @@
+<Settings>
+    <Keyboard>
+        <Key Name="Jump" Value="C"/>
+        <Key Name="Grapple" Value="V"/>
+		<Key Name="CancelGrappling" Value="S"/>
+        <Key Name="Left" Value="A"/>
+        <Key Name="Right" Value="D"/>
+        <Key Name="Up" Value="W"/>
+        <Key Name="Down" Value="S"/>
+		<Key Name="MenuLeft" Value="A"/>
+		<Key Name="MenuRight" Value="D"/>
+		<Key Name="MenuUp" Value="W"/>
+		<Key Name="MenuDown" Value="S"/>
+    </Keyboard>
+
+    <Controller>
+        <Button Name="Jump" Value="B"/>
+        <Button Name="Grapple" Value="Y"/>
+		<Button Name="CancelGrappling" Value="Down"/>
+        <Button Name="Left" Value="Left"/>
+        <Button Name="Right" Value="Right"/>
+        <Button Name="Up" Value="Up"/>
+        <Button Name="Down" Value="Down"/>
+		<Button Name="MenuLeft" Value="Left"/>
+		<Button Name="MenuRight" Value="Right"/>
+		<Button Name="MenuUp" Value="Up"/>
+		<Button Name="MenuDown" Value="Down"/>
+
+        <Axis Name="XAxis" Value="LeftX"/>
+		<Axis Name="MenuXAxis" Value="LeftX"/>
+		<Axis Name="MenuYAxis" Value="LeftY"/>
+    </Controller>
+</Settings>

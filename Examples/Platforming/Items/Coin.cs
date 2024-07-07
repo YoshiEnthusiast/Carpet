@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 
-namespace Carpet.Platforming
+namespace Carpet.Examples.Platforming
 {
     public class Coin : Entity
     {

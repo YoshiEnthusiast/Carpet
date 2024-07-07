@@ -30,9 +30,6 @@ namespace Carpet
 
         protected override string AddExtension(string fileName)
         {
-            // It should be Content.EncodedFileExtenion and not Extension
-            // It is going to be like this for now because I will be working with raw files and not encoded ones
-
             return fileName + Extension;
         }
 

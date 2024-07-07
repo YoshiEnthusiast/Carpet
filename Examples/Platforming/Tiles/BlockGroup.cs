@@ -1,7 +1,6 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 
-namespace Carpet.Platforming
+namespace Carpet.Examples.Platforming
 {
     public class BlockGroup : Entity
     {
@@ -16,8 +15,10 @@ namespace Carpet.Platforming
             Blocks = blocks;
 
             _coroutineRunner = Add(new CoroutineRunner());
-            _occluder = Add(new LightOccluder(OcclusionMode.EntityRectangle));
-            Add(new Anchor());
+            _occluder = Add(new LightOccluder()
+            {
+                Mode = OcclusionMode.EntityRectangle
+            });
         }
 
         public IEnumerable<AutoTile> Blocks { get; private init; }

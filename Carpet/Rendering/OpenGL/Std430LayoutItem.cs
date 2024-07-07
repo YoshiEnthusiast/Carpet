@@ -73,8 +73,6 @@ namespace Carpet
             return new Std430LayoutItem(size, largestMemberSize);
         }
 
-        // Matrices
-
         private static int SizeOf<T>() where T : struct
         {
             return Unsafe.SizeOf<T>();

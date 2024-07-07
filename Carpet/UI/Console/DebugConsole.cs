@@ -287,58 +287,6 @@ namespace Carpet
 
                 Size = new Vector2(width, height);
             });
-
-            AddCommand("test1", new Argument[]
-            {
-
-            }, (Arguments arguments) =>
-            {
-
-            });
-            AddCommand("test2", null, (Arguments arguments) =>
-            {
-                
-            });
-            AddCommand("test3", null, (Arguments arguments) =>
-            {
-                
-            });
-            AddCommand("test4", null, (Arguments arguments) =>
-            {
-                
-            });
-            AddCommand("test5", null, (Arguments arguments) =>
-            {
-                
-            });
-            AddCommand("test6", null, (Arguments arguments) =>
-            {
-                
-            });
-            AddCommand("test7", null, (Arguments arguments) =>
-            {
-                
-            });
-            AddCommand("test8", null, (Arguments arguments) =>
-            {
-                
-            });
-            AddCommand("test9", null, (Arguments arguments) =>
-            {
-                
-            });
-            AddCommand("test10", null, (Arguments arguments) =>
-            {
-                
-            });
-            AddCommand("test11", null, (Arguments arguments) =>
-            {
-                
-            });
-            AddCommand("test12", null, (Arguments arguments) =>
-            {
-                
-            });
         }
 
         public static void Update(float deltaTime)

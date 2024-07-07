@@ -1,4 +1,4 @@
-﻿namespace Carpet.Platforming
+﻿namespace Carpet.Examples.Platforming
 {
     internal sealed class Program
     {
@@ -6,7 +6,7 @@
         {
             Resolution initialResolution = new Resolution(1280, 720);
 
-            var game = new Game(120d, 120d, "Platforming");
+            var game = new Game(60d, 60d, "Platforming");
             game.Run(initialResolution, TextureLoadMode.LoadAtlas);
         }
     }

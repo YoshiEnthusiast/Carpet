@@ -1,4 +1,4 @@
-﻿namespace Carpet.RayMarching
+﻿namespace Carpet.Examples.RayMarching
 {
     internal sealed class Program
     {

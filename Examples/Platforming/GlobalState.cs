@@ -1,4 +1,4 @@
-﻿namespace Carpet.Platforming
+﻿namespace Carpet.Examples.Platforming
 {
     public enum GlobalState
     {

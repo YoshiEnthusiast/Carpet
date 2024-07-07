@@ -11,9 +11,9 @@
     <Compile Remove="bin\**" />
     <EmbeddedResource Remove="bin\**" />
     <None Remove="bin\**" />
-   <Content Include="Content\**">
+    <Content Include="Content\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-   </Content>
+     </Content>
   </ItemGroup>
   
   <ItemGroup>

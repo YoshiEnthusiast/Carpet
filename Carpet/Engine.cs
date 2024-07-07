@@ -36,9 +36,6 @@ namespace Carpet
         public static float UpdatesPerSecond { get; private set; }
         public static double TimeElapsed { get; private set; }
 
-        public static float UpdateTime { get; private set; }
-        public static float RenderTime { get; private set; }
-
         public static float TimeMultiplier { get; set; } = 1f;
         public static bool DebugCollision { get; set; }
         public static bool DebugLighting { get; set; }
@@ -104,10 +101,8 @@ namespace Carpet
 
         private void OnUpdate(FrameEventArgs args)
         {
-            // TODO: delta time is currently constant
             double time = 1f / _updateFrequency;
 
-            UpdatesPerSecond = 1f / (float)time;
             DeltaTime = (float)time * TimeMultiplier * _deltaTimeMultiplier;
             TimeElapsed += time;
 

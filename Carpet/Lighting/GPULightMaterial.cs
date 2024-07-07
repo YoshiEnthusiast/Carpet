@@ -4,7 +4,7 @@
     {
         public GPULightMaterial()
         {
-            ShaderProgram = Content.GetPipelineShaderProgram("rayLight.frag");
+            ShaderProgram = Content.GetPipelineShaderProgram("GPULight.frag");
         }
 
         [Uniform("u_Resolution")] public Vector2 Resolution { get; set; }

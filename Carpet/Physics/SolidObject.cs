@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Carpet
@@ -39,7 +37,7 @@ namespace Carpet
 
                     if (physicsBody.Position != destination)
                     {
-                        // Squeeze
+                        // TODO: Squeeze
                     }
                 }
             }    

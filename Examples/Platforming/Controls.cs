@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Carpet.Platforming
+namespace Carpet.Examples.Platforming
 {
     public static class Controls
     {
