@@ -7,12 +7,16 @@
 ### Graphics
 
 1. **OpenGL as backend.**
-2. **GPU and CPU Ray Casting.** Individual lights have configurable width, angle, 
+2. **Ray Marched lighting** with an option to use displacement textures, which set a particular
+starting rotation to the rays emitted.
+
+https://github.com/YoshiEnthusiast/Carpet/assets/95687516/1abb8c70-4832-4f82-955b-3f338da2672b
+
+3. **GPU and CPU Ray Casting.** Individual lights have configurable width, angle, 
 angular and shadow falloff and volume. There is also bloom — light that is not affected
 by any occluders. Occluders can have any shape.
 
-3. **Ray Marched lighting** with an option to use displacement textures, which set a particular
-starting rotation to the rays emitted.
+https://github.com/YoshiEnthusiast/Carpet/assets/95687516/459b9eb2-6c01-4ba5-b7c1-027e31c0ca17
 
 4. **Sprite batching.**
 5. **Sprite atlas generation.**
@@ -22,6 +26,8 @@ The output `.fnt` file is converted to `.xml` using [this script](https://gist.g
 
 ### Pixel perfect pyhsics
 
+https://github.com/YoshiEnthusiast/Carpet/assets/95687516/aba28109-351e-4997-be4f-92888ae48dd7
+
 ### Audio
 
 **Audio using OpenAL** that offers both short sound playback and music streaming.
@@ -30,6 +36,9 @@ The output `.fnt` file is converted to `.xml` using [this script](https://gist.g
 
 1. **Particle system.**
 2. **Debug console.**
+
+https://github.com/YoshiEnthusiast/Carpet/assets/95687516/1baa6b66-fbb7-4ce6-b6b8-3a95bcf989d0
+
 3. **Coroutines.**
 4. **Pseudo-ECS.**
 
