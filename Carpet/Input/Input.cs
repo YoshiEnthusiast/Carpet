@@ -114,14 +114,13 @@ namespace Carpet
 
                 if (mapping is null)
                 {
-                    DebugConsole.Log($"Could not find mapping for \"{name}\". Applying default mapping...",
-                        LogType.Info);
+                    Console.WriteLine($"Could not find mapping for \"{name}\". Applying default mapping...");
 
                     s_currentMapping = Content.GetControllerMapping("default");
                 }
                 else
                 {
-                    DebugConsole.Log($"Found mapping for \"{name}\"", LogType.Info);
+                    Console.WriteLine($"Found mapping for \"{name}\"");
 
                     s_currentMapping = mapping;
                 }
@@ -129,13 +128,6 @@ namespace Carpet
 
             if (s_pressedKeys.Any() || s_activeController is null)
                 DeviceType = InputDeviceType.Keyboard;
-
-            if (s_activeController is not null)
-            {
-                for (int i = 0; i < s_activeController.ButtonCount; i++)
-                    if (s_activeController.IsButtonPressed(i))
-                        Console.WriteLine(i);
-            }
         }
 
         public static void Clear()
@@ -248,7 +240,8 @@ namespace Carpet
 
         public static bool IsControllerPressed(int buttonIndex)
         {
-            if (s_activeController is null)
+            if (s_activeController is null ||
+                    buttonIndex >= s_activeController.ButtonCount)
                 return false;
 
             return s_activeController.IsButtonPressed(buttonIndex);
@@ -256,7 +249,8 @@ namespace Carpet
 
         public static bool IsControllerDown(int buttonIndex)
         {
-            if (s_activeController is null)
+            if (s_activeController is null ||
+                    buttonIndex >= s_activeController.ButtonCount)
                 return false;
 
             return s_activeController.IsButtonDown(buttonIndex);
@@ -264,7 +258,8 @@ namespace Carpet
 
         public static bool IsControllerReleased(int buttonIndex)
         {
-            if (s_activeController is null)
+            if (s_activeController is null ||
+                    buttonIndex >= s_activeController.ButtonCount)
                 return false;
 
             return s_activeController.IsButtonReleased(buttonIndex);
@@ -272,7 +267,8 @@ namespace Carpet
 
         public static float GetControllerAxis(int axisIndex)
         {
-            if (s_activeController is null)
+            if (s_activeController is null ||
+                    axisIndex >= s_activeController.AxisCount)
                 return 0f;
 
             return s_activeController.GetAxis(axisIndex);
@@ -280,7 +276,8 @@ namespace Carpet
 
         public static DpadState GetDpadState(int dpadIndex)
         {
-            if (s_activeController is null)
+            if (s_activeController is null ||
+                    dpadIndex >= s_activeController.HatCount)
                 return default;
 
             return (DpadState)s_activeController.GetHat(dpadIndex);
@@ -369,13 +366,8 @@ namespace Carpet
         private static void OnJoystickConnected(JoystickEventArgs args)
         {
             foreach (JoystickState controller in Controllers)
-            {
                 if (args.JoystickId == controller.Id)
-                {
-                    DebugConsole.Log($"Controller \"{controller.Name}\" connected", LogType.Info);
-
-                }
-            }
+                    Console.WriteLine($"Controller \"{controller.Name}\" connected");
         }
 
         private static void OnMouseWheel(MouseWheelEventArgs args)
@@ -402,4 +394,4 @@ namespace Carpet
             position++;
         }
     }
-}
+}   
